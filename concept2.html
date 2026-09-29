@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Alle Bakkers &mdash; De Gouden Bol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C8860A;--cream:#FAF5EA;--linen:#F0E8D5;--dark:#1C0F03;--muted:#7A6A58;--border:rgba(28,15,3,.1);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Manrope',sans-serif;background:var(--cream);color:var(--dark);overflow-x:hidden;cursor:none;}
+.c-dot{width:8px;height:8px;background:var(--gold);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:99999;transform:translate(-4px,-4px);}
+.c-ring{width:36px;height:36px;border:1.5px solid var(--gold);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:99998;transform:translate(-18px,-18px);opacity:.5;}
+#sBar{position:fixed;top:0;left:0;height:3px;width:100%;background:var(--gold);transform-origin:left;transform:scaleX(0);z-index:9000;}
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:24px 48px;display:flex;align-items:center;justify-content:space-between;transition:all .4s;}
+.nav.scrolled{background:rgba(250,245,234,.96);backdrop-filter:blur(16px);padding:16px 48px;border-bottom:1px solid var(--border);}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.nav-name{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--dark);line-height:1.1;}
+.nav-tag{font-size:.55rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
+.nav-links{display:flex;gap:32px;list-style:none;}
+.nav-links a{text-decoration:none;font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--dark);transition:color .2s;}
+.nav-links a:hover,.nav-links a.nav-active{color:var(--gold);}
+.nav-cta{background:var(--gold);color:var(--cream);padding:10px 24px;border-radius:99px;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:all .25s;}
+.nav-cta:hover{background:var(--dark);transform:scale(1.04);}
+.sec{padding:80px 0;}
+.sec-inner{max-width:1360px;margin:0 auto;padding:0 48px;}
+.eyebrow{font-size:.65rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:block;}
+.h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.4rem,5vw,4.8rem);font-weight:300;color:var(--dark);line-height:1.1;margin-bottom:16px;}
+.h1 em{font-style:italic;color:var(--gold);font-weight:600;}
+.h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3.5vw,3rem);font-weight:600;color:var(--dark);line-height:1.2;margin-bottom:16px;}
+.h2 em{font-style:italic;color:var(--gold);}
+.body-text{color:var(--muted);font-size:.97rem;line-height:1.82;}
+.btn-pill{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--cream);padding:13px 28px;border-radius:99px;font-size:.82rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;cursor:none;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s;}
+.btn-pill:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 12px 32px rgba(200,134,10,.3);}
+.btn-pill::before{content:'';position:absolute;inset:0;background:var(--dark);border-radius:99px;transform:translateX(-101%);transition:transform .35s cubic-bezier(.16,1,.3,1);}
+.btn-pill:hover::before{transform:translateX(0);}
+.btn-pill span{position:relative;z-index:1;}
+.btn-pill-out{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--dark);color:var(--dark);padding:12px 26px;border-radius:99px;font-size:.82rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;cursor:none;transition:all .25s;}
+.btn-pill-out:hover{background:var(--dark);color:var(--cream);transform:translateY(-3px);}
+footer{background:var(--dark);padding:60px 0 32px;}
+.footer-grid{max-width:1360px;margin:0 auto;padding:0 48px 48px;border-bottom:1px solid rgba(250,245,234,.07);display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:32px;}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.footer-links a{text-decoration:none;font-size:.85rem;color:rgba(250,245,234,.5);transition:color .2s;}
+.footer-links a:hover{color:var(--gold);}
+.footer-col-title{font-size:.62rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(250,245,234,.25);margin-bottom:16px;}
+.footer-bottom{max-width:1360px;margin:0 auto;padding:0 48px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:.75rem;color:rgba(250,245,234,.3);}
+.rev{opacity:0;transform:translateY(28px);}
+.rev-l{opacity:0;transform:translateX(-36px);}
+@media(max-width:768px){
+  .nav{padding:16px 24px;}.nav-links,.nav-cta{display:none;}
+  .sec-inner{padding:0 24px;}
+  .footer-grid{grid-template-columns:1fr;}
+}
+
+.page-hero{padding:140px 48px 72px;background:var(--cream);position:relative;overflow:hidden;}
+.hero-vol{position:absolute;font-family:'Cormorant Garamond',serif;font-size:clamp(8rem,16vw,14rem);font-weight:700;color:rgba(200,134,10,.05);top:50%;right:-40px;transform:translateY(-50%);white-space:nowrap;pointer-events:none;user-select:none;}
+.page-hero-inner{max-width:1360px;margin:0 auto;}
+.filter-bar{background:var(--linen);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:20px 0;position:sticky;top:72px;z-index:800;}
+.filter-bar-inner{max-width:1360px;margin:0 auto;padding:0 48px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.filter-label{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:4px;}
+.filter-pill{padding:7px 16px;border:1.5px solid var(--border);background:white;color:var(--muted);font-size:.75rem;font-weight:600;border-radius:99px;cursor:pointer;font-family:'Manrope',sans-serif;transition:all .2s;}
+.filter-pill:hover{border-color:var(--gold);color:var(--gold);}
+.filter-pill.active{background:var(--gold);border-color:var(--gold);color:var(--cream);}
+.search-wrap{margin-left:auto;position:relative;}
+.search-input{padding:8px 16px 8px 36px;border:1.5px solid var(--border);border-radius:99px;font-family:'Manrope',sans-serif;font-size:.82rem;color:var(--dark);background:white;outline:none;width:220px;transition:border-color .2s;}
+.search-input:focus{border-color:var(--gold);}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.85rem;pointer-events:none;}
+.bk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.bk-card{background:white;border-radius:24px;overflow:hidden;text-decoration:none;color:inherit;display:block;border:1px solid var(--border);transition:transform .3s cubic-bezier(.16,1,.3,1),box-shadow .3s;}
+.bk-card:hover{transform:translateY(-8px) scale(1.01);box-shadow:0 24px 56px rgba(200,134,10,.13);}
+.bk-img-wrap{position:relative;height:220px;overflow:hidden;}
+.bk-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s;}
+.bk-card:hover .bk-img{transform:scale(1.05);}
+.bk-img-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(28,15,3,.6) 0%,transparent 55%);}
+.bk-score-badge{position:absolute;top:14px;right:14px;padding:4px 12px;border-radius:99px;font-size:.75rem;font-weight:800;}
+.bk-type-badge{position:absolute;bottom:14px;left:14px;background:rgba(250,245,234,.15);backdrop-filter:blur(8px);color:rgba(250,245,234,.9);padding:4px 12px;border-radius:99px;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(250,245,234,.2);}
+.bk-body{padding:22px 24px 20px;}
+.bk-prov{font-size:.62rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+.bk-name{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:600;color:var(--dark);margin-bottom:3px;}
+.bk-city{font-size:.78rem;color:var(--muted);margin-bottom:10px;}
+.bk-tagline{font-size:.85rem;line-height:1.6;color:var(--muted);margin-bottom:16px;border-top:1px solid var(--border);padding-top:12px;}
+.bk-footer{display:flex;align-items:center;justify-content:space-between;}
+.bk-jaren{font-size:.72rem;font-weight:700;color:var(--muted);background:var(--linen);padding:4px 10px;border-radius:99px;}
+.bk-cta{font-size:.78rem;font-weight:700;color:var(--gold);letter-spacing:.04em;}
+.results-bar{font-size:.85rem;color:var(--muted);margin-bottom:28px;}
+.results-bar strong{color:var(--dark);font-weight:700;}
+@media(max-width:1024px){.bk-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:640px){.bk-grid{grid-template-columns:1fr;}.filter-bar-inner{gap:8px;}.search-wrap{width:100%;margin-left:0;}.search-input{width:100%;}}
+</style>
+</head>
+<body>
+<div class="c-dot" id="cDot"></div><div class="c-ring" id="cRing"></div><div id="sBar"></div>
+
+<nav class="nav" id="mainNav">
+  <a href="concept1A_register_soft.html" class="nav-logo"><svg viewBox="0 0 48 48" width="44" height="44" fill="none"><circle cx="24" cy="24" r="23" fill="#C8860A"/><circle cx="24" cy="24" r="16" fill="#FAF5EA"/><polygon points="24,11 26.5,19 35,19 28.5,23.5 31,32 24,27.5 17,32 19.5,23.5 13,19 21.5,19" fill="#C8860A"/></svg>
+    <div><div class="nav-name">De Gouden Bol</div><div class="nav-tag">Oliebollenkeuring</div></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="concept1A_register_soft.html#ranglijst">Ranglijst</a></li>
+    <li><a href="bakkers.html" class="nav-active">Alle bakkers</a></li>
+    <li><a href="concept1A_register_soft.html#hoe-werkt">Hoe werkt het</a></li>
+    <li><a href="concept1A_register_soft.html#jury">Jury</a></li>
+  </ul>
+  <a href="concept1A_register_soft.html#aanmelden" class="nav-cta">Aanmelden als bakker</a>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="hero-vol">BAKKERS</div>
+  <div class="page-hero-inner">
+    <span class="eyebrow">Register 2024</span>
+    <h1 class="h1">Alle gekeurde <em>bakkers</em><br>van Nederland</h1>
+    <p class="body-text" style="max-width:520px;margin-bottom:32px">Ontdek de 12 gekeurd oliebollenbakkers in ons register. Klik op een bakker voor het volledige profiel, locatie en openingstijden.</p>
+    <div style="display:flex;gap:28px;flex-wrap:wrap">
+      <div><div style="font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;color:var(--dark);line-height:1">247<span style="color:var(--gold)">+</span></div><div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:4px">Gekeurde kramen</div></div>
+      <div style="width:1px;background:var(--border)"></div>
+      <div><div style="font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;color:var(--dark);line-height:1">12</div><div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:4px">Provincies</div></div>
+      <div style="width:1px;background:var(--border)"></div>
+      <div><div style="font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;color:var(--dark);line-height:1">3</div><div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:4px">Gouden Bol winnaars</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar" id="filterBar">
+  <div class="filter-bar-inner">
+    <span class="filter-label">Filter:</span>
+    <button class="filter-pill active" onclick="setFilter('alle',this)">Alle provincies</button>
+    <button class="filter-pill" onclick="setFilter('Noord-Holland',this)">Noord-Holland</button>
+    <button class="filter-pill" onclick="setFilter('Zuid-Holland',this)">Zuid-Holland</button>
+    <button class="filter-pill" onclick="setFilter('Utrecht',this)">Utrecht</button>
+    <button class="filter-pill" onclick="setFilter('Noord-Brabant',this)">Noord-Brabant</button>
+    <button class="filter-pill" onclick="setFilter('Gelderland',this)">Gelderland</button>
+    <button class="filter-pill" onclick="setFilter('Groningen',this)">Groningen</button>
+    <div class="search-wrap">
+      <span class="search-icon">&#9740;</span>
+      <input type="search" class="search-input" placeholder="Zoek op naam of stad..." oninput="doSearch(this.value)" id="searchInput">
+    </div>
+  </div>
+</div>
+
+<!-- BAKKERS GRID -->
+<section class="sec">
+  <div class="sec-inner">
+    <div class="results-bar" id="resultsBar"><strong id="resultCount">12</strong> bakkers gevonden</div>
+    <div class="bk-grid stagger-grid" id="bkGrid">
+      <a href="bakker-profiel.html?bakker=van-den-berg" class="bk-card">
+  <div class="bk-img-wrap">
+    <img src="https://images.unsplash.com/photo-1579721333007-f73d08d8d669?w=600&q=80&fit=crop" alt="Bakkerij Van den Berg" class="bk-img">
+    <div class="bk-img-ov"></div>
+    <div class="bk-score-badge" style="background:#C8860A;color:#FAF5EA">&#9733; 9.4</div>
+    <div class="bk-type-badge">Bakkerij</div>
+  </div>
+  <div class="bk-body">
+    <div class="bk-prov">Noord-Holland</div>
+    <div class="bk-name">Bakkerij Van den Berg</div>
+    <div class="bk-city">&#9679; Amsterdam</div>
+    <p class="bk-tagline">Familiebedrijf sinds 1948 &mdash; drie generaties bakkersvak</p>
+    <div class="bk-footer">
+      <span class="bk-jaren">76 jaar</span>
+      <span class="bk-cta">Bekijk profiel &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="bakker-profiel.html?bakker=gouden-pan" class="bk-card">
+  <div class="bk-img-wrap">
+    <img src="https://images.unsplash.com/photo-1619685347575-4ebafd71e7a8?w=600&q=80&fit=crop" alt="Frituur De Gouden Pan" class="bk-img">
+    <div class="bk-img-ov"></div>
+    <div class="bk-score-badge" style="background:#C8860A;color:#FAF5EA">&#9733; 9.2</div>
+    <div class="bk-type-badge">Frituurkraam</div>
+  </div>
+  <div class="bk-body">
+    <div class="bk-prov">Zuid-Holland</div>
+    <div class="bk-name">Frituur De Gouden Pan</div>
+    <div class="bk-city">&#9679; Rotterdam</div>
+    <p class="bk-tagline">De vaste naam op de Coolsingel elk seizoen opnieuw</p>
+    <div class="bk-footer">
+      <span class="bk-jaren">23 jaar</span>
+      <span class="bk-cta">Bekijk profiel &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="bakker-profiel.html?bakker=hartman" class="bk-card">
+  <div class="bk-img-wrap">
+    <img src="https://images.unsplash.com/photo-1607690670342-ef9efe87f798?w=600&q=80&fit=crop" alt="Oliebollenkraam Hartman" class="bk-img">
+    <div class="bk-img-ov"></div>
+    <div class="bk-score-badge" style="background:#C8860A;color:#FAF5EA">&#9733; 9.1</div>
+    <div class="bk-type-badge">Seizoenskraam</div>
+  </div>
+  <div class="bk-body">
+    <div class="bk-prov">Utrecht</div>
+    <div class="bk-name">Oliebollenkraam Hartman</div>
+    <div class="bk-city">&#9679; Utrecht</div>
+    <p class="bk-tagline">Ambachtelijke bereiding met eigen geheim deegrecept</p>
+    <div class="bk-footer">
+      <span class="bk-jaren">31 jaar</span>
+      <span class="bk-cta">Bekijk profiel &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="bakker-profiel.html?bakker=hoekje" class="bk-card">
+  <div class="bk-img-wrap">
+    <img src="https://images.unsplash.com/photo-1607690670342-ef9efe87f798?w=600&q=80&fit=crop" alt="Snackbar 't Hoekje" class="bk-img">
+    <div class="bk-img-ov"></div>
+    <div class="bk-score-badge" style="background:rgba(200,134,10,.15);color:#C8860A">&#9733; 8.9</div>
+    <div class="bk-type-badge">Snackbar</div>
+  </div>
+  <div class="bk-body">
+    <div class="bk-prov">Noord-Brabant</div>
+    <div class="bk-name">Snackbar 't Hoekje</div>
+    <div class="bk-city">&#9679; Eindhoven</div>
+    <p class="bk-tagline">Al 45 jaar het vaste adres voor Eindhovens beste oliebollen</p>
+    <div class="bk-footer">
+      <span class="bk-jaren">45 jaar</span>
+      <span class="bk-cta">Bekijk profiel &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="bakker-profiel.html?bakker=kooistra" class="bk-card">
+  <div class="bk-img-wrap">
+    <img src="https://images.unsplash.com/photo-1570578201128-b04806c957f8?w=600&q=80&fit=crop" alt="Bakkerij Kooistra" class="bk-img">
+    <div class="bk-img-ov"></div>
+    <div class="bk-score-badge" style="background:rgba(200,134,10,.15);color:#C8860A">&#9733; 8.8</div>
+    <div class="bk-type-badge">Bakkerij</div>
+  </div>
+  <div class="bk-body">
+    <div class="bk-prov">Groningen</div>
+    <div class="bk-name">Bakkerij Kooistra</div>
+    <div class="bk-city">&#9679; Groningen</div>
+    <p class="bk-tagline">Noord-Nederlandse traditie in elke bol gebakken</p>
+    <div class="bk-footer">
+      <span class="bk-jaren">19 jaar</span>
+      <span class="bk-cta">Bekijk profiel &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="bakker-profiel.html?bakker=pietersen" class="bk-card">
+  <div class="bk-img-wrap">
+    <img src="https://images.unsplash.com/photo-1731265189107-8ee626125c19?w=600&q=80&fit=crop" alt="Oliebollen Pietersen" class="bk-img">
+    <div class="bk-img-ov"></div>
+    <div class="bk-score-badge" style="background:rgba(200,134,10,.15);color:#C8860A">&#9733; 8.7</div>
+    <div class="bk-type-badge">Marktbakker</div>
+  </div>
+  <div class="bk-body">
+    <div class="bk-prov">Zuid-Holland</div>
+    <div class="bk-name">Oliebollen Pietersen</div>
+    <div class="bk-city">&#9679; Den Haag</div>
+    <p class="bk-tagline">Haagse hoflevancier met een trouwe schare stamgasten</p>
+    <div class="bk-footer">
+      <span class="bk-jaren">38 jaar</span>
+      <span class="bk-cta">Bekijk profiel &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="bakker-profiel.html?bakker=gulden-ketel" class="bk-card">
+  <div class="bk-img-wrap">
+    <img src="https://images.unsplash.com/photo-1570578201128-b04806c957f8?w=600&q=80&fit=crop" alt="Frituur De Gulden Ketel" class="bk-img">
+    <div class="bk-img-ov"></div>
+    <div class="bk-score-badge" style="background:rgba(200,134,10,.15);color:#C8860A">&#9733; 8.6</div>
+    <div class="bk-type-badge">Frituurkraam</div>
+  </div>
+  <div class="bk-body">
+    <div class="bk-prov">Noord-Brabant</div>
+    <div class="bk-name">Frituur De Gulden Ketel</div>
+    <div class="bk-city">&#9679; Tilburg</div>
+    <p class="bk-tagline">Vier seizoenen per jaar, vier families achter de toonbank</p>
+    <div class="bk-footer">
+      <span class="bk-jaren">12 jaar</span>
+      <span class="bk-cta">Bekijk profiel &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="bakker-profiel.html?bakker=de-boer" class="bk-card">
+  <div class="bk-img-wrap">
+    <img src="https://images.unsplash.com/photo-1649035571605-8bbf3ef435f9?w=600&q=80&fit=crop" alt="Oliebollenkraam De Boer" class="bk-img">
+    <div class="bk-img-ov"></div>
+    <div class="bk-score-badge" style="background:rgba(200,134,10,.15);color:#C8860A">&#9733; 8.5</div>
+    <div class="bk-type-badge">Seizoenskraam</div>
+  </div>
+  <div class="bk-body">
+    <div class="bk-prov">Noord-Holland</div>
+    <div class="bk-name">Oliebollenkraam De Boer</div>
+    <div class="bk-city">&#9679; Amsterdam</div>
+    <p class="bk-tagline">Oud-Amsterdamse recepten, nieuw enthousiasme</p>
+    <div class="bk-footer">
+      <span class="bk-jaren">8 jaar</span>
+      <span class="bk-cta">Bekijk profiel &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="bakker-profiel.html?bakker=van-dam" class="bk-card">
+  <div class="bk-img-wrap">
+    <img src="https://images.unsplash.com/photo-1649035571658-3bda1a4b2a5c?w=600&q=80&fit=crop" alt="Bakkerij Van Dam" class="bk-img">
+    <div class="bk-img-ov"></div>
+    <div class="bk-score-badge" style="background:rgba(200,134,10,.15);color:#C8860A">&#9733; 8.4</div>
+    <div class="bk-type-badge">Bakkerij</div>
+  </div>
+  <div class="bk-body">
+    <div class="bk-prov">Noord-Holland</div>
+    <div class="bk-name">Bakkerij Van Dam</div>
+    <div class="bk-city">&#9679; Haarlem</div>
+    <p class="bk-tagline">Haarlem's oudste oliebollenbakker actief</p>
+    <div class="bk-footer">
+      <span class="bk-jaren">62 jaar</span>
+      <span class="bk-cta">Bekijk profiel &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="bakker-profiel.html?bakker=smits" class="bk-card">
+  <div class="bk-img-wrap">
+    <img src="https://images.unsplash.com/photo-1568148847348-1c03e5cc84d9?w=600&q=80&fit=crop" alt="Kraam Smits" class="bk-img">
+    <div class="bk-img-ov"></div>
+    <div class="bk-score-badge" style="background:rgba(200,134,10,.15);color:#C8860A">&#9733; 8.3</div>
+    <div class="bk-type-badge">Marktbakker</div>
+  </div>
+  <div class="bk-body">
+    <div class="bk-prov">Gelderland</div>
+    <div class="bk-name">Kraam Smits</div>
+    <div class="bk-city">&#9679; Nijmegen</div>
+    <p class="bk-tagline">Gelders trots bij de Waalkade elk jaar</p>
+    <div class="bk-footer">
+      <span class="bk-jaren">17 jaar</span>
+      <span class="bk-cta">Bekijk profiel &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="bakker-profiel.html?bakker=de-leeuw" class="bk-card">
+  <div class="bk-img-wrap">
+    <img src="https://images.unsplash.com/photo-1709384357781-ec0af82bcd43?w=600&q=80&fit=crop" alt="Frituur De Leeuw" class="bk-img">
+    <div class="bk-img-ov"></div>
+    <div class="bk-score-badge" style="background:rgba(200,134,10,.15);color:#C8860A">&#9733; 8.2</div>
+    <div class="bk-type-badge">Frituurkraam</div>
+  </div>
+  <div class="bk-body">
+    <div class="bk-prov">Limburg</div>
+    <div class="bk-name">Frituur De Leeuw</div>
+    <div class="bk-city">&#9679; Maastricht</div>
+    <p class="bk-tagline">Limburgse verwennerij met oliebollen als ster</p>
+    <div class="bk-footer">
+      <span class="bk-jaren">29 jaar</span>
+      <span class="bk-cta">Bekijk profiel &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="bakker-profiel.html?bakker=bakker-jansen" class="bk-card">
+  <div class="bk-img-wrap">
+    <img src="https://images.unsplash.com/photo-1607690670342-ef9efe87f798?w=600&q=80&fit=crop" alt="Bakker Jansen" class="bk-img">
+    <div class="bk-img-ov"></div>
+    <div class="bk-score-badge" style="background:rgba(200,134,10,.15);color:#C8860A">&#9733; 8.1</div>
+    <div class="bk-type-badge">Bakkerij</div>
+  </div>
+  <div class="bk-body">
+    <div class="bk-prov">Overijssel</div>
+    <div class="bk-name">Bakker Jansen</div>
+    <div class="bk-city">&#9679; Zwolle</div>
+    <p class="bk-tagline">Vier generaties brood en gebak; oliebollen als hoogtepunt</p>
+    <div class="bk-footer">
+      <span class="bk-jaren">55 jaar</span>
+      <span class="bk-cta">Bekijk profiel &#8594;</span>
+    </div>
+  </div>
+</a>
+    </div>
+    <div id="noResults" style="display:none;text-align:center;padding:80px 0">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:var(--muted)">Geen bakkers gevonden</div>
+      <p style="color:var(--muted);margin-top:8px">Probeer een andere zoekterm of filter</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA AANMELDEN -->
+<div style="background:var(--dark);padding:80px 0;position:relative;overflow:hidden">
+  <div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(200,134,10,.08) 1px,transparent 1px);background-size:32px 32px"></div>
+  <div class="sec-inner" style="position:relative;z-index:1;text-align:center">
+    <span class="eyebrow" style="color:var(--gold)">Nog niet op de lijst?</span>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3.4rem);font-weight:600;color:var(--cream);line-height:1.2;max-width:640px;margin:0 auto 16px">Meld uw kraam aan voor<br><em style="color:var(--gold)">editie 2025</em></h2>
+    <p style="color:rgba(250,245,234,.55);font-size:.97rem;max-width:460px;margin:0 auto 36px;line-height:1.75">Gratis deelname, persoonlijk keuringsrapport en publicatie in ons register.</p>
+    <a href="concept1A_register_soft.html#aanmelden" class="btn-pill"><span>Nu aanmelden voor 2025</span></a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><svg viewBox="0 0 48 48" width="44" height="44" fill="none"><circle cx="24" cy="24" r="23" fill="#C8860A"/><circle cx="24" cy="24" r="16" fill="#1C0F03"/><polygon points="24,11 26.5,19 35,19 28.5,23.5 31,32 24,27.5 17,32 19.5,23.5 13,19 21.5,21" fill="#C8860A"/></svg>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;color:#FAF5EA">De Gouden Bol</div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.7;max-width:260px;color:rgba(250,245,234,.5)">De officiele, onafhankelijke oliebollenkeuring van Nederland. Opgericht in 2016.</p>
+    </div>
+    <div><div class="footer-col-title">Ranglijst</div><ul class="footer-links"><li><a href="#">Ranglijst 2024</a></li><li><a href="bakkers.html">Alle bakkers</a></li><li><a href="#">Per provincie</a></li></ul></div>
+    <div><div class="footer-col-title">Deelnemers</div><ul class="footer-links"><li><a href="#">Aanmelden 2025</a></li><li><a href="#">Keuringscriteria</a></li><li><a href="#">Keurmerk</a></li></ul></div>
+    <div><div class="footer-col-title">Contact</div><ul class="footer-links"><li><a href="#">info@degoudenbol.nl</a></li><li><a href="#">Pers &amp; media</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <div>&copy; 2025 De Gouden Bol &middot; Oliebollenkeuring Nederland</div>
+    <div>Made with care by <a href="https://eazyonline.nl" style="color:#C8860A;text-decoration:none;font-weight:700">Eazyonline</a></div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(function(){
+  var dot=document.getElementById('cDot'),ring=document.getElementById('cRing'),mx=0,my=0,rx=0,ry=0;
+  if(dot&&ring){
+    document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;dot.style.transform='translate('+(mx-4)+'px,'+(my-4)+'px)';});
+    (function lr(){rx+=(mx-rx)*.11;ry+=(my-ry)*.11;ring.style.transform='translate('+(rx-18)+'px,'+(ry-18)+'px)';requestAnimationFrame(lr);})();
+  }
+  window.addEventListener('scroll',function(){
+    var s=window.scrollY/(document.documentElement.scrollHeight-innerHeight);
+    var sb=document.getElementById('sBar');if(sb)sb.style.transform='scaleX('+s+')';
+    var nav=document.getElementById('mainNav');if(nav)nav.classList.toggle('scrolled',window.scrollY>60);
+  },{passive:true});
+  if(typeof gsap!=='undefined'){
+    gsap.registerPlugin(ScrollTrigger);
+    gsap.utils.toArray('.rev').forEach(function(el){gsap.fromTo(el,{opacity:0,y:28},{opacity:1,y:0,duration:.72,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 89%',toggleActions:'play none none none'}});});
+    gsap.utils.toArray('.rev-l').forEach(function(el){gsap.fromTo(el,{opacity:0,x:-36},{opacity:1,x:0,duration:.8,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 87%',toggleActions:'play none none none'}});});
+    gsap.utils.toArray('.stagger-grid').forEach(function(grid){gsap.utils.toArray(grid.children).forEach(function(el,i){gsap.fromTo(el,{opacity:0,y:32},{opacity:1,y:0,duration:.6,delay:i*.07,ease:'power3.out',scrollTrigger:{trigger:grid,start:'top 82%',toggleActions:'play none none none'}});});});
+  }
+})();
+</script>
+
+<script>
+var activeFilter = 'alle';
+var activeSearch = '';
+
+function setFilter(prov, btn) {
+  activeFilter = prov;
+  document.querySelectorAll('.filter-pill').forEach(function(p){p.classList.remove('active');});
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function doSearch(val) {
+  activeSearch = val.toLowerCase().trim();
+  applyFilters();
+}
+
+function applyFilters() {
+  var cards = document.querySelectorAll('.bk-card');
+  var visible = 0;
+  cards.forEach(function(card) {
+    var prov = card.querySelector('.bk-prov').textContent;
+    var name = card.querySelector('.bk-name').textContent.toLowerCase();
+    var city = card.querySelector('.bk-city').textContent.toLowerCase();
+    var matchProv = activeFilter === 'alle' || prov === activeFilter;
+    var matchSearch = !activeSearch || name.includes(activeSearch) || city.includes(activeSearch);
+    if(matchProv && matchSearch) {
+      card.style.display = '';
+      visible++;
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  document.getElementById('resultCount').textContent = visible;
+  document.getElementById('noResults').style.display = visible === 0 ? '' : 'none';
+}
+</script>
+</body>
+</html>

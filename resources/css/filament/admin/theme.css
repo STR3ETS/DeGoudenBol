@@ -1,0 +1,2053 @@
+/*
+ * Backoffice-thema van De Gouden Bol op de tokens uit resources/design/tokens.json.
+ * Naar het voorbeeld van het VastgoedFotoVideo-redesign (docs/02 §7), in onze eigen huisstijl:
+ * espresso sidebar met een stapel oliebollen als decoratie, goud als enig accent, pastel
+ * kerncijfertegels met watermerk-icoon, witte kaarten van 24 px, pillen en ronde icoonvakken.
+ */
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+@import '../../fonts.css';
+@import '../../tokens.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+@source '../../../../resources/views/vendor/filament-panels/**/*';
+
+/* ------------------------------------------------------------------
+   Basis
+   ------------------------------------------------------------------ */
+:root {
+    --font-family: Manrope, Arial, sans-serif;
+    --serif-font-family: 'Cormorant Garamond', Georgia, serif;
+    --dgb-schaduw-kaart: 0 1px 2px rgba(28, 15, 3, 0.03), 0 10px 30px rgba(28, 15, 3, 0.06);
+    --dgb-schaduw-zweef: 0 2px 4px rgba(28, 15, 3, 0.04), 0 18px 44px rgba(28, 15, 3, 0.1);
+    --dgb-sidebar-donker: #1c0f03;
+    --dgb-goud-verloop: linear-gradient(135deg, #c8860a 0%, #e2a12e 100%);
+    --dgb-tint-goud: color-mix(in srgb, var(--color-goud) 13%, white);
+    --dgb-tint-goud-diep: color-mix(in srgb, var(--color-goud) 26%, white);
+    --dgb-tint-info: color-mix(in srgb, var(--color-status-info) 11%, white);
+    --dgb-tint-succes: color-mix(in srgb, var(--color-status-succes) 11%, white);
+    --dgb-tint-fout: color-mix(in srgb, var(--color-status-fout) 9%, white);
+    --dgb-tint-espresso: color-mix(in srgb, var(--color-gedempt) 16%, var(--color-room));
+    --dgb-tint-neutraal: var(--color-status-neutraal-bg);
+    /* Stapel oliebollen met poedersuiker, onderin de sidebar (goud op espresso, heel gedempt). */
+    --dgb-bollen: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 272 220'><g fill='%23C8860A'><circle cx='40' cy='198' r='46' opacity='.13'/><circle cx='120' cy='204' r='54' opacity='.17'/><circle cx='206' cy='198' r='48' opacity='.13'/><circle cx='266' cy='210' r='40' opacity='.09'/><circle cx='78' cy='148' r='40' opacity='.11'/><circle cx='162' cy='142' r='44' opacity='.15'/><circle cx='240' cy='152' r='36' opacity='.09'/><circle cx='118' cy='98' r='36' opacity='.09'/><circle cx='198' cy='96' r='32' opacity='.07'/><circle cx='156' cy='56' r='28' opacity='.06'/></g><g fill='%23FAF5EA' opacity='.35'><circle cx='96' cy='128' r='2'/><circle cx='150' cy='118' r='1.6'/><circle cx='178' cy='150' r='2.2'/><circle cx='60' cy='178' r='1.8'/><circle cx='132' cy='188' r='2'/><circle cx='216' cy='182' r='1.6'/><circle cx='122' cy='86' r='1.5'/><circle cx='166' cy='44' r='1.4'/><circle cx='204' cy='112' r='1.8'/><circle cx='36' cy='212' r='1.5'/><circle cx='252' cy='216' r='1.6'/><circle cx='88' cy='160' r='1.4'/><circle cx='186' cy='72' r='1.3'/><circle cx='142' cy='160' r='1.5'/></g></svg>");
+}
+
+.fi-body {
+    --topbar-height: 5.25rem;
+    font-family: var(--font-brood);
+    color: var(--color-espresso);
+    background-color: color-mix(in srgb, var(--color-zand) 48%, var(--color-room));
+    background-image:
+        radial-gradient(900px 520px at 100% -10%, rgba(200, 134, 10, 0.11), transparent 60%),
+        radial-gradient(700px 420px at -10% 110%, rgba(200, 134, 10, 0.06), transparent 60%);
+    background-attachment: fixed;
+}
+
+.font-kop,
+.fi-header-heading,
+.dgb-tegel__cijfer,
+.dgb-datum__nr {
+    font-family: var(--font-kop);
+    --tw-numeric-figure: lining-nums;
+    font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* ------------------------------------------------------------------
+   Sidebar: espresso, oliebollen onderin, gouden actieve rij
+   ------------------------------------------------------------------ */
+.fi-sidebar {
+    background-color: var(--dgb-sidebar-donker) !important;
+    background-image: var(--dgb-bollen), linear-gradient(180deg, #1c0f03 0%, #281705 60%, #37210a 100%);
+    background-repeat: no-repeat, no-repeat;
+    background-position:
+        center bottom,
+        0 0;
+    background-size:
+        100% auto,
+        100% 100%;
+    color: var(--color-room);
+}
+
+.fi-sidebar:not(.fi-sidebar-open) {
+    background-image: linear-gradient(180deg, #1c0f03 0%, #281705 60%, #37210a 100%);
+}
+
+.fi-sidebar-header {
+    background: transparent !important;
+    box-shadow: none !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+    height: var(--topbar-height);
+}
+
+.fi-sidebar-header-controls::after {
+    border-color: rgba(250, 245, 234, 0.1);
+}
+
+.fi-sidebar-nav {
+    padding: 1rem 1rem 1.25rem;
+    gap: 1.25rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(250, 245, 234, 0.14) transparent;
+}
+
+.fi-sidebar-nav-groups {
+    margin-inline: 0;
+    gap: 1.1rem;
+}
+
+.fi-sidebar-group-btn {
+    padding: 0.4rem 0.6rem 0.2rem;
+}
+
+.fi-sidebar-group-label {
+    color: rgba(250, 245, 234, 0.34);
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.fi-sidebar-group-btn > .fi-icon,
+.fi-sidebar-group-collapse-btn,
+.fi-sidebar-group-collapse-btn .fi-icon {
+    color: rgba(250, 245, 234, 0.38);
+}
+
+.fi-sidebar-group-collapse-btn .fi-icon {
+    width: 0.95rem;
+    height: 0.95rem;
+}
+
+.fi-sidebar-group-dropdown-trigger-btn:hover,
+.fi-sidebar-group-dropdown-trigger-btn:focus-visible {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.fi-sidebar-group-dropdown-trigger-btn .fi-icon {
+    color: rgba(250, 245, 234, 0.7);
+}
+
+.fi-sidebar-group-items {
+    gap: 0.2rem;
+}
+
+.fi-sidebar-item-btn {
+    min-height: 2.9rem;
+    gap: 0.8rem;
+    border-radius: 0.9rem;
+    padding: 0.35rem 0.55rem;
+    color: rgba(250, 245, 234, 0.74);
+    transition:
+        background-color 0.15s,
+        color 0.15s,
+        box-shadow 0.15s;
+}
+
+.fi-sidebar-item-btn > .fi-icon {
+    box-sizing: content-box;
+    width: 1.05rem;
+    height: 1.05rem;
+    padding: 0.5rem;
+    border-radius: 0.7rem;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(250, 245, 234, 0.82) !important;
+    transition: background-color 0.15s;
+}
+
+.fi-sidebar-item-label {
+    color: inherit !important;
+    font-size: 0.84rem;
+    font-weight: 700;
+}
+
+.fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:hover,
+.fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:focus-visible {
+    background: rgba(255, 255, 255, 0.07) !important;
+    color: var(--color-room);
+}
+
+.fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:hover > .fi-icon {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    background: var(--dgb-goud-verloop) !important;
+    color: var(--color-espresso);
+    box-shadow: 0 10px 26px rgba(200, 134, 10, 0.35);
+}
+
+/* De actieve rij blijft goud bij hover (de gewone hover-regel heeft anders voorrang). */
+.fi-sidebar-item.fi-active.fi-sidebar-item-has-url > .fi-sidebar-item-btn:hover,
+.fi-sidebar-item.fi-active.fi-sidebar-item-has-url > .fi-sidebar-item-btn:focus-visible {
+    background: linear-gradient(135deg, #d38f10 0%, #e9ac3d 100%) !important;
+    color: var(--color-espresso);
+    box-shadow: 0 12px 28px rgba(200, 134, 10, 0.42);
+}
+
+.fi-sidebar-item.fi-active.fi-sidebar-item-has-url > .fi-sidebar-item-btn:hover > .fi-icon {
+    background: rgba(28, 15, 3, 0.18);
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-icon {
+    background: rgba(28, 15, 3, 0.14);
+    color: var(--color-espresso) !important;
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-label {
+    color: var(--color-espresso) !important;
+}
+
+.fi-sidebar-item-grouped-border-part,
+.fi-sidebar-item-grouped-border-part-not-first,
+.fi-sidebar-item-grouped-border-part-not-last {
+    background: rgba(250, 245, 234, 0.25);
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-grouped-border > .fi-sidebar-item-grouped-border-part {
+    background: var(--color-espresso);
+}
+
+/* Aantallen in het menu: gouden pil; op de actieve rij espresso met gouden cijfer. */
+.fi-sidebar-item-badge-ctn .fi-badge {
+    background: var(--color-goud) !important;
+    color: var(--color-espresso) !important;
+    box-shadow: none !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+    min-width: 1.5rem;
+    justify-content: center;
+    font-size: 0.68rem;
+    font-weight: 800;
+}
+
+.fi-sidebar-item.fi-active .fi-sidebar-item-badge-ctn .fi-badge {
+    background: var(--color-espresso) !important;
+    color: var(--color-goud) !important;
+}
+
+.fi-sidebar-footer {
+    margin: 0 1rem 1rem;
+    border-color: rgba(250, 245, 234, 0.1);
+}
+
+.fi-sidebar .fi-user-menu-trigger,
+.fi-sidebar .fi-icon-btn {
+    color: rgba(250, 245, 234, 0.8);
+}
+
+.fi-sidebar .fi-user-menu-trigger:hover,
+.fi-sidebar .fi-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.fi-sidebar-close-overlay {
+    background: rgba(28, 15, 3, 0.55);
+}
+
+/* Eigen voet: Instellingen en Inklappen (resources/views/filament/sidebar/voet.blade.php) */
+.dgb-sidebar-voet {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin: 0 1rem 0.9rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(250, 245, 234, 0.1);
+}
+
+.dgb-sidebar-voet__knop {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    width: 100%;
+    min-height: 2.6rem;
+    padding: 0.3rem 0.55rem;
+    border-radius: 0.9rem;
+    color: rgba(250, 245, 234, 0.6);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-align: left;
+    text-decoration: none;
+    transition:
+        background-color 0.15s,
+        color 0.15s;
+}
+
+.dgb-sidebar-voet__knop:hover,
+.dgb-sidebar-voet__knop:focus-visible {
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--color-room);
+}
+
+.dgb-sidebar-voet__icoon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.05rem;
+    height: 2.05rem;
+    border-radius: 0.7rem;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.dgb-sidebar-voet__icoon svg {
+    width: 1.05rem;
+    height: 1.05rem;
+}
+
+/* Op desktop klapt de knop het menu in, op mobiel sluit hij het overlay-menu. */
+.dgb-sidebar-voet__label--mobiel {
+    display: none;
+}
+
+@media (max-width: 1023px) {
+    .dgb-sidebar-voet__label--desktop {
+        display: none;
+    }
+
+    .dgb-sidebar-voet__label--mobiel {
+        display: inline;
+    }
+}
+
+.fi-sidebar:not(.fi-sidebar-open) .dgb-sidebar-voet {
+    margin-inline: 0.75rem;
+}
+
+.fi-sidebar:not(.fi-sidebar-open) .dgb-sidebar-voet__knop {
+    justify-content: center;
+    padding-inline: 0;
+}
+
+/* Merk in de sidebar (donker) en elders (licht) */
+.dgb-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.dgb-brand__inner {
+    fill: var(--color-room);
+}
+
+.dgb-brand__text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.dgb-brand__name {
+    font-family: var(--font-kop);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--color-espresso);
+}
+
+.dgb-brand__tagline {
+    font-size: 0.55rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-gedempt);
+}
+
+.fi-sidebar .dgb-brand__inner {
+    fill: var(--color-espresso);
+}
+
+.fi-sidebar .dgb-brand__name {
+    color: var(--color-room);
+}
+
+.fi-sidebar .dgb-brand__tagline {
+    color: rgba(250, 245, 234, 0.45);
+}
+
+.fi-sidebar:not(.fi-sidebar-open) .dgb-brand__text {
+    display: none;
+}
+
+/* ------------------------------------------------------------------
+   Topbar: transparant, witte pillen voor zoeken, bel en profiel
+   ------------------------------------------------------------------ */
+.fi-topbar {
+    background: transparent !important;
+    box-shadow: none !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+    min-height: var(--topbar-height);
+    padding-inline: 1.5rem;
+    gap: 0.75rem;
+}
+
+/*
+ * Volgorde: zoeken, bel, profiel. Het einde van de topbar is een persistent blok (SPA-navigatie);
+ * de bel staat erbuiten zodat het aantal bij iedere paginawissel vers is. Met display: contents
+ * worden zoekveld en profiel losse flex-items, zodat de bel ertussen kan.
+ */
+.fi-topbar-end {
+    display: contents;
+}
+
+.fi-topbar .fi-global-search-ctn {
+    order: 1;
+    margin-inline-start: auto;
+}
+
+.fi-topbar > .dgb-bel {
+    order: 2;
+}
+
+.fi-topbar .fi-user-menu {
+    order: 3;
+}
+
+/* Het merk staat in de donkere kolom, zodat de sidebar doorloopt tot bovenaan. */
+@media (min-width: 1024px) {
+    .fi-topbar {
+        padding-inline-start: calc(var(--sidebar-width) + 1.5rem);
+    }
+
+    .fi-topbar-start {
+        position: absolute;
+        inset-inline-start: 0;
+        top: 0;
+        display: flex;
+        align-items: center;
+        height: 100%;
+        width: var(--sidebar-width);
+        margin: 0;
+        padding-inline: 1.35rem;
+        background: var(--dgb-sidebar-donker);
+        /* Geen overgang: Filament klapt de sidebar zelf zonder animatie in, de donkere kolom moet meteen meeschuiven. */
+    }
+
+    /* De inklapknop zit onderin de sidebar (eigen voet); de standaardknop bovenin gaat weg. */
+    .fi-topbar-start .fi-topbar-collapse-sidebar-btn-ctn {
+        display: none;
+    }
+
+    .fi-topbar-start .fi-logo {
+        margin-inline-start: 0;
+    }
+
+    .fi-topbar-start .dgb-brand__inner {
+        fill: var(--dgb-sidebar-donker);
+    }
+
+    .fi-topbar-start .dgb-brand__name {
+        color: var(--color-room);
+    }
+
+    .fi-topbar-start .dgb-brand__tagline {
+        color: rgba(250, 245, 234, 0.45);
+    }
+
+    .fi-body:has(.fi-sidebar:not(.fi-sidebar-open)) .fi-topbar {
+        padding-inline-start: calc(var(--collapsed-sidebar-width) + 1.5rem);
+    }
+
+    .fi-body:has(.fi-sidebar:not(.fi-sidebar-open)) .fi-topbar-start {
+        width: var(--collapsed-sidebar-width);
+        padding-inline: 0;
+        justify-content: center;
+    }
+
+    .fi-body:has(.fi-sidebar:not(.fi-sidebar-open)) .fi-topbar-start .dgb-brand__text {
+        display: none;
+    }
+}
+
+@media (max-width: 1023px) {
+    .fi-topbar {
+        gap: 0.6rem;
+        padding-inline: 1rem;
+    }
+}
+
+.fi-topbar > .fi-icon-btn,
+.fi-topbar .fi-user-menu-trigger,
+.dgb-bel {
+    background: var(--color-wit);
+    border-radius: 999px;
+    box-shadow: var(--dgb-schaduw-kaart);
+    transition: box-shadow 0.15s;
+}
+
+.fi-topbar > .fi-icon-btn {
+    width: 2.9rem;
+    height: 2.9rem;
+    color: var(--color-espresso);
+}
+
+.fi-topbar > .fi-icon-btn:hover,
+.fi-topbar .fi-user-menu-trigger:hover,
+.dgb-bel:hover {
+    box-shadow: var(--dgb-schaduw-zweef);
+    background: var(--color-wit);
+}
+
+/* Profielpil: initialen, naam, rol en pijltje (resources/views/vendor/filament-panels/components/avatar/user.blade.php) */
+.fi-topbar .fi-user-menu-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-height: 2.9rem;
+    padding: 0.25rem 0.9rem 0.25rem 0.3rem;
+}
+
+.dgb-gebruiker {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.15;
+    text-align: left;
+}
+
+.dgb-gebruiker__naam {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--color-espresso);
+    white-space: nowrap;
+}
+
+.dgb-gebruiker__rol {
+    font-size: 0.64rem;
+    font-weight: 700;
+    color: var(--color-gedempt);
+    white-space: nowrap;
+}
+
+.dgb-gebruiker__chevron {
+    width: 1rem;
+    height: 1rem;
+    color: var(--color-gedempt);
+}
+
+@media (max-width: 639px) {
+    .fi-topbar .fi-user-menu-trigger {
+        padding: 0.25rem;
+    }
+
+    .dgb-gebruiker,
+    .dgb-gebruiker__chevron {
+        display: none;
+    }
+}
+
+/* Bel met openstaande acties (resources/views/filament/topbar/bel.blade.php) */
+.dgb-bel {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.9rem;
+    height: 2.9rem;
+    color: var(--color-espresso);
+}
+
+.dgb-bel__icoon {
+    width: 1.3rem;
+    height: 1.3rem;
+}
+
+.dgb-bel__badge {
+    position: absolute;
+    top: -0.2rem;
+    right: -0.15rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background: var(--color-status-fout);
+    color: var(--color-wit);
+    font-size: 0.66rem;
+    font-weight: 800;
+    box-shadow: 0 0 0 2px var(--color-wit);
+}
+
+/* Zoekpil met sneltoets */
+.fi-topbar .fi-global-search .fi-input-wrp {
+    min-width: 21rem;
+    min-height: 2.9rem;
+    padding-inline: 0.5rem;
+    border-radius: 999px;
+    background: var(--color-wit);
+    box-shadow: var(--dgb-schaduw-kaart);
+    --tw-ring-shadow: 0 0 #0000;
+    transition: box-shadow 0.15s;
+}
+
+.fi-topbar .fi-global-search .fi-input-wrp:focus-within {
+    box-shadow: var(--dgb-schaduw-zweef), 0 0 0 3px rgba(200, 134, 10, 0.25);
+}
+
+.fi-topbar .fi-global-search .fi-input {
+    height: 2.9rem;
+    padding-block: 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.fi-topbar .fi-global-search .fi-input-wrp-content-ctn {
+    display: flex;
+    align-items: center;
+}
+
+.fi-topbar .fi-global-search .fi-input-wrp-prefix .fi-icon {
+    color: var(--color-gedempt);
+}
+
+.fi-topbar .fi-global-search .fi-input-wrp-suffix {
+    margin: 0;
+    padding: 0 0.35rem 0 0;
+    border: 0;
+    background: transparent;
+}
+
+.fi-topbar .fi-global-search .fi-input-wrp-suffix .fi-input-wrp-label {
+    display: inline-flex;
+    align-items: center;
+    height: 1.5rem;
+    padding: 0 0.45rem;
+    border-radius: 0.45rem;
+    background: var(--color-zand);
+    color: var(--color-gedempt);
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 1023px) {
+    .fi-topbar .fi-global-search .fi-input-wrp {
+        min-width: 0;
+    }
+
+    .fi-topbar .fi-global-search .fi-input-wrp-suffix {
+        display: none;
+    }
+}
+
+.fi-global-search-results-ctn {
+    border-radius: 1.25rem;
+    box-shadow: var(--dgb-schaduw-zweef);
+    --tw-ring-color: rgba(28, 15, 3, 0.06);
+}
+
+.fi-global-search-result-group-header {
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-gedempt);
+    background: var(--color-room);
+}
+
+/* ------------------------------------------------------------------
+   Paginakop
+   ------------------------------------------------------------------ */
+.fi-page-header-main-ctn {
+    gap: 1.5rem;
+    padding-top: 0.75rem;
+    padding-bottom: 2rem;
+}
+
+.fi-header-heading {
+    font-size: 2.35rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    color: var(--color-espresso);
+}
+
+.fi-header-subheading {
+    max-width: none;
+    margin-top: 0.3rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-gedempt);
+}
+
+.fi-breadcrumbs {
+    margin-bottom: 0.35rem;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-gedempt);
+}
+
+.fi-breadcrumbs-item-label {
+    color: inherit;
+}
+
+/* ------------------------------------------------------------------
+   Kaarten, secties, tabellen, formulieren, modals
+   ------------------------------------------------------------------ */
+.fi-section,
+.fi-sc-section,
+.fi-ta-ctn,
+.fi-wi-stats-overview-stat,
+.fi-sc-tabs,
+.fi-modal-window,
+.fi-simple-main {
+    border-radius: 1.5rem !important;
+    background: var(--color-wit);
+    box-shadow: var(--dgb-schaduw-kaart) !important;
+    --tw-ring-color: rgba(28, 15, 3, 0.05);
+}
+
+.fi-dropdown-panel {
+    border-radius: 1rem !important;
+    box-shadow: var(--dgb-schaduw-zweef) !important;
+    --tw-ring-color: rgba(28, 15, 3, 0.06);
+}
+
+.fi-dropdown-list-item {
+    border-radius: 0.65rem;
+    font-weight: 600;
+}
+
+.fi-dropdown-header {
+    font-weight: 800;
+}
+
+.fi-section-header-heading,
+.fi-ta-header-heading,
+.fi-modal-heading {
+    font-weight: 800;
+    color: var(--color-espresso);
+}
+
+.fi-section-header-description,
+.fi-ta-header-description,
+.fi-modal-description {
+    color: var(--color-gedempt);
+}
+
+.fi-ta-header-toolbar {
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+}
+
+.fi-ta-search-field .fi-input-wrp {
+    border-radius: 999px;
+    background: var(--color-room);
+    --tw-ring-color: transparent;
+}
+
+.fi-ta-search-field .fi-input-wrp:focus-within {
+    --tw-ring-color: var(--color-goud);
+}
+
+.fi-ta-header-cell {
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-gedempt);
+}
+
+.fi-ta-header-cell-sort-btn {
+    color: inherit;
+}
+
+.fi-ta-text {
+    font-weight: 500;
+}
+
+.fi-ta-row:hover {
+    background: var(--color-room) !important;
+}
+
+.fi-ta-row.fi-selected {
+    background: var(--color-goud-licht) !important;
+}
+
+.fi-ta-filter-indicators {
+    background: var(--color-room);
+}
+
+.fi-ta-filter-indicators-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-gedempt);
+}
+
+.fi-ta-empty-state-icon-bg {
+    background: var(--color-goud-licht);
+    color: var(--color-goud-tekst);
+}
+
+.fi-ta-empty-state-heading {
+    font-weight: 800;
+    color: var(--color-espresso);
+}
+
+.fi-ta-empty-state-description {
+    color: var(--color-gedempt);
+}
+
+.fi-pagination-item-btn,
+.fi-pagination-previous-btn,
+.fi-pagination-next-btn {
+    border-radius: 999px;
+}
+
+.fi-pagination-item.fi-active .fi-pagination-item-btn {
+    background: var(--color-goud-licht);
+    color: var(--color-goud-tekst);
+}
+
+.fi-input-wrp {
+    border-radius: 0.75rem;
+    background: var(--color-wit);
+    --tw-ring-color: rgba(200, 134, 10, 0.25);
+}
+
+.fi-input-wrp:focus-within {
+    --tw-ring-color: var(--color-goud);
+}
+
+.fi-fo-field-label,
+.fi-fo-field-label-content {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-gedempt);
+}
+
+.fi-fo-field-label-required-mark {
+    color: var(--color-goud-tekst);
+}
+
+.fi-fo-field-wrp-hint,
+.fi-fo-field-wrp-helper-text,
+.fi-sc-text {
+    color: var(--color-gedempt);
+}
+
+.fi-in-entry-label {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-gedempt);
+}
+
+.fi-checkbox-input:checked,
+.fi-radio-input:checked,
+.fi-toggle input:checked {
+    background-color: var(--color-goud);
+    border-color: var(--color-goud);
+}
+
+.fi-modal-window {
+    --tw-ring-color: transparent;
+}
+
+.fi-modal-icon-bg {
+    border-radius: 999px;
+}
+
+.fi-no-notification {
+    border-radius: 1.25rem;
+    box-shadow: var(--dgb-schaduw-zweef);
+    --tw-ring-color: rgba(28, 15, 3, 0.06);
+}
+
+.fi-no-notification-title {
+    font-weight: 800;
+}
+
+/* ------------------------------------------------------------------
+   Knoppen, badges, tabs (gesegmenteerde pil)
+   ------------------------------------------------------------------ */
+.fi-btn {
+    border-radius: 999px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    padding-inline: 1.1rem;
+}
+
+.fi-btn.fi-color-primary:not(.fi-outlined) {
+    --bg: var(--color-goud);
+    --hover-bg: var(--color-espresso);
+    --text: var(--color-espresso);
+    --hover-text: var(--color-room);
+    box-shadow: 0 6px 16px rgba(200, 134, 10, 0.28);
+    transition:
+        background-color 0.2s,
+        color 0.2s,
+        box-shadow 0.2s;
+}
+
+.fi-btn.fi-color-primary:not(.fi-outlined):hover {
+    box-shadow: 0 8px 20px rgba(28, 15, 3, 0.22);
+}
+
+.fi-btn.fi-color-gray:not(.fi-outlined) {
+    background: var(--color-wit);
+    box-shadow: var(--dgb-schaduw-kaart);
+    --tw-ring-color: rgba(28, 15, 3, 0.06);
+}
+
+.fi-btn.fi-color-gray:not(.fi-outlined):hover {
+    box-shadow: var(--dgb-schaduw-zweef);
+}
+
+.fi-icon-btn {
+    border-radius: 999px;
+}
+
+.fi-badge {
+    border-radius: 999px;
+    font-weight: 800;
+}
+
+.fi-link {
+    font-weight: 800;
+}
+
+.fi-tabs {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.3rem;
+    border-radius: 999px !important;
+    background: var(--color-wit);
+    box-shadow: var(--dgb-schaduw-kaart);
+    --tw-ring-shadow: 0 0 #0000;
+}
+
+.fi-tabs-item {
+    border-radius: 999px;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-gedempt);
+    transition:
+        background-color 0.15s,
+        color 0.15s;
+}
+
+.fi-tabs-item:hover {
+    background: var(--color-room);
+    color: var(--color-espresso);
+}
+
+.fi-tabs-item.fi-active {
+    background: var(--dgb-goud-verloop) !important;
+    color: var(--color-espresso);
+    box-shadow: 0 6px 16px rgba(200, 134, 10, 0.3);
+}
+
+.fi-tabs-item.fi-active .fi-tabs-item-label,
+.fi-tabs-item.fi-active .fi-icon,
+.fi-tabs-item.fi-active .fi-badge {
+    color: var(--color-espresso) !important;
+}
+
+.fi-sc-tabs > .fi-tabs {
+    margin: 1rem 1rem 0;
+    box-shadow: none;
+    background: var(--color-room);
+}
+
+/*
+ * Lijst-tabs (getTabs) komen als schema-tabs zonder inhoud: de lege actieve tabpagina zou anders
+ * ruimte innemen. En de tabs mogen nooit breder worden dan de inhoud: als grid-item krijgt de
+ * container min-width 0, zodat lange tabrijen binnen de pil scrollen in plaats van uit te steken.
+ */
+.fi-sc-tabs > .fi-sc-tabs-tab:empty {
+    display: none;
+}
+
+.fi-sc-tabs > .fi-tabs:last-child {
+    margin-bottom: 1rem;
+}
+
+.fi-page-content > *,
+.fi-sc-tabs {
+    min-width: 0;
+    max-width: 100%;
+}
+
+/*
+ * Laden binnen een pagina (tab, filter, sorteren, zoeken, pagineren). De Livewire-component
+ * krijgt .dgb-bezig (script in filament/head/navigatie): de tabel dimt met een lichte shimmer,
+ * er verschijnt een laadpil en alles krijgt een wachtcursor. Na 100 ms, zodat snelle
+ * antwoorden niet flikkeren.
+ */
+.dgb-bezig,
+.dgb-bezig .fi-tabs-item,
+.dgb-bezig .fi-ta-header-toolbar,
+.dgb-bezig .fi-pagination {
+    cursor: progress;
+}
+
+.dgb-bezig .fi-ta-content-ctn {
+    position: relative;
+    pointer-events: none;
+}
+
+.dgb-bezig .fi-ta-table,
+.dgb-bezig .fi-ta-empty-state {
+    opacity: 0.35;
+    transition: opacity 0.2s ease 0.1s;
+}
+
+.dgb-bezig .fi-ta-content-ctn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 25%, rgba(255, 255, 255, 0.75) 50%, transparent 75%);
+    background-size: 200% 100%;
+    animation: dgb-shimmer 1.1s linear 0.1s infinite;
+    pointer-events: none;
+}
+
+.dgb-bezig .fi-ta-content-ctn::before {
+    content: 'Bezig met laden…';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: var(--color-espresso);
+    color: var(--color-room);
+    font-size: 0.74rem;
+    font-weight: 800;
+    white-space: nowrap;
+    box-shadow: var(--dgb-schaduw-zweef);
+    transform: translate(-50%, -50%);
+    animation: dgb-verschijn 0.2s ease 0.15s both;
+}
+
+.dgb-bezig .fi-tabs-item:disabled {
+    opacity: 0.7;
+}
+
+@keyframes dgb-shimmer {
+    from {
+        background-position: 200% 0;
+    }
+
+    to {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes dgb-verschijn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Rij-acties als icoonknoppen: compact, espresso, gouden achtergrond bij hover */
+.fi-ta-actions .fi-icon-btn {
+    width: 2.1rem;
+    height: 2.1rem;
+    color: var(--color-gedempt);
+    transition:
+        background-color 0.15s,
+        color 0.15s;
+}
+
+.fi-ta-actions .fi-icon-btn:hover,
+.fi-ta-actions .fi-icon-btn:focus-visible {
+    background: var(--color-goud-licht);
+    color: var(--color-goud-tekst);
+}
+
+.fi-ta-actions .fi-icon-btn.fi-color-danger {
+    color: var(--color-status-fout);
+}
+
+.fi-ta-actions .fi-icon-btn.fi-color-danger:hover,
+.fi-ta-actions .fi-icon-btn.fi-color-danger:focus-visible {
+    background: var(--color-status-fout-bg);
+}
+
+.fi-ta-actions .fi-icon-btn.fi-color-success {
+    color: var(--color-status-succes);
+}
+
+.fi-ta-actions .fi-icon-btn.fi-color-success:hover,
+.fi-ta-actions .fi-icon-btn.fi-color-success:focus-visible {
+    background: var(--color-status-succes-bg);
+}
+
+/* ------------------------------------------------------------------
+   Eigen onderdelen (dashboard, intake, scorecontrole): dgb-*
+   ------------------------------------------------------------------ */
+.dgb-card {
+    background: var(--color-wit);
+    border: 1px solid rgba(28, 15, 3, 0.05);
+    border-radius: 1.5rem;
+    box-shadow: var(--dgb-schaduw-kaart);
+}
+
+.dgb-card--hover {
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.dgb-card--hover:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--dgb-schaduw-zweef);
+}
+
+.dgb-card-head {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1.25rem 1.35rem 0.85rem;
+}
+
+.dgb-card-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--color-espresso);
+}
+
+.dgb-card-sub {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--color-gedempt);
+}
+
+.dgb-lijst {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0 0.85rem 0.85rem;
+}
+
+/* Kaarten in een rij rekken mee; de lijst vult de ruimte en een lege staat staat in het midden. */
+section.dgb-card {
+    display: flex;
+    flex-direction: column;
+}
+
+section.dgb-card > .dgb-lijst {
+    flex: 1;
+}
+
+section.dgb-card > .dgb-lijst > .dgb-empty {
+    margin: auto 0;
+}
+
+.dgb-icoon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+}
+
+.dgb-icoon svg {
+    width: 1.15rem;
+    height: 1.15rem;
+}
+
+/* Kerncijfertegel: pastel ondergrond, ronde gekleurde icoonknop, groot cijfer, watermerk */
+.dgb-tegel {
+    --tegel-bg: var(--dgb-tint-goud);
+    --tegel-accent: var(--color-goud);
+    --tegel-icoon: var(--color-espresso);
+    --tegel-tekst: var(--color-goud-tekst);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-height: 10.5rem;
+    overflow: hidden;
+    padding: 1.35rem 1.4rem 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--tegel-accent) 14%, transparent);
+    border-radius: 1.5rem;
+    background: var(--tegel-bg);
+    color: var(--color-espresso);
+    text-decoration: none;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+a.dgb-tegel:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px color-mix(in srgb, var(--tegel-accent) 20%, transparent);
+}
+
+.dgb-tegel--waarschuwing {
+    --tegel-bg: var(--dgb-tint-goud-diep);
+    --tegel-accent: var(--color-goud-tekst);
+    --tegel-icoon: var(--color-wit);
+    --tegel-tekst: var(--color-goud-tekst);
+}
+
+.dgb-tegel--info {
+    --tegel-bg: var(--dgb-tint-info);
+    --tegel-accent: var(--color-status-info);
+    --tegel-icoon: var(--color-wit);
+    --tegel-tekst: var(--color-status-info);
+}
+
+.dgb-tegel--succes {
+    --tegel-bg: var(--dgb-tint-succes);
+    --tegel-accent: var(--color-status-succes);
+    --tegel-icoon: var(--color-wit);
+    --tegel-tekst: var(--color-status-succes);
+}
+
+.dgb-tegel--fout {
+    --tegel-bg: var(--dgb-tint-fout);
+    --tegel-accent: var(--color-status-fout);
+    --tegel-icoon: var(--color-wit);
+    --tegel-tekst: var(--color-status-fout);
+}
+
+.dgb-tegel--espresso {
+    --tegel-bg: var(--dgb-tint-espresso);
+    --tegel-accent: var(--color-espresso);
+    --tegel-icoon: var(--color-goud);
+    --tegel-tekst: var(--color-espresso);
+}
+
+.dgb-tegel--neutraal {
+    --tegel-bg: var(--dgb-tint-neutraal);
+    --tegel-accent: var(--color-status-neutraal);
+    --tegel-icoon: var(--color-wit);
+    --tegel-tekst: var(--color-status-neutraal);
+}
+
+/* Kleine variant: bedragen per inkomstenstroom binnen een kaart */
+.dgb-tegel--mini {
+    gap: 0.2rem;
+    min-height: 0;
+    padding: 1rem 1.1rem 0.95rem;
+    border-radius: 1.1rem;
+}
+
+.dgb-tegel--mini .dgb-tegel__label {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--tegel-tekst);
+}
+
+.dgb-tegel--mini .dgb-tegel__cijfer {
+    margin-top: 0.15rem;
+    font-size: 1.7rem;
+}
+
+.dgb-tegel--mini .dgb-tegel__hint {
+    margin-top: 0.2rem;
+    font-size: 0.72rem;
+}
+
+.dgb-tegel__kop {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.dgb-tegel__icoon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 999px;
+    background: var(--tegel-accent);
+    color: var(--tegel-icoon);
+    box-shadow: 0 8px 18px color-mix(in srgb, var(--tegel-accent) 35%, transparent);
+}
+
+.dgb-tegel__icoon svg {
+    width: 1.35rem;
+    height: 1.35rem;
+}
+
+.dgb-tegel__label {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--color-espresso);
+}
+
+.dgb-tegel__cijfer {
+    margin-top: 0.4rem;
+    font-size: 2.7rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--color-espresso);
+}
+
+.dgb-tegel__voet {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.75rem;
+    margin-top: auto;
+    padding-top: 0.6rem;
+    font-size: 0.74rem;
+}
+
+.dgb-tegel__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-weight: 800;
+    color: var(--tegel-tekst);
+}
+
+.dgb-tegel__link svg {
+    width: 0.9rem;
+    height: 0.9rem;
+}
+
+.dgb-tegel__hint {
+    font-weight: 600;
+    color: var(--color-gedempt);
+}
+
+.dgb-tegel__watermerk {
+    position: absolute;
+    right: -0.75rem;
+    bottom: -1rem;
+    width: 7.5rem;
+    height: 7.5rem;
+    color: var(--tegel-accent);
+    opacity: 0.1;
+    transform: rotate(-8deg);
+    pointer-events: none;
+}
+
+.dgb-tegel__watermerk svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Rijen: gewoon (hover room) of getint per toon, met ronde gekleurde icoonknop */
+.dgb-row {
+    --rij-bg: transparent;
+    --rij-rand: transparent;
+    --rij-accent: var(--color-goud);
+    --rij-icoon: var(--color-espresso);
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--rij-rand);
+    border-radius: 1rem;
+    background: var(--rij-bg);
+    text-decoration: none;
+    transition:
+        background-color 0.15s,
+        box-shadow 0.15s,
+        transform 0.15s;
+}
+
+a.dgb-row:hover {
+    background: var(--color-room);
+}
+
+.dgb-row--tint {
+    --rij-bg: var(--color-room);
+}
+
+a.dgb-row--tint:hover {
+    background: var(--rij-bg);
+    box-shadow: var(--dgb-schaduw-kaart);
+    transform: translateX(2px);
+}
+
+.dgb-row--goud {
+    --rij-bg: var(--dgb-tint-goud);
+    --rij-rand: color-mix(in srgb, var(--color-goud) 18%, transparent);
+    --rij-accent: var(--color-goud);
+    --rij-icoon: var(--color-espresso);
+}
+
+.dgb-row--waarschuwing {
+    --rij-bg: var(--dgb-tint-goud-diep);
+    --rij-rand: color-mix(in srgb, var(--color-goud) 22%, transparent);
+    --rij-accent: var(--color-goud-tekst);
+    --rij-icoon: var(--color-wit);
+}
+
+.dgb-row--info {
+    --rij-bg: var(--dgb-tint-info);
+    --rij-rand: color-mix(in srgb, var(--color-status-info) 16%, transparent);
+    --rij-accent: var(--color-status-info);
+    --rij-icoon: var(--color-wit);
+}
+
+.dgb-row--succes {
+    --rij-bg: var(--dgb-tint-succes);
+    --rij-rand: color-mix(in srgb, var(--color-status-succes) 16%, transparent);
+    --rij-accent: var(--color-status-succes);
+    --rij-icoon: var(--color-wit);
+}
+
+.dgb-row--fout {
+    --rij-bg: var(--dgb-tint-fout);
+    --rij-rand: color-mix(in srgb, var(--color-status-fout) 16%, transparent);
+    --rij-accent: var(--color-status-fout);
+    --rij-icoon: var(--color-wit);
+}
+
+.dgb-row--neutraal {
+    --rij-bg: var(--dgb-tint-neutraal);
+    --rij-rand: rgba(28, 15, 3, 0.06);
+    --rij-accent: var(--color-status-neutraal);
+    --rij-icoon: var(--color-wit);
+}
+
+.dgb-row--espresso {
+    --rij-bg: var(--dgb-tint-espresso);
+    --rij-rand: rgba(28, 15, 3, 0.06);
+    --rij-accent: var(--color-espresso);
+    --rij-icoon: var(--color-goud);
+}
+
+.dgb-rij-icoon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 999px;
+    background: var(--rij-accent);
+    color: var(--rij-icoon);
+    box-shadow: 0 6px 14px color-mix(in srgb, var(--rij-accent) 30%, transparent);
+}
+
+.dgb-rij-icoon svg {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+.dgb-rij-titel {
+    display: block;
+    overflow: hidden;
+    font-size: 0.86rem;
+    font-weight: 800;
+    color: var(--color-espresso);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dgb-rij-sub {
+    display: block;
+    overflow: hidden;
+    font-size: 0.74rem;
+    font-weight: 500;
+    color: var(--color-gedempt);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dgb-rij-chevron {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    color: rgba(107, 91, 74, 0.45);
+}
+
+/* Datumblok: weekdag, dagnummer groot, maand */
+.dgb-datum {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 3.1rem;
+    line-height: 1;
+    color: var(--color-gedempt);
+}
+
+.dgb-datum__dag,
+.dgb-datum__maand {
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.dgb-datum__nr {
+    margin: 0.1rem 0;
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: var(--color-espresso);
+}
+
+.dgb-datum--goud {
+    color: var(--color-goud-tekst);
+}
+
+.dgb-datum--goud .dgb-datum__nr {
+    color: var(--color-goud-tekst);
+}
+
+/* Zachte notitie-rij ("Inschrijving opent over 17 dagen") */
+.dgb-notitie {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.35rem 0.85rem 0.85rem;
+    padding: 0.8rem 1rem;
+    border-radius: 1rem;
+    background: var(--dgb-tint-goud);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-espresso);
+}
+
+.dgb-notitie .dgb-icoon {
+    width: 2rem;
+    height: 2rem;
+    background: var(--color-goud);
+    color: var(--color-espresso);
+}
+
+.dgb-notitie .dgb-icoon svg {
+    width: 0.95rem;
+    height: 0.95rem;
+}
+
+.dgb-pill {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    height: 1.5rem;
+    padding: 0 0.6rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.dgb-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.45rem;
+    border-radius: 999px;
+    background: var(--color-goud-licht);
+    color: var(--color-goud-tekst);
+    font-size: 0.7rem;
+    font-weight: 800;
+}
+
+.dgb-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: var(--color-goud-tekst);
+    white-space: nowrap;
+}
+
+.dgb-link svg {
+    width: 0.9rem;
+    height: 0.9rem;
+}
+
+.dgb-link:hover {
+    text-decoration: underline;
+}
+
+.dgb-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 999px;
+    background: var(--dgb-goud-verloop);
+    color: var(--color-espresso);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+}
+
+.dgb-avatar--klein {
+    width: 2.3rem;
+    height: 2.3rem;
+    font-size: 0.74rem;
+}
+
+.dgb-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 1.75rem 1rem;
+    text-align: center;
+}
+
+/* Pilknoppen: wit met schaduw (secundair) of goud (primair); espresso schuift in bij hover */
+.dgb-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.4rem;
+    padding: 0 1rem;
+    border: 1px solid rgba(28, 15, 3, 0.06);
+    border-radius: 999px;
+    background: var(--color-wit);
+    box-shadow: var(--dgb-schaduw-kaart);
+    color: var(--color-espresso);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition:
+        background-color 0.2s,
+        color 0.2s,
+        box-shadow 0.2s;
+}
+
+.dgb-chip svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.dgb-chip:hover {
+    background: var(--color-espresso);
+    border-color: var(--color-espresso);
+    color: var(--color-room);
+    box-shadow: var(--dgb-schaduw-zweef);
+}
+
+.dgb-chip--goud {
+    background: var(--color-goud);
+    border-color: transparent;
+    box-shadow: 0 6px 16px rgba(200, 134, 10, 0.28);
+}
+
+/* Balk (plekken per provincie) */
+.dgb-balk {
+    height: 0.45rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--color-zand);
+}
+
+.dgb-balk__vulling {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--dgb-goud-verloop);
+    transition: width 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.dgb-balk__vulling--vol {
+    background: var(--color-status-fout);
+}
+
+.dgb-balk__vulling--bijna {
+    background: var(--color-goud-tekst);
+}
+
+/* Staafjes: aanmeldingen per dag */
+.dgb-trend {
+    margin: 0 1.35rem 0.85rem;
+    padding: 0.9rem 1rem 0.7rem;
+    border-radius: 1rem;
+    background: var(--color-room);
+}
+
+.dgb-trend__staven {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.35rem;
+    height: 3.25rem;
+}
+
+.dgb-trend__staaf {
+    display: flex;
+    flex: 1;
+    align-items: flex-end;
+    height: 100%;
+    border-radius: 0.35rem;
+    background: rgba(28, 15, 3, 0.05);
+}
+
+.dgb-trend__vulling {
+    width: 100%;
+    border-radius: 0.35rem;
+    background: linear-gradient(180deg, #e2a12e, #c8860a);
+    transition: height 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.dgb-trend__staaf--vandaag .dgb-trend__vulling {
+    background: var(--color-espresso);
+}
+
+.dgb-trend__onderschrift {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--color-gedempt);
+}
+
+/* Inlogpagina en andere "simple" pagina's */
+.fi-simple-layout {
+    background-image:
+        radial-gradient(900px 520px at 100% -10%, rgba(200, 134, 10, 0.12), transparent 60%),
+        radial-gradient(700px 420px at -10% 110%, rgba(200, 134, 10, 0.07), transparent 60%);
+}
+
+.fi-simple-header-heading {
+    font-family: var(--font-kop);
+    font-size: 1.95rem;
+    font-weight: 700;
+    color: var(--color-espresso);
+}
+
+.fi-simple-header-subheading {
+    color: var(--color-gedempt);
+}
+
+.fi-simple-main {
+    padding: 2.5rem 2.25rem;
+    box-shadow: var(--shadow-paneel) !important;
+}
+
+/* Kaarten en tegels verschijnen van boven, om dezelfde reden als dgb-pagina-in (geen tijdelijke scrollbalk). */
+@keyframes dgb-in {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/*
+ * Verschijn-animatie met fill-mode "backwards": na afloop houden de keyframes geen greep meer
+ * op opacity en transform, zodat de hover-verplaatsing van tegels en rijen gewoon werkt en de
+ * animatie niet opnieuw afspeelt bij het verlaten van een tegel.
+ */
+@media (prefers-reduced-motion: no-preference) {
+    .dgb-dash .dgb-card,
+    .dgb-dash .dgb-tegel {
+        animation: dgb-in 0.28s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+    }
+
+    .dgb-dash .dgb-card:nth-child(2),
+    .dgb-dash .dgb-tegel:nth-child(2) {
+        animation-delay: 35ms;
+    }
+
+    .dgb-dash .dgb-card:nth-child(3),
+    .dgb-dash .dgb-tegel:nth-child(3) {
+        animation-delay: 70ms;
+    }
+
+    .dgb-dash .dgb-card:nth-child(4),
+    .dgb-dash .dgb-tegel:nth-child(4) {
+        animation-delay: 105ms;
+    }
+}
+
+/* ------------------------------------------------------------------
+   Paginawissels (SPA): gouden voortgangsbalk, gedimde inhoud, laadpil, zacht inschuiven
+   ------------------------------------------------------------------ */
+#nprogress .bar {
+    height: 3px !important;
+    background: var(--dgb-goud-verloop) !important;
+}
+
+#nprogress .peg {
+    box-shadow:
+        0 0 10px var(--color-goud),
+        0 0 5px var(--color-goud) !important;
+}
+
+#nprogress .spinner {
+    display: none !important;
+}
+
+html.dgb-laden {
+    cursor: progress;
+}
+
+html.dgb-laden .fi-main {
+    opacity: 0.4;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.dgb-laadpil {
+    position: fixed;
+    top: 1.35rem;
+    left: 50%;
+    z-index: 60;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: var(--color-espresso);
+    color: var(--color-room);
+    font-size: 0.74rem;
+    font-weight: 800;
+    box-shadow: var(--dgb-schaduw-zweef);
+    opacity: 0;
+    transform: translate(-50%, -8px);
+    pointer-events: none;
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+html.dgb-laden .dgb-laadpil {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+.dgb-laadpil__spinner {
+    width: 0.9rem;
+    height: 0.9rem;
+    border: 2px solid rgba(250, 245, 234, 0.3);
+    border-top-color: var(--color-goud);
+    border-radius: 999px;
+    animation: dgb-draai 0.8s linear infinite;
+}
+
+@keyframes dgb-draai {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (min-width: 1024px) {
+    .dgb-laadpil {
+        left: calc(var(--sidebar-width) + (100vw - var(--sidebar-width)) / 2);
+    }
+
+    .fi-body:has(.fi-sidebar:not(.fi-sidebar-open)) .dgb-laadpil {
+        left: calc(var(--collapsed-sidebar-width) + (100vw - var(--collapsed-sidebar-width)) / 2);
+    }
+}
+
+/*
+ * De nieuwe pagina zakt licht van boven in beeld. Niet van onderen: een positieve translateY
+ * steekt tijdens de animatie onder de viewport uit en geeft een scrollbalk die na afloop weer
+ * verdwijnt. Overloop naar boven telt niet mee voor de scrollhoogte.
+ */
+@keyframes dgb-pagina-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    html.dgb-binnen .fi-main {
+        animation: dgb-pagina-in 0.32s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+    }
+}
+
+/* ------------------------------------------------------------------
+   Seizoensbalk: negen processtappen met status en aantal
+   ------------------------------------------------------------------ */
+.dgb-keten__stappen {
+    display: flex;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0 1rem 1.1rem;
+    list-style: none;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+.dgb-keten__stap {
+    flex: 1 0 6.4rem;
+}
+
+.dgb-keten__knop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.65rem 0.4rem 0.7rem;
+    border-radius: 1rem;
+    color: var(--color-espresso);
+    text-decoration: none;
+    transition:
+        background-color 0.15s,
+        transform 0.15s;
+}
+
+a.dgb-keten__knop:hover {
+    background: var(--color-room);
+    transform: translateY(-2px);
+}
+
+.dgb-keten__nr {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: var(--color-zand);
+    color: var(--color-gedempt);
+    font-size: 0.74rem;
+    font-weight: 800;
+}
+
+.dgb-keten__nr svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.dgb-keten__label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--color-gedempt);
+    white-space: nowrap;
+}
+
+.dgb-keten__teller,
+.dgb-keten__note {
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: var(--color-gedempt);
+    font-variant-numeric: tabular-nums;
+}
+
+.dgb-keten__note {
+    color: var(--color-goud-tekst);
+}
+
+.dgb-keten__stap--done .dgb-keten__nr {
+    background: var(--color-espresso);
+    color: var(--color-goud);
+}
+
+.dgb-keten__stap--done .dgb-keten__label {
+    color: var(--color-espresso);
+}
+
+.dgb-keten__stap--current .dgb-keten__knop {
+    background: var(--dgb-tint-goud);
+}
+
+.dgb-keten__stap--current .dgb-keten__nr {
+    background: var(--dgb-goud-verloop);
+    color: var(--color-espresso);
+    box-shadow: 0 6px 14px rgba(200, 134, 10, 0.35);
+}
+
+.dgb-keten__stap--current .dgb-keten__label {
+    color: var(--color-espresso);
+}
+
+.dgb-keten__stap--current .dgb-keten__teller {
+    color: var(--color-goud-tekst);
+}
+
+.dgb-keten__stap--running .dgb-keten__nr {
+    background: var(--color-wit);
+    color: var(--color-goud-tekst);
+    box-shadow: inset 0 0 0 2px var(--color-goud);
+}
+
+.dgb-keten__stap--running .dgb-keten__label {
+    color: var(--color-espresso);
+}
+
+/* ------------------------------------------------------------------
+   Werkvoorraad, instellingen, sidebar-voet actief, tabs met tellers
+   ------------------------------------------------------------------ */
+.dgb-chip--klein {
+    height: 2rem;
+    padding: 0 0.8rem;
+    font-size: 0.72rem;
+}
+
+a.dgb-row:hover .dgb-chip--goud {
+    background: var(--color-espresso);
+    border-color: var(--color-espresso);
+    color: var(--color-room);
+}
+
+.dgb-instelling {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.35rem;
+    color: var(--color-espresso);
+    text-decoration: none;
+}
+
+.dgb-instelling__titel {
+    display: block;
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.dgb-instelling__tekst {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--color-gedempt);
+}
+
+.dgb-instelling .dgb-rij-chevron {
+    margin-top: 0.75rem;
+}
+
+.dgb-sidebar-voet__knop--actief,
+.dgb-sidebar-voet__knop--actief:hover {
+    background: var(--dgb-goud-verloop);
+    color: var(--color-espresso);
+    box-shadow: 0 10px 26px rgba(200, 134, 10, 0.35);
+}
+
+.dgb-sidebar-voet__knop--actief .dgb-sidebar-voet__icoon {
+    background: rgba(28, 15, 3, 0.14);
+}
+
+.fi-tabs-item .fi-badge {
+    border-radius: 999px;
+}
+
+.fi-tabs-item.fi-active .fi-badge {
+    background: rgba(28, 15, 3, 0.12) !important;
+    color: var(--color-espresso) !important;
+}

@@ -1,0 +1,157 @@
+/* ------------------------------------------------------------------
+   Panel-app (docs/02 §7): maximaal leesbaar, tikdoelen >= 44 px, geen animatie,
+   goud alleen als accent. Klassen heten panel-*.
+   ------------------------------------------------------------------ */
+@layer components {
+    .panel-body {
+        font-size: 1.125rem;
+        line-height: 1.5;
+    }
+
+    .panel-shell {
+        width: 100%;
+        max-width: 760px;
+        margin-inline: auto;
+        padding: 20px 16px 32px;
+    }
+
+    .panel-kaart {
+        background: var(--color-wit);
+        border-radius: var(--radius-kaart);
+        padding: 24px;
+        box-shadow: 0 1px 2px rgba(28, 15, 3, 0.03), 0 8px 24px rgba(28, 15, 3, 0.06);
+    }
+
+    .panel-rij {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-height: 76px;
+        padding: 14px 20px;
+        background: var(--color-wit);
+        border-radius: var(--radius-kaart);
+        box-shadow: 0 1px 2px rgba(28, 15, 3, 0.03), 0 6px 18px rgba(28, 15, 3, 0.05);
+        color: var(--color-espresso);
+    }
+
+    .panel-monsternummer {
+        font-family: var(--font-kop);
+        font-weight: 700;
+        font-size: clamp(3.4rem, 14vw, 5.5rem);
+        line-height: 1;
+        letter-spacing: 0.06em;
+        color: var(--color-espresso);
+        font-variant-numeric: lining-nums tabular-nums;
+    }
+
+    .panel-onderdeel {
+        display: grid;
+        gap: 14px;
+        padding: 20px 0;
+        border-bottom: 1px solid var(--color-rand);
+
+        @media (min-width: 640px) {
+            grid-template-columns: 1fr auto;
+            align-items: center;
+        }
+    }
+
+    .panel-stapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .panel-stap {
+        width: 60px;
+        height: 60px;
+        flex-shrink: 0;
+        border-radius: 18px;
+        background: var(--color-zand);
+        color: var(--color-espresso);
+        font-size: 1.8rem;
+        font-weight: 700;
+        line-height: 1;
+        touch-action: manipulation;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    .panel-stap:active {
+        background: var(--color-goud);
+    }
+
+    .panel-invoer {
+        width: 104px;
+        height: 60px;
+        border: 2px solid var(--color-invoer-rand);
+        border-radius: 18px;
+        background: var(--color-wit);
+        text-align: center;
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--color-espresso);
+        font-variant-numeric: lining-nums tabular-nums;
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+
+    .panel-invoer::-webkit-outer-spin-button,
+    .panel-invoer::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .panel-invoer:focus {
+        border-color: var(--color-goud);
+        outline: none;
+    }
+
+    .panel-totaalbalk {
+        position: sticky;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 20px;
+        background: var(--color-espresso);
+        color: var(--color-room);
+        border-radius: var(--radius-kaart) var(--radius-kaart) 0 0;
+    }
+
+    .panel-knop {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 60px;
+        padding: 0 28px;
+        border-radius: var(--radius-pil);
+        background: var(--color-goud);
+        color: var(--color-espresso);
+        font-size: 1.05rem;
+        font-weight: 800;
+        touch-action: manipulation;
+    }
+
+    .panel-knop:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+
+    .panel-navknop {
+        display: inline-flex;
+        align-items: center;
+        min-height: 48px;
+        padding: 0 16px;
+        border-radius: var(--radius-pil);
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--color-espresso);
+    }
+
+    .panel-navknop.is-actief {
+        background: var(--color-goud-licht);
+        color: var(--color-goud-tekst);
+    }
+}

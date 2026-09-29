@@ -1,0 +1,130 @@
+/*
+ * Gegenereerd door `php artisan design:tokens` uit resources/design/tokens.json.
+ * Niet handmatig bewerken: pas tokens.json aan en genereer opnieuw.
+ */
+
+@theme {
+  /* Kleuren */
+  --color-goud: #C8860A;
+  --color-goud-tekst: #8A5A00;
+  --color-goud-licht: #FEF3E2;
+  --color-goud-tint: rgba(200,134,10,0.15);
+  --color-goud-glow: rgba(200,134,10,0.07);
+  --color-espresso: #1C0F03;
+  --color-room: #FAF5EA;
+  --color-zand: #F0E8D5;
+  --color-wit: #FFFFFF;
+  --color-gedempt: #6B5B4A;
+  --color-rand: rgba(28,15,3,0.08);
+  --color-rand-sterk: rgba(28,15,3,0.10);
+  --color-invoer-rand: rgba(200,134,10,0.20);
+  --color-room-zacht: rgba(250,245,234,0.60);
+  --color-room-meta: rgba(250,245,234,0.45);
+  --color-room-decor: rgba(250,245,234,0.25);
+  --color-glas: rgba(250,245,234,0.12);
+  --color-status-succes: #2F6B3A;
+  --color-status-succes-bg: #E6F2E7;
+  --color-status-waarschuwing: #8A5A00;
+  --color-status-waarschuwing-bg: #FEF3E2;
+  --color-status-fout: #9B2C2C;
+  --color-status-fout-bg: #FBE9E7;
+  --color-status-info: #2C5A7A;
+  --color-status-info-bg: #E8F0F6;
+  --color-status-neutraal: #5A5A6A;
+  --color-status-neutraal-bg: #ECE9E2;
+  --color-grijs-50: #FAF7F1;
+  --color-grijs-100: #F0E8D5;
+  --color-grijs-200: #E3DAC6;
+  --color-grijs-300: #CFC4AE;
+  --color-grijs-400: #A89A85;
+  --color-grijs-500: #7A6A58;
+  --color-grijs-600: #6B5B4A;
+  --color-grijs-700: #4E4034;
+  --color-grijs-800: #33271D;
+  --color-grijs-900: #1C0F03;
+  --color-grijs-950: #120902;
+
+  /* Lettertypen */
+  --font-kop: "Cormorant Garamond", Georgia, serif;
+  --font-brood: Manrope, Arial, sans-serif;
+
+  /* Tekststijlen (text-<naam>) */
+  --text-display-h1: clamp(3rem, 7vw, 6.8rem);
+  --text-display-h1--line-height: 1.1;
+  --text-display-h1--font-weight: 300;
+  --text-page-h1: clamp(2.4rem, 5vw, 4.8rem);
+  --text-page-h1--line-height: 1.1;
+  --text-page-h1--font-weight: 300;
+  --text-h2: clamp(2rem, 4vw, 3.4rem);
+  --text-h2--line-height: 1.2;
+  --text-h2--font-weight: 600;
+  --text-h3: 1.6rem;
+  --text-h3--line-height: 1.25;
+  --text-h3--font-weight: 600;
+  --text-kaarttitel: 1.35rem;
+  --text-kaarttitel--line-height: 1.2;
+  --text-kaarttitel--font-weight: 600;
+  --text-cijfer-xl: 4rem;
+  --text-cijfer-xl--line-height: 1;
+  --text-cijfer-xl--font-weight: 700;
+  --text-cijfer-l: 2.4rem;
+  --text-cijfer-l--line-height: 1;
+  --text-cijfer-l--font-weight: 700;
+  --text-citaat: 1.1rem;
+  --text-citaat--line-height: 1.7;
+  --text-citaat--font-weight: 400;
+  --text-eyebrow: .65rem;
+  --text-eyebrow--letter-spacing: .26em;
+  --text-eyebrow--font-weight: 700;
+  --text-nav: .8rem;
+  --text-nav--letter-spacing: .06em;
+  --text-nav--font-weight: 600;
+  --text-body: .97rem;
+  --text-body--line-height: 1.82;
+  --text-body--font-weight: 400;
+  --text-body-s: .85rem;
+  --text-body-s--line-height: 1.7;
+  --text-body-s--font-weight: 400;
+  --text-meta: .75rem;
+  --text-meta--line-height: 1.5;
+  --text-meta--font-weight: 600;
+  --text-label: .68rem;
+  --text-label--letter-spacing: .12em;
+  --text-label--font-weight: 700;
+  --text-knop: .82rem;
+  --text-knop--letter-spacing: .08em;
+  --text-knop--font-weight: 700;
+  --text-chip: .72rem;
+  --text-chip--font-weight: 800;
+  --text-panel-basis: 1.125rem;
+  --text-panel-basis--line-height: 1.5;
+  --text-panel-basis--font-weight: 500;
+
+  /* Vorm */
+  --radius-pil: 99px;
+  --radius-veld: 12px;
+  --radius-blok: 16px;
+  --radius-kaart-in-kaart: 20px;
+  --radius-kaart: 24px;
+  --radius-paneel: 28px;
+  --radius-icoonvak: 10px;
+  --radius-rij: 8px;
+
+  /* Schaduw */
+  --shadow-kaart-hover: 0 20px 48px rgba(200,134,10,0.12);
+  --shadow-knop-hover: 0 12px 36px rgba(200,134,10,0.32);
+  --shadow-zwevend: 0 12px 40px rgba(28,15,3,0.10), 0 2px 8px rgba(28,15,3,0.06);
+  --shadow-paneel: 0 20px 60px rgba(28,15,3,0.15), 0 4px 16px rgba(28,15,3,0.07);
+  --shadow-goud-blok: 0 12px 36px rgba(200,134,10,0.30);
+  --shadow-zacht: 0 4px 12px rgba(200,134,10,0.06);
+
+  /* Raster en beweging */
+  --container-site: 1360px;
+  --spacing-gutter: 48px;
+  --spacing-gutter-mobiel: 24px;
+  --spacing-sectie: 96px;
+  --spacing-sectie-sub: 80px;
+  --spacing-tikdoel: 44px;
+  --ease-zacht: cubic-bezier(0.16, 1, 0.3, 1);
+  --reveal-offset: 28px;
+}

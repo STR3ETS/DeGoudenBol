@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /admin
+Disallow: /portaal
+Disallow: /stijlgids
+Disallow: /betaling
+Disallow: /aanmelden/status
+Disallow: /webhooks
+Allow: /
+
+Sitemap: https://degoudenbol.nl/sitemap.xml

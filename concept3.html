@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Bakkerij Van den Berg &mdash; De Gouden Bol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C8860A;--cream:#FAF5EA;--linen:#F0E8D5;--dark:#1C0F03;--muted:#7A6A58;--border:rgba(28,15,3,.1);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Manrope',sans-serif;background:var(--cream);color:var(--dark);overflow-x:hidden;cursor:none;}
+.c-dot{width:8px;height:8px;background:var(--gold);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:99999;transform:translate(-4px,-4px);}
+.c-ring{width:36px;height:36px;border:1.5px solid var(--gold);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:99998;transform:translate(-18px,-18px);opacity:.5;}
+#sBar{position:fixed;top:0;left:0;height:3px;width:100%;background:var(--gold);transform-origin:left;transform:scaleX(0);z-index:9000;}
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:24px 48px;display:flex;align-items:center;justify-content:space-between;transition:all .4s;}
+.nav.scrolled{background:rgba(250,245,234,.96);backdrop-filter:blur(16px);padding:16px 48px;border-bottom:1px solid var(--border);}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.nav-name{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--dark);line-height:1.1;}
+.nav-tag{font-size:.55rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
+.nav-links{display:flex;gap:32px;list-style:none;}
+.nav-links a{text-decoration:none;font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--dark);transition:color .2s;}
+.nav-links a:hover,.nav-links a.nav-active{color:var(--gold);}
+.nav-cta{background:var(--gold);color:var(--cream);padding:10px 24px;border-radius:99px;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:all .25s;}
+.nav-cta:hover{background:var(--dark);transform:scale(1.04);}
+.sec{padding:80px 0;}
+.sec-inner{max-width:1360px;margin:0 auto;padding:0 48px;}
+.eyebrow{font-size:.65rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:block;}
+.h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.4rem,5vw,4.8rem);font-weight:300;color:var(--dark);line-height:1.1;margin-bottom:16px;}
+.h1 em{font-style:italic;color:var(--gold);font-weight:600;}
+.h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3.5vw,3rem);font-weight:600;color:var(--dark);line-height:1.2;margin-bottom:16px;}
+.h2 em{font-style:italic;color:var(--gold);}
+.body-text{color:var(--muted);font-size:.97rem;line-height:1.82;}
+.btn-pill{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--cream);padding:13px 28px;border-radius:99px;font-size:.82rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;cursor:none;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s;}
+.btn-pill:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 12px 32px rgba(200,134,10,.3);}
+.btn-pill::before{content:'';position:absolute;inset:0;background:var(--dark);border-radius:99px;transform:translateX(-101%);transition:transform .35s cubic-bezier(.16,1,.3,1);}
+.btn-pill:hover::before{transform:translateX(0);}
+.btn-pill span{position:relative;z-index:1;}
+.btn-pill-out{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--dark);color:var(--dark);padding:12px 26px;border-radius:99px;font-size:.82rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;cursor:none;transition:all .25s;}
+.btn-pill-out:hover{background:var(--dark);color:var(--cream);transform:translateY(-3px);}
+footer{background:var(--dark);padding:60px 0 32px;}
+.footer-grid{max-width:1360px;margin:0 auto;padding:0 48px 48px;border-bottom:1px solid rgba(250,245,234,.07);display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:32px;}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.footer-links a{text-decoration:none;font-size:.85rem;color:rgba(250,245,234,.5);transition:color .2s;}
+.footer-links a:hover{color:var(--gold);}
+.footer-col-title{font-size:.62rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(250,245,234,.25);margin-bottom:16px;}
+.footer-bottom{max-width:1360px;margin:0 auto;padding:0 48px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:.75rem;color:rgba(250,245,234,.3);}
+.rev{opacity:0;transform:translateY(28px);}
+.rev-l{opacity:0;transform:translateX(-36px);}
+@media(max-width:768px){
+  .nav{padding:16px 24px;}.nav-links,.nav-cta{display:none;}
+  .sec-inner{padding:0 24px;}
+  .footer-grid{grid-template-columns:1fr;}
+}
+
+.hero-profiel{position:relative;height:70vh;min-height:520px;overflow:hidden;}
+.hero-profiel img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.04);}
+.hero-profiel-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(28,15,3,.88) 0%,rgba(28,15,3,.2) 60%,transparent 100%);}
+.hero-profiel-content{position:absolute;bottom:0;left:0;right:0;padding:48px;}
+.hero-profiel-inner{max-width:1360px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.profiel-breadcrumb{font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(250,245,234,.55);margin-bottom:12px;}
+.profiel-breadcrumb a{color:rgba(250,245,234,.55);text-decoration:none;}
+.profiel-breadcrumb a:hover{color:var(--gold);}
+.profiel-naam{font-family:'Cormorant Garamond',serif;font-size:clamp(2.4rem,5vw,4.5rem);font-weight:300;color:var(--cream);line-height:1.05;margin-bottom:12px;}
+.profiel-naam em{font-style:italic;color:var(--gold);font-weight:600;}
+.profiel-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.profiel-score{background:var(--gold);color:var(--cream);padding:6px 18px;border-radius:99px;font-size:.88rem;font-weight:800;}
+.profiel-badge-w{background:rgba(250,245,234,.12);backdrop-filter:blur(8px);border:1px solid rgba(250,245,234,.2);color:rgba(250,245,234,.8);padding:5px 14px;border-radius:99px;font-size:.75rem;font-weight:600;}
+.profiel-city{font-size:.9rem;color:rgba(250,245,234,.65);font-weight:500;}
+.profiel-share{display:flex;gap:10px;}
+.share-btn{width:40px;height:40px;border-radius:50%;background:rgba(250,245,234,.12);border:1px solid rgba(250,245,234,.2);color:rgba(250,245,234,.7);display:flex;align-items:center;justify-content:center;cursor:none;transition:all .25s;font-size:.9rem;}
+.share-btn:hover{background:var(--gold);border-color:var(--gold);color:var(--cream);}
+/* CONTENT GRID */
+.profiel-layout{display:grid;grid-template-columns:1fr 360px;gap:48px;align-items:start;}
+.profiel-main{}
+.profiel-sidebar{position:sticky;top:100px;}
+/* INFO CARD */
+.info-card{background:white;border-radius:24px;border:1px solid var(--border);padding:28px;margin-bottom:20px;}
+.info-card-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--dark);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.info-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;}
+.info-row:last-child{margin-bottom:0;}
+.info-icon{width:32px;height:32px;background:var(--linen);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
+.info-label{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+.info-value{font-size:.9rem;font-weight:600;color:var(--dark);}
+.info-value.small{font-size:.82rem;font-weight:500;}
+/* OPENINGSTIJDEN */
+.ot-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
+.ot-row:last-child{border-bottom:none;}
+.ot-dag{font-size:.85rem;font-weight:600;color:var(--dark);}
+.ot-tijd{font-size:.85rem;color:var(--muted);}
+.ot-tijd.open{color:var(--gold);font-weight:700;}
+.ot-tijd.gesloten{color:var(--muted);opacity:.5;}
+/* STATUS BADGE */
+.status-open{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.1);color:#15803d;padding:5px 14px;border-radius:99px;font-size:.75rem;font-weight:700;}
+.status-closed{display:inline-flex;align-items:center;gap:6px;background:rgba(239,68,68,.08);color:#b91c1c;padding:5px 14px;border-radius:99px;font-size:.75rem;font-weight:700;}
+.status-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+/* KAART PLACEHOLDER */
+.kaart-wrap{border-radius:20px;overflow:hidden;height:220px;position:relative;background:#E8E4DC;}
+.kaart-placeholder{width:100%;height:100%;object-fit:cover;display:block;}
+.kaart-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;background:rgba(240,232,213,.7);backdrop-filter:blur(2px);}
+.route-btn{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--cream);padding:10px 20px;border-radius:99px;font-size:.78rem;font-weight:700;text-decoration:none;cursor:none;transition:all .25s;}
+.route-btn:hover{background:var(--dark);transform:translateY(-2px);}
+/* GALLERY */
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:24px;}
+.gallery-item{aspect-ratio:1;overflow:hidden;border-radius:16px;}
+.gallery-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
+.gallery-item:hover img{transform:scale(1.05);}
+.gallery-item.tall{grid-row:span 2;aspect-ratio:auto;height:100%;}
+/* SCORE BREAKDOWN */
+.score-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.score-label{font-size:.82rem;font-weight:600;color:var(--dark);width:140px;flex-shrink:0;}
+.score-bar-bg{flex:1;height:6px;background:var(--linen);border-radius:99px;overflow:hidden;}
+.score-bar-fill{height:100%;background:var(--gold);border-radius:99px;transition:width 1.2s cubic-bezier(.16,1,.3,1);}
+.score-num{font-size:.82rem;font-weight:800;color:var(--gold);width:28px;text-align:right;}
+/* REVIEWS */
+.review-card{background:white;border:1px solid var(--border);border-radius:20px;padding:24px;margin-bottom:16px;}
+.review-card:last-child{margin-bottom:0;}
+@media(max-width:1024px){.profiel-layout{grid-template-columns:1fr;}.profiel-sidebar{position:static;display:grid;grid-template-columns:1fr 1fr;gap:20px;}}
+@media(max-width:640px){.profiel-sidebar{grid-template-columns:1fr;}.gallery-grid{grid-template-columns:1fr 1fr;}.hero-profiel{height:55vh;}.hero-profiel-content{padding:24px;}}
+</style>
+</head>
+<body>
+<div class="c-dot" id="cDot"></div><div class="c-ring" id="cRing"></div><div id="sBar"></div>
+
+<nav class="nav" id="mainNav">
+  <a href="concept1A_register_soft.html" class="nav-logo"><svg viewBox="0 0 48 48" width="44" height="44" fill="none"><circle cx="24" cy="24" r="23" fill="#C8860A"/><circle cx="24" cy="24" r="16" fill="#FAF5EA"/><polygon points="24,11 26.5,19 35,19 28.5,23.5 31,32 24,27.5 17,32 19.5,23.5 13,19 21.5,19" fill="#C8860A"/></svg>
+    <div><div class="nav-name">De Gouden Bol</div><div class="nav-tag">Oliebollenkeuring</div></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="concept1A_register_soft.html#ranglijst">Ranglijst</a></li>
+    <li><a href="bakkers.html" class="nav-active">Alle bakkers</a></li>
+    <li><a href="concept1A_register_soft.html#hoe-werkt">Hoe werkt het</a></li>
+    <li><a href="concept1A_register_soft.html#jury">Jury</a></li>
+  </ul>
+  <a href="concept1A_register_soft.html#aanmelden" class="nav-cta">Aanmelden als bakker</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero-profiel">
+  <img src="https://images.unsplash.com/photo-1579721333007-f73d08d8d669?w=1600&q=85&fit=crop" alt="Bakkerij Van den Berg">
+  <div class="hero-profiel-ov"></div>
+  <div class="hero-profiel-content">
+    <div class="hero-profiel-inner">
+      <div>
+        <div class="profiel-breadcrumb"><a href="bakkers.html">&#8592; Alle bakkers</a> &nbsp;/&nbsp; Bakkerij Van den Berg</div>
+        <h1 class="profiel-naam">Bakkerij <em>Van den Berg</em></h1>
+        <div class="profiel-meta">
+          <span class="profiel-score">&#9733; 9.4 / 10</span>
+          <span class="profiel-badge-w">&#9733; Gouden Bol 2024</span>
+          <span class="profiel-city">&#9679; Amsterdam &middot; Noord-Holland</span>
+          <span class="status-open"><span class="status-dot"></span>Nu open</span>
+        </div>
+      </div>
+      <div class="profiel-share">
+        <div class="share-btn" title="Deel">&#10064;</div>
+        <div class="share-btn" title="Routebeschrijving">&#9655;</div>
+        <div class="share-btn" title="Bewaar">&#9825;</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<section class="sec">
+  <div class="sec-inner">
+    <div class="profiel-layout">
+
+      <!-- LEFT: MAIN CONTENT -->
+      <div class="profiel-main">
+
+        <!-- OVER ONS -->
+        <div style="margin-bottom:56px" class="rev">
+          <span class="eyebrow">Over ons</span>
+          <h2 class="h2">Drie generaties <em>bakkersvak</em></h2>
+          <p class="body-text" style="margin-bottom:18px">Bakkerij Van den Berg werd in 1948 opgericht door Hendrik van den Berg, een echte ambachtsman die zijn vak leerde bij een Amsterdamse meesterbanketbakker. Wat begon als een kleine bakkerij in de Jordaan is uitgegroeid tot een begrip in Amsterdam.</p>
+          <p class="body-text" style="margin-bottom:18px">De huidige eigenaren, Pieter en Maaike van den Berg, zijn de derde generatie die het familiebedrijf runt. Elk jaar in november slaan zij de deuren open voor het oliebollenseizoen &mdash; een traditie die inmiddels drie kwart eeuw oud is.</p>
+          <p class="body-text">Het geheime deegrecept, doorgegeven van vader op zoon, staat centraal in alles wat wij doen. Wij gebruiken uitsluitend verse ingredi&euml;nten, bakken in kleine batches en serveren de bollen direct vanuit de pan. Geen compromissen, nooit.</p>
+        </div>
+
+        <!-- KEURINGSSCORE -->
+        <div style="background:var(--linen);border-radius:24px;padding:36px;margin-bottom:48px" class="rev">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:16px">
+            <div>
+              <span class="eyebrow">Gouden Bol Keuring 2024</span>
+              <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;color:var(--dark)">Keuringsresultaat</h3>
+            </div>
+            <div style="text-align:center">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:4rem;font-weight:700;color:var(--gold);line-height:1">9.4</div>
+              <div style="font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Totaalscore</div>
+            </div>
+          </div>
+          <div class="score-row"><span class="score-label">Deeg &amp; structuur</span><div class="score-bar-bg"><div class="score-bar-fill" data-w="96%"></div></div><span class="score-num">9.6</span></div>
+          <div class="score-row"><span class="score-label">Kleur &amp; korst</span><div class="score-bar-bg"><div class="score-bar-fill" data-w="92%"></div></div><span class="score-num">9.2</span></div>
+          <div class="score-row"><span class="score-label">Vulling &amp; smaak</span><div class="score-bar-bg"><div class="score-bar-fill" data-w="95%"></div></div><span class="score-num">9.5</span></div>
+          <div class="score-row"><span class="score-label">Suikerlaag</span><div class="score-bar-bg"><div class="score-bar-fill" data-w="90%"></div></div><span class="score-num">9.0</span></div>
+          <div class="score-row" style="margin-bottom:0"><span class="score-label">Totaalbeleving</span><div class="score-bar-bg"><div class="score-bar-fill" data-w="94%"></div></div><span class="score-num">9.4</span></div>
+          <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+            <span class="eyebrow" style="margin-bottom:8px">Jurynotitie</span>
+            <p style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-style:italic;color:var(--muted);line-height:1.75">"Uitzonderlijk luchtig deeg met een perfecte goudbruine korst. De poedersuiker wordt met precisie aangebracht &mdash; dun, gelijkmatig en fijn. De rozijnen zijn vol en sappig. Een bol die op alle vijf criteria excelleert."</p>
+            <div style="font-size:.78rem;font-weight:700;color:var(--dark);margin-top:12px">Marieke van Dijk &mdash; Hoofdjurylid</div>
+          </div>
+        </div>
+
+        <!-- FOTO GALLERIJ -->
+        <div style="margin-bottom:56px" class="rev">
+          <span class="eyebrow">Gallerij</span>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;color:var(--dark);margin-bottom:20px">De bakkerij in beeld</h3>
+          <div class="gallery-grid">
+            <div class="gallery-item tall" style="grid-row:span 2">
+              <img src="https://images.unsplash.com/photo-1619685347575-4ebafd71e7a8?w=500&q=80&fit=crop" alt="Bakkerij interieur">
+            </div>
+            <div class="gallery-item">
+              <img src="https://images.unsplash.com/photo-1607690670342-ef9efe87f798?w=400&q=80&fit=crop" alt="Oliebollen">
+            </div>
+            <div class="gallery-item">
+              <img src="https://images.unsplash.com/photo-1570578201128-b04806c957f8?w=400&q=80&fit=crop" alt="Bakker aan het werk">
+            </div>
+            <div class="gallery-item">
+              <img src="https://images.unsplash.com/photo-1607690670342-ef9efe87f798?w=400&q=80&fit=crop" alt="Verse oliebollen">
+            </div>
+            <div class="gallery-item">
+              <img src="https://images.unsplash.com/photo-1579721333007-f73d08d8d669?w=400&q=80&fit=crop" alt="Kraam">
+            </div>
+          </div>
+        </div>
+
+        <!-- WAT KLANTEN ZEGGEN -->
+        <div class="rev">
+          <span class="eyebrow">Klantreacties</span>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;color:var(--dark);margin-bottom:24px">Wat klanten zeggen</h3>
+          <div class="review-card">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+              <div style="width:40px;height:40px;border-radius:50%;background:var(--linen);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--gold)">K</div>
+              <div><div style="font-weight:700;font-size:.9rem">Karin W.</div><div style="font-size:.72rem;color:var(--muted)">Amsterdam &middot; vaste klant</div></div>
+              <div style="margin-left:auto;color:var(--gold);font-size:.85rem">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            </div>
+            <p style="font-size:.9rem;line-height:1.7;color:var(--muted);font-style:italic">"Al jaren mijn vaste adres. De oliebollen zijn elk jaar perfect &mdash; luchtig, goudbruin en met precies genoeg poedersuiker. De wachtrij is het altijd waard."</p>
+          </div>
+          <div class="review-card">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+              <div style="width:40px;height:40px;border-radius:50%;background:var(--linen);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--gold)">T</div>
+              <div><div style="font-weight:700;font-size:.9rem">Thomas R.</div><div style="font-size:.72rem;color:var(--muted)">Haarlem &middot; rijdt speciaal</div></div>
+              <div style="margin-left:auto;color:var(--gold);font-size:.85rem">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            </div>
+            <p style="font-size:.9rem;line-height:1.7;color:var(--muted);font-style:italic">"Ik rijd elk jaar vanuit Haarlem speciaal voor deze oliebollen. De keuze van Van den Berg als Gouden Bol winnaar is volkomen terecht. Absoluut de beste van Nederland."</p>
+          </div>
+          <div class="review-card">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+              <div style="width:40px;height:40px;border-radius:50%;background:var(--linen);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--gold)">S</div>
+              <div><div style="font-weight:700;font-size:.9rem">Sophie L.</div><div style="font-size:.72rem;color:var(--muted)">Amsterdam</div></div>
+              <div style="margin-left:auto;color:var(--gold);font-size:.85rem">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
+            </div>
+            <p style="font-size:.9rem;line-height:1.7;color:var(--muted);font-style:italic">"Geweldige oliebollen! De rozijnenbol is mijn absolute favoriet. Alleen de wachtrij kan lang zijn, maar het is het zeker waard."</p>
+          </div>
+        </div>
+
+      </div><!-- /profiel-main -->
+
+      <!-- RIGHT: SIDEBAR -->
+      <div class="profiel-sidebar">
+
+        <!-- OPENINGSTIJDEN -->
+        <div class="info-card rev">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div class="info-card-title" style="margin:0;border:none;padding:0">Openingstijden</div>
+            <span class="status-open"><span class="status-dot"></span>Nu open</span>
+          </div>
+          <div class="ot-row" data-day="ma"><span class="ot-dag">Maandag</span><span class="ot-tijd open">10:00 &ndash; 18:00</span></div>
+          <div class="ot-row" data-day="di"><span class="ot-dag">Dinsdag</span><span class="ot-tijd open">10:00 &ndash; 18:00</span></div>
+          <div class="ot-row" data-day="wo"><span class="ot-dag">Woensdag</span><span class="ot-tijd open">10:00 &ndash; 18:00</span></div>
+          <div class="ot-row" data-day="do"><span class="ot-dag">Donderdag</span><span class="ot-tijd open">10:00 &ndash; 20:00</span></div>
+          <div class="ot-row" data-day="vr"><span class="ot-dag">Vrijdag</span><span class="ot-tijd open">09:00 &ndash; 20:00</span></div>
+          <div class="ot-row" data-day="za"><span class="ot-dag">Zaterdag</span><span class="ot-tijd open">08:00 &ndash; 20:00</span></div>
+          <div class="ot-row" data-day="zo"><span class="ot-dag">Zondag</span><span class="ot-tijd open">10:00 &ndash; 17:00</span></div>
+          <div style="margin-top:14px;padding:10px 14px;background:var(--linen);border-radius:12px;font-size:.78rem;color:var(--muted);line-height:1.5">
+            &#9432; Seizoen: <strong>1 november &ndash; 1 februari</strong>
+          </div>
+        </div>
+
+        <!-- LOCATIE -->
+        <div class="info-card rev">
+          <div class="info-card-title">Locatie &amp; contact</div>
+          <div class="info-row">
+            <div class="info-icon">&#9679;</div>
+            <div><div class="info-label">Adres</div><div class="info-value">Westermarkt 14<br>1016 DK Amsterdam</div></div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon">&#9742;</div>
+            <div><div class="info-label">Telefoon</div><div class="info-value"><a href="tel:0201234567" style="color:var(--gold);text-decoration:none">020 123 45 67</a></div></div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon">&#9993;</div>
+            <div><div class="info-label">E-mail</div><div class="info-value small"><a href="mailto:info@vandenberg.nl" style="color:var(--gold);text-decoration:none">info@vandenberg.nl</a></div></div>
+          </div>
+          <div class="info-row" style="margin-bottom:20px">
+            <div class="info-icon">&#9728;</div>
+            <div><div class="info-label">Bereikbaar met OV</div><div class="info-value small">Tram 13, 17 &mdash; halte Westermarkt<br>5 min. lopen van Centraal</div></div>
+          </div>
+
+          <!-- KAART PLACEHOLDER -->
+          <div class="kaart-wrap">
+            <img class="kaart-placeholder" src="https://images.unsplash.com/photo-1570578201128-b04806c957f8?w=600&q=80&fit=crop" alt="Kaart placeholder">
+            <div class="kaart-overlay">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--dark)">Westermarkt 14, Amsterdam</div>
+              <a href="https://maps.google.com/?q=Westermarkt+14+Amsterdam" target="_blank" class="route-btn">&#9655; Route plannen</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- BAKKER INFO -->
+        <div class="info-card rev">
+          <div class="info-card-title">Over de bakkerij</div>
+          <div class="info-row">
+            <div class="info-icon">&#9733;</div>
+            <div><div class="info-label">Gouden Bol score</div><div class="info-value" style="color:var(--gold)">9.4 / 10 &mdash; 2024</div></div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon">&#9992;</div>
+            <div><div class="info-label">Type</div><div class="info-value">Ambachtelijke bakkerij</div></div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon">&#8987;</div>
+            <div><div class="info-label">Opgericht</div><div class="info-value">1948 &mdash; 76 jaar actief</div></div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon">&#9840;</div>
+            <div><div class="info-label">Specialiteit</div><div class="info-value small">Oliebollen met rozijnen, appelbeignets, oliebollenvariant met kaneel</div></div>
+          </div>
+          <div class="info-row" style="margin-bottom:0">
+            <div class="info-icon">&#9750;</div>
+            <div><div class="info-label">Betaling</div><div class="info-value small">Pin, contant &mdash; geen creditcard</div></div>
+          </div>
+        </div>
+
+        <!-- TERUG & AANMELDEN -->
+        <div style="display:flex;flex-direction:column;gap:12px" class="rev">
+          <a href="bakkers.html" class="btn-pill-out" style="justify-content:center">&#8592; Terug naar alle bakkers</a>
+          <a href="concept1A_register_soft.html#aanmelden" class="btn-pill" style="justify-content:center"><span>Meld uw kraam aan</span></a>
+        </div>
+
+      </div><!-- /sidebar -->
+    </div><!-- /layout -->
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><svg viewBox="0 0 48 48" width="44" height="44" fill="none"><circle cx="24" cy="24" r="23" fill="#C8860A"/><circle cx="24" cy="24" r="16" fill="#1C0F03"/><polygon points="24,11 26.5,19 35,19 28.5,23.5 31,32 24,27.5 17,32 19.5,23.5 13,19 21.5,21" fill="#C8860A"/></svg>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;color:#FAF5EA">De Gouden Bol</div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.7;max-width:260px;color:rgba(250,245,234,.5)">De officiele, onafhankelijke oliebollenkeuring van Nederland. Opgericht in 2016.</p>
+    </div>
+    <div><div class="footer-col-title">Ranglijst</div><ul class="footer-links"><li><a href="#">Ranglijst 2024</a></li><li><a href="bakkers.html">Alle bakkers</a></li><li><a href="#">Per provincie</a></li></ul></div>
+    <div><div class="footer-col-title">Deelnemers</div><ul class="footer-links"><li><a href="#">Aanmelden 2025</a></li><li><a href="#">Keuringscriteria</a></li><li><a href="#">Keurmerk</a></li></ul></div>
+    <div><div class="footer-col-title">Contact</div><ul class="footer-links"><li><a href="#">info@degoudenbol.nl</a></li><li><a href="#">Pers &amp; media</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <div>&copy; 2025 De Gouden Bol &middot; Oliebollenkeuring Nederland</div>
+    <div>Made with care by <a href="https://eazyonline.nl" style="color:#C8860A;text-decoration:none;font-weight:700">Eazyonline</a></div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(function(){
+  var dot=document.getElementById('cDot'),ring=document.getElementById('cRing'),mx=0,my=0,rx=0,ry=0;
+  if(dot&&ring){
+    document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;dot.style.transform='translate('+(mx-4)+'px,'+(my-4)+'px)';});
+    (function lr(){rx+=(mx-rx)*.11;ry+=(my-ry)*.11;ring.style.transform='translate('+(rx-18)+'px,'+(ry-18)+'px)';requestAnimationFrame(lr);})();
+  }
+  window.addEventListener('scroll',function(){
+    var s=window.scrollY/(document.documentElement.scrollHeight-innerHeight);
+    var sb=document.getElementById('sBar');if(sb)sb.style.transform='scaleX('+s+')';
+    var nav=document.getElementById('mainNav');if(nav)nav.classList.toggle('scrolled',window.scrollY>60);
+  },{passive:true});
+  if(typeof gsap!=='undefined'){
+    gsap.registerPlugin(ScrollTrigger);
+    gsap.utils.toArray('.rev').forEach(function(el){gsap.fromTo(el,{opacity:0,y:28},{opacity:1,y:0,duration:.72,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 89%',toggleActions:'play none none none'}});});
+    gsap.utils.toArray('.rev-l').forEach(function(el){gsap.fromTo(el,{opacity:0,x:-36},{opacity:1,x:0,duration:.8,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 87%',toggleActions:'play none none none'}});});
+    gsap.utils.toArray('.stagger-grid').forEach(function(grid){gsap.utils.toArray(grid.children).forEach(function(el,i){gsap.fromTo(el,{opacity:0,y:32},{opacity:1,y:0,duration:.6,delay:i*.07,ease:'power3.out',scrollTrigger:{trigger:grid,start:'top 82%',toggleActions:'play none none none'}});});});
+  }
+})();
+</script>
+<script>
+// Animate score bars on scroll
+(function(){
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        e.target.style.width = e.target.dataset.w;
+        observer.unobserve(e.target);
+      }
+    });
+  },{threshold:.3});
+  document.querySelectorAll('.score-bar-fill').forEach(function(bar){
+    bar.style.width = '0%';
+    observer.observe(bar);
+  });
+
+  // Current day highlight
+  var days = ['zo','ma','di','wo','do','vr','za'];
+  var today = days[new Date().getDay()];
+  document.querySelectorAll('.ot-row').forEach(function(row){
+    if(row.dataset.day === today){
+      row.style.background = '#FEF3E2';
+      row.style.borderRadius = '8px';
+      row.style.padding = '10px 8px';
+      row.style.margin = '0 -8px';
+    }
+  });
+})();
+</script>
+</body>
+</html>

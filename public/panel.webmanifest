@@ -1,0 +1,14 @@
+{
+    "name": "Panel De Gouden Bol",
+    "short_name": "Panel",
+    "start_url": "/panel",
+    "scope": "/panel",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#F0E8D5",
+    "theme_color": "#1C0F03",
+    "lang": "nl",
+    "icons": [
+        { "src": "/images/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    ]
+}
