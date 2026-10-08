@@ -5,6 +5,7 @@ namespace App\Domain\Ranking\Actions;
 use App\Domain\Participants\Models\Entry;
 use App\Domain\Platform\Services\AuditLogger;
 use App\Domain\Ranking\Enums\CorrectionCaseStatus;
+use App\Domain\Ranking\Events\CorrectionCaseOpened;
 use App\Domain\Ranking\Models\CorrectionCase;
 use App\Domain\Testing\Enums\ResultStatus;
 use App\Domain\Testing\Enums\SampleRound;
@@ -57,6 +58,8 @@ final class OpenCorrectionCase
             $sample->forceFill(['status' => SampleStatus::Scored])->save();
 
             $this->audit->record('correction_case.opened', $case, ['entry' => $entry->ulid], $submitter);
+
+            CorrectionCaseOpened::dispatch($case, $submitter);
 
             return $case;
         });

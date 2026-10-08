@@ -36,7 +36,12 @@
         // Verzoeken binnen een pagina (tab, filter, sorteren, zoeken, pagineren): de component
         // krijgt .dgb-bezig zolang het verzoek loopt, zodat de tabel dimt en een laadpil toont.
         document.addEventListener('livewire:init', () => {
-            window.Livewire.hook('commit', ({ component, succeed, fail }) => {
+            window.Livewire.hook('commit', ({ component, commit, succeed, fail }) => {
+                // Een stille verversing (wire:poll) hoeft niets te dimmen.
+                if ((commit.calls ?? []).length > 0 && commit.calls.every((call) => call.method === '$refresh')) {
+                    return;
+                }
+
                 component.el.classList.add('dgb-bezig');
 
                 const klaar = () => component.el.classList.remove('dgb-bezig');

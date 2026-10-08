@@ -5,6 +5,7 @@ namespace App\Domain\Ranking\Actions;
 use App\Domain\Platform\Enums\StaffRole;
 use App\Domain\Platform\Services\AuditLogger;
 use App\Domain\Ranking\Enums\BatchStatus;
+use App\Domain\Ranking\Events\BatchApproved;
 use App\Domain\Ranking\Models\PublicationBatch;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -48,7 +49,11 @@ final class ApproveBatch
 
             $this->audit->record('publication_batch.approved', $batch, ['approvals' => $count], $approver);
 
-            return $batch->refresh();
+            $batch = $batch->refresh();
+
+            BatchApproved::dispatch($batch, $approver, $count);
+
+            return $batch;
         });
     }
 }

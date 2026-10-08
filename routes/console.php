@@ -8,3 +8,6 @@ Schedule::command('entries:cancel-expired')->everyFiveMinutes();
 Schedule::command('publication:run')->everyMinute()->withoutOverlapping();
 Schedule::command('ranking:verify')->dailyAt('06:00');
 Schedule::command('vouchers:tick')->hourly()->withoutOverlapping();
+
+// Versheid: een half uur voor het verlopen een melding in de bel voor coördinatie en scorecontrole.
+Schedule::command('freshness:notify')->everyTenMinutes()->withoutOverlapping();

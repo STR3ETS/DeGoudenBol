@@ -3,6 +3,7 @@
 namespace App\Domain\Participants\Models;
 
 use App\Domain\Participants\Enums\ModerationStatus;
+use App\Domain\Participants\Events\ProfileSubmitted;
 use App\Models\User;
 use App\Support\Models\DomainModel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -51,6 +52,8 @@ class Profile extends DomainModel
             'submitted_at' => now(),
             'review_note' => null,
         ])->save();
+
+        ProfileSubmitted::dispatch($this);
     }
 
     public function approve(User $reviewer): void

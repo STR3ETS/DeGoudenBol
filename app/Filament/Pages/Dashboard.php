@@ -14,14 +14,17 @@ class Dashboard extends BaseDashboard
 
     protected static ?string $title = 'Overzicht';
 
+    /**
+     * Begroeting en seizoenscontext staan in de topbar (render hook TOPBAR_START), niet boven de inhoud.
+     */
     public function getHeading(): string
     {
-        return $this->data()->greeting().' 👋';
+        return '';
     }
 
     public function getSubheading(): ?string
     {
-        return $this->data()->subheading();
+        return null;
     }
 
     /**

@@ -2,8 +2,11 @@
 
 namespace App\Domain\Participants\Models;
 
+use App\Domain\Commerce\Models\Order;
 use App\Domain\Edition\Models\Edition;
+use App\Domain\Marketing\Models\Recognition;
 use App\Domain\Participants\Enums\CompanyType;
+use App\Domain\Vouchers\Models\VoucherCampaign;
 use App\Support\Models\DomainModel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -115,6 +118,21 @@ class Company extends DomainModel
     public function profile(): HasOne
     {
         return $this->hasOne(Profile::class);
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function recognitions(): HasMany
+    {
+        return $this->hasMany(Recognition::class);
+    }
+
+    public function voucherCampaigns(): HasMany
+    {
+        return $this->hasMany(VoucherCampaign::class);
     }
 
     /**

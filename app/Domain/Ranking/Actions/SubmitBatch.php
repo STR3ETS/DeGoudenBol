@@ -4,6 +4,7 @@ namespace App\Domain\Ranking\Actions;
 
 use App\Domain\Platform\Services\AuditLogger;
 use App\Domain\Ranking\Enums\BatchStatus;
+use App\Domain\Ranking\Events\BatchSubmitted;
 use App\Domain\Ranking\Models\PublicationBatch;
 use App\Models\User;
 use LogicException;
@@ -32,6 +33,8 @@ final class SubmitBatch
         ])->save();
 
         $this->audit->record('publication_batch.submitted', $batch, ['items' => $batch->items()->count()], $submitter);
+
+        BatchSubmitted::dispatch($batch, $submitter);
 
         return $batch;
     }

@@ -27,6 +27,8 @@ use App\Domain\Marketing\Models\NewsPost;
 use App\Domain\Marketing\Models\PressRelease;
 use App\Domain\Marketing\Models\Recognition;
 use App\Domain\Participants\Events\EntryRegistered;
+use App\Domain\Participants\Events\ObjectionSubmitted;
+use App\Domain\Participants\Events\ProfileSubmitted;
 use App\Domain\Participants\Listeners\SendRegistrationConfirmation;
 use App\Domain\Participants\Models\Company;
 use App\Domain\Participants\Models\Entry;
@@ -35,7 +37,11 @@ use App\Domain\Participants\Models\OpeningHour;
 use App\Domain\Participants\Models\OpeningHourException;
 use App\Domain\Participants\Models\ParticipantUser;
 use App\Domain\Participants\Models\Profile;
+use App\Domain\Platform\Listeners\NotifyStaff;
+use App\Domain\Ranking\Events\BatchApproved;
 use App\Domain\Ranking\Events\BatchPublished;
+use App\Domain\Ranking\Events\BatchSubmitted;
+use App\Domain\Ranking\Events\CorrectionCaseOpened;
 use App\Domain\Ranking\Events\EditionFrozen;
 use App\Domain\Ranking\Events\ProvinceRevealed;
 use App\Domain\Ranking\Listeners\InviteFinalists;
@@ -53,6 +59,7 @@ use App\Domain\Vouchers\Models\VoucherWinner;
 use App\Support\Cdn\CdnPurger;
 use App\Support\Cdn\CloudflareCdnPurger;
 use App\Support\Cdn\NullCdnPurger;
+use App\Support\Database\FreshSecondaryConnections;
 use App\Support\DesignTokens;
 use App\Support\Pdok\PdokLocatieserver;
 use App\Support\PublicCache;
@@ -60,8 +67,10 @@ use Carbon\CarbonImmutable;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Events\MigrationsStarted;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Date;
@@ -118,6 +127,10 @@ class AppServiceProvider extends ServiceProvider
             database_path('migrations/vault'),
         ]);
 
+        // `migrate:fresh` maakt ook de testketen- en kluisdatabase leeg (na de productiebevestiging).
+        Event::listen(CommandStarting::class, [FreshSecondaryConnections::class, 'commandStarting']);
+        Event::listen(MigrationsStarted::class, [FreshSecondaryConnections::class, 'migrationsStarted']);
+
         // Domein-events (listeners leven per domein, buiten app/Listeners).
         Event::listen(EntryRegistered::class, SendRegistrationConfirmation::class);
         Event::listen(EntryRegistered::class, GrantParticipantRecognition::class);
@@ -133,6 +146,15 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(OrderPaid::class, ActivateSponsorPlacements::class);
         Event::listen(OrderPaid::class, ReserveOnOrderPaid::class);
         Event::listen(ProvinceRevealed::class, LiftProvinceEmbargo::class);
+
+        // Meldingen in de bel van de backoffice, per rol (App\Domain\Platform\Services\StaffNotifier).
+        Event::listen(BatchSubmitted::class, [NotifyStaff::class, 'onBatchSubmitted']);
+        Event::listen(BatchApproved::class, [NotifyStaff::class, 'onBatchApproved']);
+        Event::listen(BatchPublished::class, [NotifyStaff::class, 'onBatchPublished']);
+        Event::listen(ObjectionSubmitted::class, [NotifyStaff::class, 'onObjectionSubmitted']);
+        Event::listen(CorrectionCaseOpened::class, [NotifyStaff::class, 'onCorrectionCaseOpened']);
+        Event::listen(ProfileSubmitted::class, [NotifyStaff::class, 'onProfileSubmitted']);
+        Event::listen(OrderPaid::class, [NotifyStaff::class, 'onOrderPaid']);
 
         // Paginacache: iedere wijziging aan publieke inhoud laat alle gecachte pagina's vervallen;
         // het CDN wordt één keer per request/commando gepurged.

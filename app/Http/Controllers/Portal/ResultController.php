@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Portal;
 use App\Domain\Edition\Models\Edition;
 use App\Domain\Participants\Enums\CompanyUserRole;
 use App\Domain\Participants\Enums\ObjectionStatus;
+use App\Domain\Participants\Events\ObjectionSubmitted;
 use App\Domain\Participants\Models\Company;
 use App\Domain\Participants\Models\Entry;
 use App\Domain\Participants\Models\Objection;
@@ -69,6 +70,8 @@ class ResultController extends Controller
         ]);
 
         $audit->record('objection.submitted', $objection, ['entry' => $entry->ulid], null);
+
+        ObjectionSubmitted::dispatch($objection);
 
         return redirect()->route('portaal.uitslag', $company)->with('status', 'Uw bezwaar is ingediend. Twee beslissers buiten het panel en de registratie beoordelen het.');
     }

@@ -7,6 +7,13 @@ use App\Domain\Participants\Models\Company;
 use App\Domain\Platform\Enums\StaffRole;
 use App\Filament\Concerns\RestrictsToRoles;
 use App\Filament\Resources\Companies\Pages\ManageCompanies;
+use App\Filament\Resources\Companies\Pages\ViewCompany;
+use App\Filament\Resources\Companies\RelationManagers\EntriesRelationManager;
+use App\Filament\Resources\Companies\RelationManagers\OrdersRelationManager;
+use App\Filament\Resources\Companies\RelationManagers\RecognitionsRelationManager;
+use App\Filament\Resources\Companies\RelationManagers\UsersRelationManager;
+use App\Filament\Resources\Companies\RelationManagers\VoucherCampaignsRelationManager;
+use App\Filament\Resources\Profiles\ProfileResource;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -26,6 +33,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
+/**
+ * Bedrijven met het bakkerdossier: één pagina per bedrijf met inschrijvingen, orders en facturen,
+ * accounts, profieltekst, badges en cadeaubonnen als tabbladen.
+ */
 class CompanyResource extends Resource
 {
     use RestrictsToRoles;
@@ -81,20 +92,32 @@ class CompanyResource extends Resource
     {
         return $schema
             ->components([
-                Section::make('Bedrijf')->columns(3)->schema([
-                    TextEntry::make('name')->label('Naam'),
+                Section::make('Bedrijf')->columns(4)->schema([
                     TextEntry::make('type')->label('Type')->badge(),
                     TextEntry::make('kvk_number')->label('KvK')->placeholder('–'),
-                    TextEntry::make('slug')->label('Profiel-URL')->formatStateUsing(fn (string $state) => route('bakkers.toon', $state))->url(fn (Company $record) => route('bakkers.toon', $record), shouldOpenInNewTab: true),
-                    TextEntry::make('website')->label('Website')->placeholder('–'),
+                    TextEntry::make('founded_year')->label('Opgericht')->placeholder('–'),
+                    TextEntry::make('website')->label('Website')->placeholder('–')->url(fn (Company $record) => $record->website, shouldOpenInNewTab: true),
                     TextEntry::make('contact_name')->label('Contact')->placeholder('–'),
                     TextEntry::make('contact_phone')->label('Telefoon')->placeholder('–'),
                     TextEntry::make('primaryLocation.city')->label('Plaats')->placeholder('–'),
                     TextEntry::make('primaryLocation.province.name')->label('Provincie')->placeholder('–'),
                 ]),
-                Section::make('Accounts')->schema([
-                    TextEntry::make('users.email')->label('E-mailadressen')->listWithLineBreaks()->placeholder('–'),
-                ]),
+                Section::make('Profieltekst')
+                    ->description('Wat de bakker zelf schrijft voor de site, na keuring door Communicatie.')
+                    ->columns(4)
+                    ->schema([
+                        TextEntry::make('profile.moderation_status')->label('Status')->badge()->placeholder('Nog geen tekst'),
+                        TextEntry::make('profile.tagline')->label('Korte omschrijving')->placeholder('–')->columnSpan(2),
+                        TextEntry::make('profile.submitted_at')->label('Ingediend')->dateTime('d-m-Y H:i')->placeholder('–'),
+                        TextEntry::make('profile.reviewer.name')->label('Beoordeeld door')->placeholder('–'),
+                        TextEntry::make('profile.reviewed_at')->label('Beoordeeld op')->dateTime('d-m-Y H:i')->placeholder('–'),
+                        TextEntry::make('moderation_link')
+                            ->label('Keuren')
+                            ->state('Naar profielteksten keuren')
+                            ->url(fn () => ProfileResource::getUrl('index'))
+                            ->visible(fn () => ProfileResource::canViewAny())
+                            ->columnSpan(2),
+                    ]),
             ]);
     }
 
@@ -117,16 +140,29 @@ class CompanyResource extends Resource
                 SelectFilter::make('type')->label('Type')->options(CompanyType::options()),
                 TernaryFilter::make('is_archived')->label('Gearchiveerd'),
             ])
+            ->recordUrl(fn (Company $record) => static::getUrl('view', ['record' => $record]))
             ->recordActions([
-                ViewAction::make(),
+                ViewAction::make()->label('Dossier'),
                 EditAction::make(),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            EntriesRelationManager::class,
+            OrdersRelationManager::class,
+            UsersRelationManager::class,
+            RecognitionsRelationManager::class,
+            VoucherCampaignsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
     {
         return [
             'index' => ManageCompanies::route('/'),
+            'view' => ViewCompany::route('/{record}'),
         ];
     }
 }

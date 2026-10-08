@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             LocalUserSeeder::class,
             LocalDevelopmentSeeder::class,
             LocalTestChainSeeder::class,
+            LocalPublicationSeeder::class,
             LocalVoucherSeeder::class,
             LocalCampaignSeeder::class,
         ]);

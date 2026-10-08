@@ -12,5 +12,10 @@
                 <button type="submit" class="panel-knop w-full">Inloggen</button>
             </form>
         </div>
+
+        <p class="mt-6 text-center text-[0.85rem] text-gedempt">
+            Dit is de app voor panelleden. Medewerker van de organisatie? <a href="{{ url('/admin') }}" class="font-bold text-goud-tekst underline">Naar de backoffice</a>
+            &middot; Deelnemer? <a href="{{ route('portaal.inloggen') }}" class="font-bold text-goud-tekst underline">Naar het portaal</a>
+        </p>
     </div>
 </x-layouts.panel>

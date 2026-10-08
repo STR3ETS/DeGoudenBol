@@ -1,7 +1,7 @@
 /*
  * Backoffice-thema van De Gouden Bol op de tokens uit resources/design/tokens.json.
  * Naar het voorbeeld van het VastgoedFotoVideo-redesign (docs/02 §7), in onze eigen huisstijl:
- * espresso sidebar met een stapel oliebollen als decoratie, goud als enig accent, pastel
+ * espresso sidebar met een zachte gouden flare onderin, goud als enig accent, pastel
  * kerncijfertegels met watermerk-icoon, witte kaarten van 24 px, pillen en ronde icoonvakken.
  */
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
@@ -29,8 +29,11 @@
     --dgb-tint-fout: color-mix(in srgb, var(--color-status-fout) 9%, white);
     --dgb-tint-espresso: color-mix(in srgb, var(--color-gedempt) 16%, var(--color-room));
     --dgb-tint-neutraal: var(--color-status-neutraal-bg);
-    /* Stapel oliebollen met poedersuiker, onderin de sidebar (goud op espresso, heel gedempt). */
-    --dgb-bollen: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 272 220'><g fill='%23C8860A'><circle cx='40' cy='198' r='46' opacity='.13'/><circle cx='120' cy='204' r='54' opacity='.17'/><circle cx='206' cy='198' r='48' opacity='.13'/><circle cx='266' cy='210' r='40' opacity='.09'/><circle cx='78' cy='148' r='40' opacity='.11'/><circle cx='162' cy='142' r='44' opacity='.15'/><circle cx='240' cy='152' r='36' opacity='.09'/><circle cx='118' cy='98' r='36' opacity='.09'/><circle cx='198' cy='96' r='32' opacity='.07'/><circle cx='156' cy='56' r='28' opacity='.06'/></g><g fill='%23FAF5EA' opacity='.35'><circle cx='96' cy='128' r='2'/><circle cx='150' cy='118' r='1.6'/><circle cx='178' cy='150' r='2.2'/><circle cx='60' cy='178' r='1.8'/><circle cx='132' cy='188' r='2'/><circle cx='216' cy='182' r='1.6'/><circle cx='122' cy='86' r='1.5'/><circle cx='166' cy='44' r='1.4'/><circle cx='204' cy='112' r='1.8'/><circle cx='36' cy='212' r='1.5'/><circle cx='252' cy='216' r='1.6'/><circle cx='88' cy='160' r='1.4'/><circle cx='186' cy='72' r='1.3'/><circle cx='142' cy='160' r='1.5'/></g></svg>");
+    /* Zachte gouden flare onderin de sidebar: een warm lichtpunt links en een vleug room rechts. */
+    --dgb-flare:
+        radial-gradient(460px 340px at 14% 108%, rgba(200, 134, 10, 0.34), rgba(200, 134, 10, 0.10) 42%, transparent 70%),
+        radial-gradient(520px 260px at 60% 118%, rgba(200, 134, 10, 0.12), transparent 70%),
+        radial-gradient(240px 180px at 92% 92%, rgba(250, 245, 234, 0.07), transparent 65%);
 }
 
 .fi-body {
@@ -54,18 +57,14 @@
 }
 
 /* ------------------------------------------------------------------
-   Sidebar: espresso, oliebollen onderin, gouden actieve rij
+   Sidebar: espresso, gouden flare onderin, gouden actieve rij
    ------------------------------------------------------------------ */
 .fi-sidebar {
     background-color: var(--dgb-sidebar-donker) !important;
-    background-image: var(--dgb-bollen), linear-gradient(180deg, #1c0f03 0%, #281705 60%, #37210a 100%);
-    background-repeat: no-repeat, no-repeat;
-    background-position:
-        center bottom,
-        0 0;
-    background-size:
-        100% auto,
-        100% 100%;
+    background-image: var(--dgb-flare), linear-gradient(180deg, #1c0f03 0%, #281705 60%, #37210a 100%);
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-size: 100% 100%;
     color: var(--color-room);
 }
 
@@ -387,12 +386,46 @@
     display: contents;
 }
 
+/* Begroeting en seizoenscontext links in de topbar (verhuisd van de dashboardkop, 8 okt 2026). */
+.dgb-begroeting {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    margin-inline-end: auto;
+    line-height: 1.15;
+}
+
+.dgb-begroeting__kop {
+    font-family: var(--font-kop);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-espresso);
+    white-space: nowrap;
+}
+
+.dgb-begroeting__sub {
+    font-size: 0.74rem;
+    font-weight: 500;
+    color: var(--color-gedempt);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (min-width: 1024px) {
+    .dgb-begroeting {
+        display: flex;
+    }
+}
+
 .fi-topbar .fi-global-search-ctn {
     order: 1;
     margin-inline-start: auto;
 }
 
-.fi-topbar > .dgb-bel {
+.fi-topbar .fi-no-database,
+.fi-topbar .fi-topbar-database-notifications-btn {
     order: 2;
 }
 
@@ -533,39 +566,35 @@
     }
 }
 
-/* Bel met openstaande acties (resources/views/filament/topbar/bel.blade.php) */
-.dgb-bel {
+/* Bel: de databasemeldingen van Filament (rolgerichte meldingen via StaffNotifier) */
+.fi-topbar .fi-topbar-database-notifications-btn {
     position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
     width: 2.9rem;
     height: 2.9rem;
+    border-radius: 999px;
+    background: var(--color-wit);
+    color: var(--color-espresso);
+    box-shadow: var(--dgb-schaduw-kaart);
+    transition: box-shadow 0.15s;
+}
+
+.fi-topbar .fi-topbar-database-notifications-btn:hover {
+    background: var(--color-wit);
+    box-shadow: var(--dgb-schaduw-zweef);
+}
+
+.fi-topbar .fi-topbar-database-notifications-btn .fi-icon {
+    width: 1.3rem;
+    height: 1.3rem;
     color: var(--color-espresso);
 }
 
-.dgb-bel__icoon {
-    width: 1.3rem;
-    height: 1.3rem;
-}
-
-.dgb-bel__badge {
-    position: absolute;
-    top: -0.2rem;
-    right: -0.15rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 1.35rem;
-    height: 1.35rem;
-    padding: 0 0.35rem;
-    border-radius: 999px;
-    background: var(--color-status-fout);
-    color: var(--color-wit);
-    font-size: 0.66rem;
-    font-weight: 800;
+.fi-topbar .fi-topbar-database-notifications-btn .fi-badge {
+    background: var(--color-status-fout) !important;
+    color: var(--color-wit) !important;
     box-shadow: 0 0 0 2px var(--color-wit);
+    --tw-ring-shadow: 0 0 #0000 !important;
+    font-weight: 800;
 }
 
 /* Zoekpil met sneltoets */
@@ -1053,6 +1082,315 @@
     }
 }
 
+/*
+ * Filters in de toolbar (FiltersLayout::AboveContent en deferFilters(false) in AdminPanelProvider).
+ * Filament zet het filterformulier vóór de toolbar in .fi-ta-header-ctn; hier delen ze één rij:
+ * filters links als keuzelijsten, zoekveld en kolomkeuze rechts. De "actieve filters"-balk is dan
+ * dubbelop en gaat weg. Een eventuele kop (titel en kopacties) houdt een eigen rij erboven.
+ */
+.fi-ta-header-ctn:has(.fi-ta-filters-above-content-ctn) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(28, 15, 3, 0.06);
+}
+
+.fi-ta-header-ctn:has(.fi-ta-filters-above-content-ctn) > .fi-ta-header {
+    flex-basis: 100%;
+    padding: 0 0 0.75rem;
+    border-bottom: 1px solid rgba(28, 15, 3, 0.06);
+}
+
+.fi-ta-header-ctn > .fi-ta-filters-above-content-ctn {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+}
+
+.fi-ta-header-ctn:has(.fi-ta-filters-above-content-ctn) > .fi-ta-header-toolbar {
+    flex: 0 1 auto;
+    margin-inline-start: auto;
+    padding: 0;
+    border: 0;
+}
+
+.fi-ta-main:has(.fi-ta-filters-above-content-ctn) .fi-ta-filter-indicators {
+    display: none;
+}
+
+.fi-ta-filters-above-content-ctn .fi-ta-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.5rem 0.75rem;
+}
+
+.fi-ta-filters-above-content-ctn .fi-ta-filters > .fi-grid {
+    order: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+}
+
+.fi-ta-filters-above-content-ctn .fi-grid-col {
+    flex: 0 1 auto;
+    min-width: 10.5rem;
+    max-width: 16rem;
+    grid-column: auto;
+}
+
+.fi-ta-filters-above-content-ctn .fi-ta-filters-header {
+    order: 2;
+    align-self: center;
+    padding-bottom: 0.45rem;
+}
+
+.fi-ta-filters-above-content-ctn .fi-ta-filters-heading {
+    display: none;
+}
+
+.fi-ta-filters-above-content-ctn .fi-ta-filters-header .fi-link {
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.fi-ta-filters-above-content-ctn .fi-fo-field-label {
+    font-size: 0.62rem;
+}
+
+.fi-ta-filters-above-content-ctn .fi-input-wrp {
+    border-radius: 999px;
+    background: var(--color-room);
+    --tw-ring-color: transparent;
+}
+
+.fi-ta-filters-above-content-ctn .fi-input-wrp:focus-within {
+    --tw-ring-color: var(--color-goud);
+}
+
+.fi-ta-filters-above-content-ctn .fi-input,
+.fi-ta-filters-above-content-ctn .fi-select-input {
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+/* Lijst-tabs (werkvoorraad) als losse pil op de ondergrond, zonder extra kaart eromheen */
+.fi-sc-tabs[id$='resourceTabs'] {
+    background: transparent;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    --tw-ring-color: transparent;
+}
+
+.fi-sc-tabs[id$='resourceTabs'] > .fi-tabs {
+    margin: 0;
+    background: var(--color-wit);
+    box-shadow: var(--dgb-schaduw-kaart);
+}
+
+/* ------------------------------------------------------------------
+   Testdag-cockpit: dagnavigatie, tijdlijn met banen en blokken
+   ------------------------------------------------------------------ */
+.dgb-dagnav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+}
+
+.dgb-dagnav__knop {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    background: var(--color-room);
+    color: var(--color-espresso);
+    transition: background-color 0.15s;
+}
+
+.dgb-dagnav__knop:hover {
+    background: var(--color-goud-licht);
+}
+
+.dgb-dagnav__knop svg {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+.dgb-dagnav__midden {
+    flex: 1;
+    text-align: center;
+}
+
+.dgb-dagnav__titel {
+    font-family: var(--font-kop);
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--color-espresso);
+    --tw-numeric-figure: lining-nums;
+    font-variant-numeric: lining-nums;
+}
+
+.dgb-dagnav__sub {
+    margin-top: 0.15rem;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--color-gedempt);
+}
+
+.dgb-tegel__van {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-gedempt);
+}
+
+.dgb-tijdlijn {
+    padding: 0 1.35rem 1.25rem;
+    overflow-x: auto;
+}
+
+.dgb-tijdlijn__kop,
+.dgb-tijdlijn__rij {
+    display: grid;
+    grid-template-columns: 11rem 1fr;
+    gap: 0.75rem;
+    min-width: 40rem;
+}
+
+.dgb-tijdlijn__rij {
+    align-items: center;
+    padding: 0.5rem 0;
+    border-top: 1px solid rgba(28, 15, 3, 0.06);
+}
+
+.dgb-tijdlijn__label {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding-right: 0.5rem;
+}
+
+.dgb-tijdlijn__uren {
+    display: flex;
+    padding-bottom: 0.4rem;
+}
+
+.dgb-tijdlijn__uur {
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: var(--color-gedempt);
+    white-space: nowrap;
+}
+
+.dgb-tijdlijn__baan {
+    position: relative;
+    height: 3.4rem;
+    border-radius: 0.75rem;
+    background-color: var(--color-room);
+    background-image: repeating-linear-gradient(
+        90deg,
+        rgba(28, 15, 3, 0.07) 0,
+        rgba(28, 15, 3, 0.07) 1px,
+        transparent 1px,
+        transparent calc(100% / var(--uren, 10))
+    );
+}
+
+.dgb-tijdlijn__nu {
+    position: absolute;
+    top: -0.25rem;
+    bottom: -0.25rem;
+    z-index: 2;
+    width: 2px;
+    background: var(--color-status-fout);
+    border-radius: 2px;
+}
+
+.dgb-tijdlijn__nu::before {
+    content: '';
+    position: absolute;
+    top: -0.2rem;
+    left: -0.3rem;
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 999px;
+    background: var(--color-status-fout);
+}
+
+.dgb-blok {
+    position: absolute;
+    top: 0.35rem;
+    bottom: 0.35rem;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.1rem;
+    overflow: hidden;
+    padding: 0.3rem 0.65rem;
+    border-radius: 0.65rem;
+    color: var(--color-wit);
+    text-decoration: none;
+    box-shadow: 0 6px 14px rgba(28, 15, 3, 0.12);
+    transition:
+        transform 0.15s,
+        box-shadow 0.15s;
+}
+
+a.dgb-blok:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(28, 15, 3, 0.18);
+}
+
+.dgb-blok__titel {
+    overflow: hidden;
+    font-size: 0.72rem;
+    font-weight: 800;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.dgb-blok__sub {
+    overflow: hidden;
+    font-size: 0.64rem;
+    font-weight: 600;
+    opacity: 0.85;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.dgb-blok--goud {
+    background: var(--dgb-goud-verloop);
+    color: var(--color-espresso);
+}
+
+.dgb-blok--info {
+    background: var(--color-status-info);
+}
+
+.dgb-blok--succes {
+    background: var(--color-status-succes);
+}
+
+.dgb-blok--neutraal {
+    background: var(--color-status-neutraal-bg);
+    color: var(--color-status-neutraal);
+    box-shadow: none;
+}
+
+.dgb-blok--fout {
+    background: var(--color-status-fout);
+}
+
 /* Rij-acties als icoonknoppen: compact, espresso, gouden achtergrond bij hover */
 .fi-ta-actions .fi-icon-btn {
     width: 2.1rem;
@@ -1135,7 +1473,7 @@
 }
 
 /* Kaarten in een rij rekken mee; de lijst vult de ruimte en een lege staat staat in het midden. */
-section.dgb-card {
+section.dgb-card:not(.dgb-dagnav) {
     display: flex;
     flex-direction: column;
 }

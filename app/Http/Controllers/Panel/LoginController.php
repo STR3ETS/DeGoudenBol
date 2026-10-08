@@ -46,7 +46,7 @@ class LoginController extends Controller
         if (! $user->is_active || ! $user->hasRole(StaffRole::Panelist->value)) {
             Auth::guard('web')->logout();
 
-            throw ValidationException::withMessages(['email' => 'Dit account is geen panellid.']);
+            throw ValidationException::withMessages(['email' => 'Dit account is geen panellid. Medewerkers van de organisatie loggen in op de backoffice (/admin).']);
         }
 
         RateLimiter::clear($key);

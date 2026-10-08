@@ -7,13 +7,17 @@ use App\Domain\Edition\Models\Edition;
 use App\Domain\Platform\Enums\StaffRole;
 use App\Domain\Ranking\Actions\FreezeEdition;
 use App\Domain\Ranking\Actions\RevealProvinces;
+use App\Domain\Ranking\Enums\BatchStatus;
 use App\Domain\Ranking\Enums\TieBreakStatus;
+use App\Domain\Ranking\Models\PublicationBatch;
 use App\Domain\Ranking\Models\TieBreakRound;
 use App\Filament\Resources\PublicationBatches\PublicationBatchResource;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Builder;
 use Throwable;
 
 /**
@@ -22,6 +26,34 @@ use Throwable;
 class ListPublicationBatches extends ListRecords
 {
     protected static string $resource = PublicationBatchResource::class;
+
+    /**
+     * Werkvoorraad: eerst de batches die nog iets van Publicatie vragen.
+     *
+     * @return array<string, Tab>
+     */
+    public function getTabs(): array
+    {
+        $open = [BatchStatus::Draft, BatchStatus::PendingApproval, BatchStatus::Approved];
+        $count = function (array $statuses): ?int {
+            $edition = Edition::current();
+            $count = $edition === null ? 0 : PublicationBatch::query()->where('edition_id', $edition->getKey())->whereIn('status', $statuses)->count();
+
+            return $count > 0 ? $count : null;
+        };
+
+        return [
+            'open' => Tab::make('Open')->modifyQueryUsing(fn (Builder $query) => $query->whereIn('status', $open))->badge(fn (): ?int => $count($open)),
+            'goedkeuren' => Tab::make('Wacht op goedkeuring')->modifyQueryUsing(fn (Builder $query) => $query->where('status', BatchStatus::PendingApproval))->badge(fn (): ?int => $count([BatchStatus::PendingApproval])),
+            'gepubliceerd' => Tab::make('Gepubliceerd')->modifyQueryUsing(fn (Builder $query) => $query->where('status', BatchStatus::Published))->badge(fn (): ?int => $count([BatchStatus::Published])),
+            'alle' => Tab::make('Alle'),
+        ];
+    }
+
+    public function getDefaultActiveTab(): string|int|null
+    {
+        return 'open';
+    }
 
     protected function getHeaderActions(): array
     {

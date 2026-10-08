@@ -9,9 +9,12 @@ use App\Domain\Ranking\Actions\SubmitBatch;
 use App\Domain\Ranking\Enums\BatchStatus;
 use App\Domain\Ranking\Models\PublicationBatch;
 use App\Filament\Resources\PublicationBatches\PublicationBatchResource;
+use App\Filament\Support\PublicationCockpit;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Schemas\Components\View;
+use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Throwable;
 
@@ -22,6 +25,20 @@ class ViewPublicationBatch extends ViewRecord
     public function getTitle(): string
     {
         return $this->getRecord()->label();
+    }
+
+    /**
+     * De cockpit (stappen, vier ogen, blokkades) boven de gegevens en de uitslagen.
+     */
+    public function content(Schema $schema): Schema
+    {
+        $schema = parent::content($schema);
+
+        return $schema->components([
+            View::make('filament.publication-batches.cockpit')
+                ->viewData(fn (): array => ['cockpit' => new PublicationCockpit($this->getRecord(), auth()->user())]),
+            ...$schema->getComponents(),
+        ]);
     }
 
     protected function getHeaderActions(): array

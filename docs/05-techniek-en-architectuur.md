@@ -67,6 +67,8 @@ ScorecardSubmitted ─► (queue) RecalculateResult ─► ResultFinalized (door
   ─► InvalidatePages(provincie, profiel, home, bakkers) ─► NotifyParticipant (alleen goed nieuws)
 ```
 
+Sinds 29 september 2026 bestaan `BatchSubmitted`, `BatchApproved` (met het aantal goedkeuringen), `CorrectionCaseOpened`, `ObjectionSubmitted` en `ProfileSubmitted` als echte events, naast `BatchPublished` en `OrderPaid`. `App\Domain\Platform\Listeners\NotifyStaff` zet ze om in meldingen in de bel van de backoffice via `App\Domain\Platform\Services\StaffNotifier` (per rol, alleen actieve accounts, nooit de veroorzaker). Meldingen gaan via de Laravel-notificatiequeue; lokaal moet dus een `queue:work` draaien om ze in de bel te zien.
+
 Bevriezing (`FreezeEdition`) is één transactie in het hoofddomein; alles erna gaat via de queue met `embargo_until = 21 dec`. Publiceren op 21 december = `ReleaseEmbargo`-job per provincie op het ingestelde tijdstip.
 
 ## 4. Caching en performance
@@ -148,7 +150,7 @@ EMBARGO_DEFAULT_AT="2026-12-21 12:00"
 - Laragon, https://degoudenbol.test, PHP 8.5, MySQL 8.4, Node 24.
 - Databases `degoudenbol` (root), `degoudenbol_testing` (gebruiker `dgb_testing`) en `degoudenbol_vault` (gebruiker `dgb_vault`) bestaan; wachtwoorden staan in `.env`. `VAULT_ENCRYPTION_KEY` en `AUDIT_HASH_SALT` zijn lokaal gegenereerd en mogen nooit wijzigen na de eerste regel.
 - `composer run dev` start server, queue, logs en Vite; `npm run build` voor een productiebundel.
-- `php artisan migrate:fresh --seed` zet alles neer inclusief lokale medewerkersaccounts.
+- `php artisan migrate:fresh --seed` zet alles neer inclusief lokale medewerkersaccounts en de demoketen (deelnemers, testsessie, publicatie, cadeaubonnenactie, sponsor, goed doel). `migrate:fresh` maakt via `FreshSecondaryConnections` ook de testketen- en kluisdatabase leeg (pas nadat de productiebevestiging is gepasseerd); een gewone `migrate` raakt die niet.
 - `php artisan test --compact` draait alles op SQLite in-memory (drie connecties, zie `phpunit.xml`).
 - `php artisan design:tokens` na elke wijziging in `resources/design/tokens.json` (`--check` in CI).
 - Boost MCP-server staat in `.mcp.json`; Boost-skills in `.claude/skills`.

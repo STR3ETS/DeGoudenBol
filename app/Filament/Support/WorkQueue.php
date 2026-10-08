@@ -30,6 +30,7 @@ use App\Domain\Testing\Models\TestSession;
 use App\Domain\Vouchers\Enums\CampaignStatus;
 use App\Domain\Vouchers\Models\VoucherCampaign;
 use App\Filament\Pages\Intake;
+use App\Filament\Pages\TestDay;
 use App\Filament\Resources\Charities\CharityResource;
 use App\Filament\Resources\Companies\CompanyResource;
 use App\Filament\Resources\CorrectionCases\CorrectionCaseResource;
@@ -93,6 +94,7 @@ final class WorkQueue
         }
 
         return [
+            ...$this->testDay(),
             ...$this->deliveriesToday(),
             ...$this->sessionsToday(),
             ...$this->freshness(),
@@ -109,6 +111,61 @@ final class WorkQueue
             ...$this->charityPayouts(),
             ...$this->missingCoordinates(),
         ];
+    }
+
+    /**
+     * De testdag-cockpit: vandaag als er sessies of leveringen zijn, anders de eerstvolgende testdag.
+     *
+     * @return list<WorkItem>
+     */
+    private function testDay(): array
+    {
+        if (! TestDay::canAccess()) {
+            return [];
+        }
+
+        $editionId = $this->edition->getKey();
+        [$start, $end] = [$this->now->startOfDay()->utc(), $this->now->endOfDay()->utc()];
+
+        $sessions = TestSession::query()->where('edition_id', $editionId)->whereBetween('starts_at', [$start, $end])->whereIn('status', [SessionStatus::Planned, SessionStatus::Running])->count();
+        $slots = DeliverySlot::query()->where('edition_id', $editionId)->whereBetween('starts_at', [$start, $end])->count();
+
+        if ($sessions > 0 || $slots > 0) {
+            return [[
+                'title' => 'Testdag vandaag',
+                'text' => "{$sessions} ".($sessions === 1 ? 'sessie' : 'sessies')." · {$slots} ".($slots === 1 ? 'aanleverslot' : 'aanleverslots').' · tijdlijn, versheid en de knoppen op één scherm.',
+                'count' => null,
+                'url' => TestDay::getUrl(),
+                'action' => 'Naar de testdag',
+                'tone' => 'goud',
+                'icon' => 'heroicon-o-calendar-days',
+            ]];
+        }
+
+        $next = collect([
+            TestSession::query()->where('edition_id', $editionId)->where('starts_at', '>', $end)->where('status', SessionStatus::Planned)->min('starts_at'),
+            DeliverySlot::query()->where('edition_id', $editionId)->where('starts_at', '>', $end)->min('starts_at'),
+        ])->filter()->min();
+
+        if ($next === null) {
+            return [];
+        }
+
+        $day = DutchTime::display(CarbonImmutable::parse($next))->startOfDay();
+
+        if ($day->gt($this->now->addDays(14))) {
+            return [];
+        }
+
+        return [[
+            'title' => 'Volgende testdag '.$day->locale('nl')->isoFormat('dddd D MMMM'),
+            'text' => 'Bekijk de planning van die dag alvast in de cockpit.',
+            'count' => null,
+            'url' => TestDay::getUrl(['dag' => $day->format('Y-m-d')]),
+            'action' => 'Bekijken',
+            'tone' => 'neutraal',
+            'icon' => 'heroicon-o-calendar-days',
+        ]];
     }
 
     /**
