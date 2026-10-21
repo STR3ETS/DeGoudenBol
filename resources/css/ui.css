@@ -1,0 +1,3422 @@
+/* ------------------------------------------------------------------
+   UI-kit van De Gouden Bol (docs/02): één componentbibliotheek voor publiekssite,
+   portaal en backoffice. Klassen heten ui-*, Nederlands, nooit als Tailwind-utility.
+   Gedrag (dropdown, kalender, menu, modal, tabs, toast) staat in resources/js/ui.js.
+   ------------------------------------------------------------------ */
+@layer components {
+    :root {
+        --ui-veld-hoogte: 44px;
+        --ui-focus: 0 0 0 4px rgba(200, 134, 10, 0.18);
+        --ui-schaduw-paneel: 0 18px 50px rgba(28, 15, 3, 0.14), 0 2px 8px rgba(28, 15, 3, 0.06);
+        --ui-overgang: 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ---------- Knoppen ---------- */
+    .ui-knop {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        height: var(--ui-veld-hoogte);
+        padding: 0 1.35rem;
+        border-radius: var(--radius-pil);
+        border: 1.5px solid transparent;
+        font-family: var(--font-brood);
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        line-height: 1;
+        white-space: nowrap;
+        cursor: pointer;
+        text-decoration: none;
+        color: var(--color-espresso);
+        background: var(--color-goud);
+        transition: transform var(--ui-overgang), box-shadow var(--ui-overgang), background-color var(--ui-overgang), color var(--ui-overgang), border-color var(--ui-overgang);
+
+        &:hover {
+            background: var(--color-espresso);
+            color: var(--color-room);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-knop-hover);
+        }
+
+        &:focus-visible {
+            outline: none;
+            box-shadow: var(--ui-focus);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+
+        &:disabled,
+        &[aria-disabled='true'] {
+            opacity: 0.45;
+            pointer-events: none;
+            transform: none;
+            box-shadow: none;
+        }
+
+        svg {
+            width: 1.05rem;
+            height: 1.05rem;
+            flex: none;
+        }
+    }
+
+    .ui-knop--secundair {
+        background: var(--color-wit);
+        border-color: var(--color-rand);
+        box-shadow: 0 1px 2px rgba(28, 15, 3, 0.04), 0 4px 14px rgba(28, 15, 3, 0.05);
+
+        &:hover {
+            background: var(--color-wit);
+            color: var(--color-espresso);
+            border-color: var(--color-goud);
+            box-shadow: var(--shadow-kaart-hover);
+        }
+    }
+
+    .ui-knop--omlijnd {
+        background: transparent;
+        border-color: var(--color-espresso);
+
+        &:hover {
+            background: var(--color-espresso);
+            color: var(--color-room);
+        }
+    }
+
+    .ui-knop--ghost {
+        background: transparent;
+        border-radius: var(--radius-veld);
+        padding-inline: 0.9rem;
+        text-transform: none;
+        letter-spacing: 0;
+        font-size: 0.85rem;
+        color: var(--color-gedempt);
+
+        &:hover {
+            background: var(--color-zand);
+            color: var(--color-espresso);
+            transform: none;
+            box-shadow: none;
+        }
+    }
+
+    .ui-knop--gevaar {
+        background: var(--color-status-fout-bg);
+        color: var(--color-status-fout);
+
+        &:hover {
+            background: var(--color-status-fout);
+            color: var(--color-wit);
+            box-shadow: 0 12px 30px rgba(155, 44, 44, 0.25);
+        }
+    }
+
+    .ui-knop--donker {
+        background: var(--color-espresso);
+        color: var(--color-room);
+
+        &:hover {
+            background: var(--color-goud);
+            color: var(--color-espresso);
+        }
+    }
+
+    .ui-knop--klein {
+        height: 36px;
+        padding-inline: 1rem;
+        font-size: 0.72rem;
+    }
+
+    .ui-knop--groot {
+        height: 52px;
+        padding-inline: 1.8rem;
+        font-size: 0.86rem;
+    }
+
+    .ui-knop--icoon {
+        width: var(--ui-veld-hoogte);
+        padding: 0;
+        border-radius: var(--radius-veld);
+    }
+
+    .ui-knop--icoon.ui-knop--klein {
+        width: 36px;
+    }
+
+    .ui-knop--rond {
+        border-radius: var(--radius-pil);
+    }
+
+    .ui-knop--breed {
+        width: 100%;
+    }
+
+    .ui-knop--laden {
+        pointer-events: none;
+        color: transparent !important;
+        position: relative;
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            margin: auto;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2.5px solid rgba(28, 15, 3, 0.25);
+            border-top-color: var(--color-espresso);
+            animation: ui-draai 0.8s linear infinite;
+        }
+    }
+
+    .ui-knoppen {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    @keyframes ui-draai {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* ---------- Velden ---------- */
+    .ui-veld {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        min-width: 0;
+    }
+
+    .ui-label {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--color-gedempt);
+    }
+
+    .ui-label__verplicht {
+        color: var(--color-goud-tekst);
+    }
+
+    .ui-label__optioneel {
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        text-transform: none;
+        color: var(--color-gedempt);
+        opacity: 0.8;
+    }
+
+    .ui-invoer {
+        display: block;
+        width: 100%;
+        min-height: var(--ui-veld-hoogte);
+        padding: 0 0.95rem;
+        border-radius: var(--radius-veld);
+        border: 1.5px solid var(--color-invoer-rand);
+        background: var(--color-wit);
+        font-family: var(--font-brood);
+        font-size: 0.92rem;
+        font-weight: 500;
+        color: var(--color-espresso);
+        transition: border-color var(--ui-overgang), box-shadow var(--ui-overgang), background-color var(--ui-overgang);
+
+        &::placeholder {
+            color: color-mix(in srgb, var(--color-gedempt) 60%, transparent);
+            font-weight: 400;
+        }
+
+        &:hover {
+            border-color: color-mix(in srgb, var(--color-goud) 45%, transparent);
+        }
+
+        &:focus,
+        &:focus-visible {
+            outline: none;
+            border-color: var(--color-goud);
+            box-shadow: var(--ui-focus);
+        }
+
+        &:disabled,
+        &[readonly] {
+            background: var(--color-zand);
+            color: var(--color-gedempt);
+            cursor: not-allowed;
+        }
+    }
+
+    textarea.ui-invoer {
+        min-height: 120px;
+        padding-block: 0.75rem;
+        line-height: 1.6;
+        resize: vertical;
+    }
+
+    .ui-invoer--select {
+        appearance: none;
+        padding-inline-end: 2.6rem;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B5B4A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 0.9rem center;
+        background-size: 1rem;
+        cursor: pointer;
+    }
+
+    .ui-invoer--klein {
+        min-height: 36px;
+        font-size: 0.84rem;
+        padding-inline: 0.75rem;
+    }
+
+    .ui-invoer--zand {
+        background: var(--color-zand);
+        border-color: transparent;
+
+        &:focus {
+            background: var(--color-wit);
+        }
+    }
+
+    .ui-invoer-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        .ui-invoer {
+            padding-inline-start: 2.7rem;
+        }
+
+        &.ui-invoer-wrap--achter .ui-invoer {
+            padding-inline-start: 0.95rem;
+            padding-inline-end: 2.7rem;
+        }
+    }
+
+    .ui-invoer-wrap__icoon {
+        position: absolute;
+        inset-inline-start: 0.9rem;
+        display: inline-flex;
+        color: var(--color-gedempt);
+        pointer-events: none;
+
+        svg {
+            width: 1.1rem;
+            height: 1.1rem;
+        }
+
+        .ui-invoer-wrap--achter & {
+            inset-inline-start: auto;
+            inset-inline-end: 0.9rem;
+        }
+    }
+
+    .ui-invoer-wrap__toevoeging {
+        position: absolute;
+        inset-inline-end: 0.9rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--color-gedempt);
+        pointer-events: none;
+    }
+
+    .ui-hulp {
+        font-size: 0.74rem;
+        line-height: 1.5;
+        color: var(--color-gedempt);
+    }
+
+    .ui-fout {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.74rem;
+        font-weight: 600;
+        color: var(--color-status-fout);
+
+        svg {
+            width: 0.95rem;
+            height: 0.95rem;
+            flex: none;
+        }
+    }
+
+    .ui-veld--fout .ui-invoer,
+    .ui-veld--fout .ui-keuze__knop,
+    .ui-veld--fout .ui-datum__knop {
+        border-color: var(--color-status-fout);
+        box-shadow: 0 0 0 4px rgba(155, 44, 44, 0.12);
+    }
+
+    .ui-veld--succes .ui-invoer {
+        border-color: var(--color-status-succes);
+    }
+
+    .ui-formulier {
+        display: grid;
+        gap: 1.1rem 1.25rem;
+
+        @media (min-width: 768px) {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    .ui-formulier__breed {
+        grid-column: 1 / -1;
+    }
+
+    .ui-veldgroep {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .ui-veldgroep__titel {
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--color-gedempt);
+    }
+
+    /* Zoekpil */
+    .ui-zoek {
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        .ui-invoer {
+            border-radius: var(--radius-pil);
+            padding-inline-start: 2.7rem;
+            padding-inline-end: 4.2rem;
+            background: var(--color-wit);
+            border-color: transparent;
+            box-shadow: 0 1px 2px rgba(28, 15, 3, 0.04), 0 6px 18px rgba(28, 15, 3, 0.06);
+        }
+    }
+
+    .ui-zoek__icoon {
+        position: absolute;
+        inset-inline-start: 1rem;
+        display: inline-flex;
+        color: var(--color-gedempt);
+        pointer-events: none;
+
+        svg {
+            width: 1.1rem;
+            height: 1.1rem;
+        }
+    }
+
+    .ui-zoek__toets {
+        position: absolute;
+        inset-inline-end: 0.75rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        background: var(--color-zand);
+        font-size: 0.62rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        color: var(--color-gedempt);
+        pointer-events: none;
+    }
+
+    /* Vinkje, radio, schakelaar */
+    .ui-vink,
+    .ui-radio {
+        display: inline-flex;
+        align-items: flex-start;
+        gap: 0.7rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: var(--color-espresso);
+        line-height: 1.45;
+
+        input {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+        }
+    }
+
+    .ui-vink__vak,
+    .ui-radio__vak {
+        flex: none;
+        width: 22px;
+        height: 22px;
+        margin-top: 0.05rem;
+        border-radius: 7px;
+        border: 1.5px solid var(--color-invoer-rand);
+        background: var(--color-wit);
+        display: inline-grid;
+        place-items: center;
+        transition: background-color var(--ui-overgang), border-color var(--ui-overgang), box-shadow var(--ui-overgang);
+
+        svg {
+            width: 14px;
+            height: 14px;
+            color: var(--color-espresso);
+            opacity: 0;
+            transform: scale(0.6);
+            transition: opacity var(--ui-overgang), transform var(--ui-overgang);
+        }
+    }
+
+    .ui-radio__vak {
+        border-radius: 50%;
+
+        &::after {
+            content: '';
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--color-espresso);
+            opacity: 0;
+            transform: scale(0.5);
+            transition: opacity var(--ui-overgang), transform var(--ui-overgang);
+        }
+    }
+
+    .ui-vink:hover .ui-vink__vak,
+    .ui-radio:hover .ui-radio__vak {
+        border-color: var(--color-goud);
+    }
+
+    .ui-vink input:focus-visible + .ui-vink__vak,
+    .ui-radio input:focus-visible + .ui-radio__vak {
+        box-shadow: var(--ui-focus);
+    }
+
+    .ui-vink input:checked + .ui-vink__vak,
+    .ui-radio input:checked + .ui-radio__vak {
+        background: var(--color-goud);
+        border-color: var(--color-goud);
+    }
+
+    .ui-vink input:checked + .ui-vink__vak svg,
+    .ui-radio input:checked + .ui-radio__vak::after {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .ui-vink input:disabled ~ *,
+    .ui-radio input:disabled ~ * {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .ui-vink__tekst small,
+    .ui-radio__tekst small {
+        display: block;
+        font-size: 0.76rem;
+        color: var(--color-gedempt);
+    }
+
+    .ui-schakelaar {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: var(--color-espresso);
+
+        input {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+        }
+    }
+
+    .ui-schakelaar__spoor {
+        flex: none;
+        position: relative;
+        width: 46px;
+        height: 26px;
+        border-radius: var(--radius-pil);
+        background: color-mix(in srgb, var(--color-gedempt) 28%, var(--color-zand));
+        transition: background-color var(--ui-overgang);
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--color-wit);
+            box-shadow: 0 2px 6px rgba(28, 15, 3, 0.2);
+            transition: transform var(--ui-overgang);
+        }
+    }
+
+    .ui-schakelaar input:checked + .ui-schakelaar__spoor {
+        background: var(--color-goud);
+
+        &::after {
+            transform: translateX(20px);
+        }
+    }
+
+    .ui-schakelaar input:focus-visible + .ui-schakelaar__spoor {
+        box-shadow: var(--ui-focus);
+    }
+
+    /* Gesegmenteerde keuze */
+    .ui-segment {
+        display: inline-flex;
+        padding: 4px;
+        border-radius: var(--radius-pil);
+        background: var(--color-zand);
+        gap: 2px;
+
+        label,
+        button {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            height: 34px;
+            padding: 0 0.95rem;
+            border-radius: var(--radius-pil);
+            border: 0;
+            background: transparent;
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: var(--color-gedempt);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background-color var(--ui-overgang), color var(--ui-overgang), box-shadow var(--ui-overgang);
+        }
+
+        input {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+        }
+
+        label:has(input:checked),
+        button[aria-selected='true'],
+        button.is-actief {
+            background: var(--color-wit);
+            color: var(--color-espresso);
+            box-shadow: 0 1px 2px rgba(28, 15, 3, 0.06), 0 4px 12px rgba(28, 15, 3, 0.06);
+        }
+
+        label:has(input:focus-visible),
+        button:focus-visible {
+            outline: none;
+            box-shadow: var(--ui-focus);
+        }
+    }
+
+    .ui-segment--goud {
+        label:has(input:checked),
+        button[aria-selected='true'],
+        button.is-actief {
+            background: var(--color-goud);
+            color: var(--color-espresso);
+        }
+    }
+
+    .ui-segment__teller {
+        padding: 0.1rem 0.45rem;
+        border-radius: var(--radius-pil);
+        background: var(--color-goud-licht);
+        color: var(--color-goud-tekst);
+        font-size: 0.66rem;
+        font-weight: 800;
+    }
+
+    /* Stapper (aantal) */
+    .ui-stapper {
+        display: inline-flex;
+        align-items: center;
+        height: var(--ui-veld-hoogte);
+        border-radius: var(--radius-veld);
+        border: 1.5px solid var(--color-invoer-rand);
+        background: var(--color-wit);
+        overflow: hidden;
+
+        button {
+            width: 42px;
+            height: 100%;
+            border: 0;
+            background: var(--color-zand);
+            color: var(--color-espresso);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color var(--ui-overgang);
+
+            &:hover {
+                background: var(--color-goud-licht);
+            }
+
+            &:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+            }
+        }
+
+        input {
+            width: 64px;
+            height: 100%;
+            border: 0;
+            text-align: center;
+            font-family: var(--font-brood);
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--color-espresso);
+            background: transparent;
+            -moz-appearance: textfield;
+
+            &:focus {
+                outline: none;
+            }
+
+            &::-webkit-outer-spin-button,
+            &::-webkit-inner-spin-button {
+                appearance: none;
+            }
+        }
+    }
+
+    /* Upload */
+    .ui-upload {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 2rem 1.5rem;
+        border-radius: var(--radius-kaart-in-kaart);
+        border: 1.5px dashed color-mix(in srgb, var(--color-goud) 45%, transparent);
+        background: var(--color-wit);
+        text-align: center;
+        color: var(--color-gedempt);
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: border-color var(--ui-overgang), background-color var(--ui-overgang);
+
+        &:hover,
+        &.is-sleep {
+            border-color: var(--color-goud);
+            background: var(--color-goud-licht);
+        }
+
+        input {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+        }
+
+        strong {
+            color: var(--color-espresso);
+        }
+    }
+
+    .ui-upload__icoon {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-icoonvak);
+        display: grid;
+        place-items: center;
+        background: var(--color-goud-licht);
+        color: var(--color-goud-tekst);
+
+        svg {
+            width: 1.3rem;
+            height: 1.3rem;
+        }
+    }
+
+    .ui-bestand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.6rem 0.8rem;
+        border-radius: var(--radius-veld);
+        background: var(--color-zand);
+        font-size: 0.82rem;
+        color: var(--color-espresso);
+
+        .ui-bestand__meta {
+            margin-inline-start: auto;
+            color: var(--color-gedempt);
+            font-size: 0.72rem;
+        }
+    }
+
+    /* ---------- Custom dropdown (ui-keuze) ---------- */
+    .ui-keuze {
+        position: relative;
+        min-width: 0;
+    }
+
+    .ui-keuze__native {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .ui-keuze:not(.is-klaar) .ui-keuze__native {
+        position: static;
+        opacity: 1;
+        width: 100%;
+        height: var(--ui-veld-hoogte);
+        pointer-events: auto;
+    }
+
+    .ui-keuze__knop {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        width: 100%;
+        min-height: var(--ui-veld-hoogte);
+        padding: 0.35rem 0.75rem 0.35rem 0.95rem;
+        border-radius: var(--radius-veld);
+        border: 1.5px solid var(--color-invoer-rand);
+        background: var(--color-wit);
+        font-family: var(--font-brood);
+        font-size: 0.92rem;
+        font-weight: 500;
+        color: var(--color-espresso);
+        text-align: left;
+        cursor: pointer;
+        transition: border-color var(--ui-overgang), box-shadow var(--ui-overgang);
+
+        &:hover {
+            border-color: color-mix(in srgb, var(--color-goud) 45%, transparent);
+        }
+
+        &:focus-visible,
+        &[aria-expanded='true'] {
+            outline: none;
+            border-color: var(--color-goud);
+            box-shadow: var(--ui-focus);
+        }
+
+        &:disabled {
+            background: var(--color-zand);
+            color: var(--color-gedempt);
+            cursor: not-allowed;
+        }
+    }
+
+    .ui-keuze--klein .ui-keuze__knop {
+        min-height: 36px;
+        font-size: 0.84rem;
+    }
+
+    .ui-keuze--pil .ui-keuze__knop {
+        border-radius: var(--radius-pil);
+        background: var(--color-wit);
+        border-color: transparent;
+        box-shadow: 0 1px 2px rgba(28, 15, 3, 0.04), 0 4px 14px rgba(28, 15, 3, 0.05);
+    }
+
+    .ui-keuze__waarde {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .ui-keuze__waarde.is-leeg {
+        color: color-mix(in srgb, var(--color-gedempt) 60%, transparent);
+        font-weight: 400;
+    }
+
+    .ui-keuze__chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.15rem 0.3rem 0.15rem 0.6rem;
+        border-radius: var(--radius-pil);
+        background: var(--color-goud-licht);
+        color: var(--color-goud-tekst);
+        font-size: 0.72rem;
+        font-weight: 700;
+        white-space: nowrap;
+
+        button {
+            display: inline-grid;
+            place-items: center;
+            width: 18px;
+            height: 18px;
+            border: 0;
+            border-radius: 50%;
+            background: transparent;
+            color: inherit;
+            cursor: pointer;
+
+            &:hover {
+                background: rgba(138, 90, 0, 0.15);
+            }
+
+            svg {
+                width: 11px;
+                height: 11px;
+            }
+        }
+    }
+
+    .ui-keuze__pijl,
+    .ui-keuze__wis {
+        flex: none;
+        display: inline-grid;
+        place-items: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: 0;
+        background: transparent;
+        color: var(--color-gedempt);
+        transition: transform var(--ui-overgang), background-color var(--ui-overgang);
+
+        svg {
+            width: 1rem;
+            height: 1rem;
+        }
+    }
+
+    .ui-keuze__wis {
+        cursor: pointer;
+
+        &:hover {
+            background: var(--color-zand);
+            color: var(--color-espresso);
+        }
+    }
+
+    .ui-keuze__knop[aria-expanded='true'] .ui-keuze__pijl {
+        transform: rotate(180deg);
+    }
+
+    .ui-keuze__paneel,
+    .ui-datum__paneel,
+    .ui-menu__paneel {
+        position: absolute;
+        z-index: 40;
+        top: calc(100% + 6px);
+        inset-inline-start: 0;
+        min-width: 100%;
+        padding: 0.45rem;
+        border-radius: var(--radius-blok);
+        border: 1px solid var(--color-rand);
+        background: var(--color-wit);
+        box-shadow: var(--ui-schaduw-paneel);
+        transform-origin: top;
+        animation: ui-paneel-in 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+
+        &[hidden] {
+            display: none;
+        }
+    }
+
+    .ui-keuze__paneel {
+        max-height: 320px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ui-keuze__paneel--boven,
+    .ui-datum__paneel--boven,
+    .ui-menu__paneel--boven {
+        top: auto;
+        bottom: calc(100% + 6px);
+        transform-origin: bottom;
+    }
+
+    .ui-menu__paneel--rechts {
+        inset-inline-start: auto;
+        inset-inline-end: 0;
+    }
+
+    @keyframes ui-paneel-in {
+        from {
+            opacity: 0;
+            transform: translateY(-4px) scale(0.98);
+        }
+
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    .ui-keuze__zoek {
+        position: relative;
+        margin-bottom: 0.35rem;
+
+        input {
+            width: 100%;
+            height: 38px;
+            padding: 0 0.75rem 0 2.2rem;
+            border-radius: 10px;
+            border: 1.5px solid transparent;
+            background: var(--color-zand);
+            font-family: var(--font-brood);
+            font-size: 0.85rem;
+            color: var(--color-espresso);
+
+            &:focus {
+                outline: none;
+                border-color: var(--color-goud);
+                background: var(--color-wit);
+            }
+        }
+
+        svg {
+            position: absolute;
+            left: 0.7rem;
+            top: 50%;
+            width: 1rem;
+            height: 1rem;
+            transform: translateY(-50%);
+            color: var(--color-gedempt);
+            pointer-events: none;
+        }
+    }
+
+    .ui-keuze__lijst {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        overflow: auto;
+        overscroll-behavior: contain;
+    }
+
+    .ui-keuze__groep {
+        padding: 0.55rem 0.7rem 0.25rem;
+        font-size: 0.62rem;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--color-goud-tekst);
+    }
+
+    .ui-keuze__optie {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        min-height: 40px;
+        padding: 0.45rem 0.7rem;
+        border-radius: 10px;
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: var(--color-espresso);
+        cursor: pointer;
+        user-select: none;
+
+        &:hover,
+        &.is-focus {
+            background: var(--color-zand);
+        }
+
+        &[aria-selected='true'] {
+            background: var(--color-goud-licht);
+            color: var(--color-goud-tekst);
+            font-weight: 700;
+        }
+
+        &[aria-disabled='true'] {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        small {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--color-gedempt);
+        }
+    }
+
+    .ui-keuze__optie-tekst {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .ui-keuze__vink {
+        flex: none;
+        width: 18px;
+        height: 18px;
+        opacity: 0;
+        color: var(--color-goud-tekst);
+
+        .ui-keuze__optie[aria-selected='true'] & {
+            opacity: 1;
+        }
+    }
+
+    .ui-keuze__leeg {
+        padding: 0.8rem 0.7rem;
+        font-size: 0.82rem;
+        color: var(--color-gedempt);
+        text-align: center;
+    }
+
+    .ui-keuze__stip {
+        flex: none;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--color-goud);
+    }
+
+    /* ---------- Datum en kalender ---------- */
+    .ui-datum {
+        position: relative;
+    }
+
+    .ui-datum__knop {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        width: 100%;
+        min-height: var(--ui-veld-hoogte);
+        padding: 0 0.95rem;
+        border-radius: var(--radius-veld);
+        border: 1.5px solid var(--color-invoer-rand);
+        background: var(--color-wit);
+        font-family: var(--font-brood);
+        font-size: 0.92rem;
+        font-weight: 500;
+        color: var(--color-espresso);
+        text-align: left;
+        cursor: pointer;
+        transition: border-color var(--ui-overgang), box-shadow var(--ui-overgang);
+
+        svg {
+            flex: none;
+            width: 1.05rem;
+            height: 1.05rem;
+            color: var(--color-gedempt);
+        }
+
+        &:hover {
+            border-color: color-mix(in srgb, var(--color-goud) 45%, transparent);
+        }
+
+        &:focus-visible,
+        &[aria-expanded='true'] {
+            outline: none;
+            border-color: var(--color-goud);
+            box-shadow: var(--ui-focus);
+        }
+    }
+
+    .ui-datum__tekst {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .ui-datum__tekst.is-leeg {
+        color: color-mix(in srgb, var(--color-gedempt) 60%, transparent);
+        font-weight: 400;
+    }
+
+    .ui-datum__paneel {
+        min-width: 0;
+        width: max-content;
+        padding: 0.9rem;
+    }
+
+    .ui-kalender {
+        width: 296px;
+        max-width: 100%;
+        font-family: var(--font-brood);
+        user-select: none;
+    }
+
+    .ui-kalender--breed {
+        width: 100%;
+    }
+
+    .ui-kalender__kop {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.6rem;
+    }
+
+    .ui-kalender__titel {
+        font-family: var(--font-kop);
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--color-espresso);
+        text-transform: capitalize;
+        font-variant-numeric: lining-nums;
+    }
+
+    .ui-kalender__nav {
+        display: inline-grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 0;
+        background: var(--color-zand);
+        color: var(--color-espresso);
+        cursor: pointer;
+        transition: background-color var(--ui-overgang);
+
+        &:hover {
+            background: var(--color-goud-licht);
+        }
+
+        svg {
+            width: 1rem;
+            height: 1rem;
+        }
+    }
+
+    .ui-kalender__raster {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+    }
+
+    .ui-kalender__weekdag {
+        padding: 0.35rem 0;
+        text-align: center;
+        font-size: 0.62rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--color-gedempt);
+    }
+
+    .ui-kalender__dag {
+        position: relative;
+        aspect-ratio: 1;
+        min-height: 36px;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        font-family: var(--font-brood);
+        font-size: 0.84rem;
+        font-weight: 600;
+        color: var(--color-espresso);
+        cursor: pointer;
+        font-variant-numeric: tabular-nums;
+        transition: background-color 0.12s ease, color 0.12s ease;
+
+        &:hover {
+            background: var(--color-zand);
+        }
+
+        &:focus-visible {
+            outline: none;
+            box-shadow: var(--ui-focus);
+        }
+    }
+
+    .ui-kalender__dag--buiten {
+        color: color-mix(in srgb, var(--color-gedempt) 45%, transparent);
+    }
+
+    .ui-kalender__dag--vandaag {
+        box-shadow: inset 0 0 0 1.5px var(--color-goud);
+        color: var(--color-goud-tekst);
+    }
+
+    .ui-kalender__dag--uit {
+        color: color-mix(in srgb, var(--color-gedempt) 35%, transparent);
+        cursor: not-allowed;
+        text-decoration: line-through;
+
+        &:hover {
+            background: transparent;
+        }
+    }
+
+    .ui-kalender__dag--bereik {
+        background: var(--color-goud-licht);
+        border-radius: 0;
+        color: var(--color-goud-tekst);
+    }
+
+    .ui-kalender__dag--start {
+        border-radius: 10px 0 0 10px;
+    }
+
+    .ui-kalender__dag--einde {
+        border-radius: 0 10px 10px 0;
+    }
+
+    .ui-kalender__dag--gekozen,
+    .ui-kalender__dag--gekozen:hover {
+        background: var(--color-goud);
+        color: var(--color-espresso);
+        box-shadow: 0 6px 16px rgba(200, 134, 10, 0.3);
+    }
+
+    .ui-kalender__dag--start.ui-kalender__dag--einde {
+        border-radius: 10px;
+    }
+
+    .ui-kalender__stip {
+        position: absolute;
+        bottom: 4px;
+        left: 50%;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: var(--color-goud);
+        transform: translateX(-50%);
+
+        .ui-kalender__dag--gekozen & {
+            background: var(--color-espresso);
+        }
+    }
+
+    .ui-kalender__voet {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-top: 0.6rem;
+        padding-top: 0.6rem;
+        border-top: 1px solid var(--color-rand);
+    }
+
+    .ui-kalender__snel {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+    }
+
+    .ui-kalender__snel button {
+        padding: 0.3rem 0.65rem;
+        border-radius: var(--radius-pil);
+        border: 0;
+        background: var(--color-zand);
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: var(--color-gedempt);
+        cursor: pointer;
+
+        &:hover {
+            background: var(--color-goud-licht);
+            color: var(--color-goud-tekst);
+        }
+    }
+
+    .ui-tijd {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+
+        .ui-invoer {
+            width: 110px;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+    }
+
+    /* ---------- Chips, badges, tags ---------- */
+    .ui-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: var(--radius-pil);
+        background: var(--color-zand);
+        color: var(--color-espresso);
+        font-size: 0.72rem;
+        font-weight: 700;
+        line-height: 1.2;
+        white-space: nowrap;
+
+        svg {
+            width: 0.9rem;
+            height: 0.9rem;
+        }
+    }
+
+    .ui-chip__stip {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.85;
+    }
+
+    .ui-chip--succes {
+        background: var(--color-status-succes-bg);
+        color: var(--color-status-succes);
+    }
+
+    .ui-chip--waarschuwing {
+        background: var(--color-status-waarschuwing-bg);
+        color: var(--color-status-waarschuwing);
+    }
+
+    .ui-chip--fout {
+        background: var(--color-status-fout-bg);
+        color: var(--color-status-fout);
+    }
+
+    .ui-chip--info {
+        background: var(--color-status-info-bg);
+        color: var(--color-status-info);
+    }
+
+    .ui-chip--neutraal {
+        background: var(--color-status-neutraal-bg);
+        color: var(--color-status-neutraal);
+    }
+
+    .ui-chip--goud {
+        background: var(--color-goud-licht);
+        color: var(--color-goud-tekst);
+    }
+
+    .ui-chip--espresso {
+        background: var(--color-espresso);
+        color: var(--color-room);
+    }
+
+    .ui-chip--omlijnd {
+        background: transparent;
+        box-shadow: inset 0 0 0 1px var(--color-rand-sterk);
+        color: var(--color-gedempt);
+    }
+
+    .ui-chip--klein {
+        padding: 0.18rem 0.55rem;
+        font-size: 0.64rem;
+    }
+
+    .ui-chip__verwijder {
+        display: inline-grid;
+        place-items: center;
+        width: 16px;
+        height: 16px;
+        margin-inline-end: -0.3rem;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+
+        &:hover {
+            background: rgba(28, 15, 3, 0.1);
+        }
+
+        svg {
+            width: 10px;
+            height: 10px;
+        }
+    }
+
+    .ui-badge {
+        display: inline-grid;
+        place-items: center;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 0.4rem;
+        border-radius: var(--radius-pil);
+        background: var(--color-goud);
+        color: var(--color-espresso);
+        font-size: 0.66rem;
+        font-weight: 800;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .ui-badge--espresso {
+        background: var(--color-espresso);
+        color: var(--color-goud);
+    }
+
+    .ui-badge--fout {
+        background: var(--color-status-fout);
+        color: var(--color-wit);
+    }
+
+    .ui-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        height: 34px;
+        padding: 0 0.95rem;
+        border-radius: var(--radius-pil);
+        border: 1.5px solid transparent;
+        background: var(--color-wit);
+        font-size: 0.74rem;
+        font-weight: 700;
+        color: var(--color-gedempt);
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color var(--ui-overgang), color var(--ui-overgang), border-color var(--ui-overgang);
+
+        &:hover {
+            border-color: var(--color-goud);
+            color: var(--color-espresso);
+        }
+
+        &.is-actief {
+            background: var(--color-goud);
+            color: var(--color-espresso);
+        }
+    }
+
+    /* ---------- Meldingen, toast, tooltip, lege staat, voortgang, skelet ---------- */
+    .ui-melding {
+        display: flex;
+        gap: 0.85rem;
+        padding: 0.95rem 1.1rem;
+        border-radius: var(--radius-blok);
+        background: var(--color-status-info-bg);
+        color: var(--color-status-info);
+        font-size: 0.86rem;
+        line-height: 1.5;
+
+        .ui-melding__icoon {
+            flex: none;
+            display: inline-grid;
+            place-items: center;
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-icoonvak);
+            background: rgba(255, 255, 255, 0.6);
+
+            svg {
+                width: 1.05rem;
+                height: 1.05rem;
+            }
+        }
+
+        .ui-melding__inhoud {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ui-melding__titel {
+            display: block;
+            font-weight: 800;
+            margin-bottom: 0.1rem;
+        }
+
+        .ui-melding__sluit {
+            flex: none;
+            display: inline-grid;
+            place-items: center;
+            width: 28px;
+            height: 28px;
+            border: 0;
+            border-radius: 50%;
+            background: transparent;
+            color: inherit;
+            cursor: pointer;
+            opacity: 0.7;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.6);
+                opacity: 1;
+            }
+
+            svg {
+                width: 0.9rem;
+                height: 0.9rem;
+            }
+        }
+    }
+
+    .ui-melding--succes {
+        background: var(--color-status-succes-bg);
+        color: var(--color-status-succes);
+    }
+
+    .ui-melding--waarschuwing {
+        background: var(--color-status-waarschuwing-bg);
+        color: var(--color-status-waarschuwing);
+    }
+
+    .ui-melding--fout {
+        background: var(--color-status-fout-bg);
+        color: var(--color-status-fout);
+    }
+
+    .ui-melding--neutraal {
+        background: var(--color-zand);
+        color: var(--color-espresso);
+    }
+
+    .ui-melding--embargo {
+        background: var(--color-espresso);
+        color: var(--color-room);
+        border: 1.5px solid var(--color-goud);
+
+        .ui-melding__icoon {
+            background: rgba(200, 134, 10, 0.2);
+            color: var(--color-goud);
+        }
+    }
+
+    .ui-toasts {
+        position: fixed;
+        z-index: 100;
+        right: 1.25rem;
+        bottom: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        width: min(380px, calc(100vw - 2.5rem));
+        pointer-events: none;
+    }
+
+    .ui-toast {
+        display: flex;
+        gap: 0.8rem;
+        align-items: flex-start;
+        padding: 0.9rem 1rem;
+        border-radius: var(--radius-blok);
+        background: var(--color-espresso);
+        color: var(--color-room);
+        box-shadow: var(--ui-schaduw-paneel);
+        font-size: 0.85rem;
+        line-height: 1.45;
+        pointer-events: auto;
+        animation: ui-toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+        .ui-toast__icoon {
+            flex: none;
+            display: inline-grid;
+            place-items: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--color-goud);
+            color: var(--color-espresso);
+
+            svg {
+                width: 1rem;
+                height: 1rem;
+            }
+        }
+
+        .ui-toast__titel {
+            display: block;
+            font-weight: 800;
+        }
+
+        .ui-toast__tekst {
+            color: var(--color-room-zacht);
+        }
+
+        .ui-toast__sluit {
+            flex: none;
+            margin-inline-start: auto;
+            display: inline-grid;
+            place-items: center;
+            width: 26px;
+            height: 26px;
+            border: 0;
+            border-radius: 50%;
+            background: transparent;
+            color: var(--color-room-meta);
+            cursor: pointer;
+
+            &:hover {
+                background: rgba(250, 245, 234, 0.12);
+                color: var(--color-room);
+            }
+
+            svg {
+                width: 0.85rem;
+                height: 0.85rem;
+            }
+        }
+    }
+
+    .ui-toast--succes .ui-toast__icoon {
+        background: var(--color-status-succes);
+        color: var(--color-wit);
+    }
+
+    .ui-toast--fout .ui-toast__icoon {
+        background: var(--color-status-fout);
+        color: var(--color-wit);
+    }
+
+    .ui-toast--waarschuwing .ui-toast__icoon {
+        background: var(--color-status-waarschuwing-bg);
+        color: var(--color-status-waarschuwing);
+    }
+
+    .ui-toast.is-weg {
+        animation: ui-toast-uit 0.25s ease forwards;
+    }
+
+    @keyframes ui-toast-in {
+        from {
+            opacity: 0;
+            transform: translateY(12px) scale(0.98);
+        }
+
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    @keyframes ui-toast-uit {
+        to {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+    }
+
+    [data-tip] {
+        position: relative;
+    }
+
+    [data-tip]::after {
+        content: attr(data-tip);
+        position: absolute;
+        z-index: 50;
+        left: 50%;
+        bottom: calc(100% + 8px);
+        transform: translateX(-50%) translateY(4px);
+        padding: 0.4rem 0.65rem;
+        border-radius: 8px;
+        background: var(--color-espresso);
+        color: var(--color-room);
+        font-family: var(--font-brood);
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        white-space: nowrap;
+        text-transform: none;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+
+    [data-tip]:hover::after,
+    [data-tip]:focus-visible::after {
+        opacity: 1;
+        transform: translateX(-50%);
+    }
+
+    .ui-lege-staat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 2.75rem 1.5rem;
+        border-radius: var(--radius-kaart);
+        border: 1.5px dashed var(--color-rand-sterk);
+        text-align: center;
+    }
+
+    .ui-lege-staat__icoon {
+        display: grid;
+        place-items: center;
+        width: 52px;
+        height: 52px;
+        margin-bottom: 0.4rem;
+        border-radius: 16px;
+        background: var(--color-zand);
+        color: var(--color-goud-tekst);
+
+        svg {
+            width: 1.4rem;
+            height: 1.4rem;
+        }
+    }
+
+    .ui-lege-staat__titel {
+        font-family: var(--font-kop);
+        font-size: 1.45rem;
+        font-weight: 600;
+        color: var(--color-espresso);
+    }
+
+    .ui-lege-staat__tekst {
+        max-width: 380px;
+        font-size: 0.85rem;
+        line-height: 1.6;
+        color: var(--color-gedempt);
+    }
+
+    .ui-voortgang {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .ui-voortgang__kop {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.74rem;
+        font-weight: 700;
+        color: var(--color-espresso);
+
+        span:last-child {
+            color: var(--color-gedempt);
+            font-variant-numeric: tabular-nums;
+        }
+    }
+
+    .ui-voortgang__balk {
+        height: 8px;
+        border-radius: var(--radius-pil);
+        background: var(--color-zand);
+        overflow: hidden;
+    }
+
+    .ui-voortgang__vulling {
+        height: 100%;
+        border-radius: var(--radius-pil);
+        background: var(--color-goud);
+        transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .ui-voortgang--succes .ui-voortgang__vulling {
+        background: var(--color-status-succes);
+    }
+
+    .ui-voortgang--waarschuwing .ui-voortgang__vulling {
+        background: var(--color-status-waarschuwing);
+    }
+
+    .ui-voortgang--fout .ui-voortgang__vulling {
+        background: var(--color-status-fout);
+    }
+
+    .ui-skelet {
+        display: block;
+        border-radius: 8px;
+        background: linear-gradient(90deg, var(--color-zand) 0%, color-mix(in srgb, var(--color-zand) 50%, white) 50%, var(--color-zand) 100%);
+        background-size: 200% 100%;
+        animation: ui-shimmer 1.4s ease infinite;
+    }
+
+    @keyframes ui-shimmer {
+        from {
+            background-position: 200% 0;
+        }
+
+        to {
+            background-position: -200% 0;
+        }
+    }
+
+    .ui-laden {
+        display: inline-block;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 2.5px solid var(--color-zand);
+        border-top-color: var(--color-goud);
+        animation: ui-draai 0.8s linear infinite;
+    }
+
+    .ui-laadpil {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.5rem 1rem 0.5rem 0.7rem;
+        border-radius: var(--radius-pil);
+        background: var(--color-wit);
+        box-shadow: var(--ui-schaduw-paneel);
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--color-espresso);
+
+        .ui-laden {
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    /* ---------- Kaarten, tegels, rijen, stats ---------- */
+    .ui-kaart {
+        min-width: 0;
+        background: var(--color-wit);
+        border: 1px solid var(--color-rand);
+        border-radius: var(--radius-kaart);
+        box-shadow: 0 1px 2px rgba(28, 15, 3, 0.03), 0 8px 24px rgba(28, 15, 3, 0.05);
+    }
+
+    .ui-kaart--zand {
+        background: var(--color-zand);
+        border-color: transparent;
+        box-shadow: none;
+    }
+
+    .ui-kaart--espresso {
+        background: var(--color-espresso);
+        border-color: transparent;
+        color: var(--color-room);
+    }
+
+    .ui-kaart--klik {
+        transition: transform var(--ui-overgang), box-shadow var(--ui-overgang), border-color var(--ui-overgang);
+        cursor: pointer;
+
+        &:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-kaart-hover);
+            border-color: color-mix(in srgb, var(--color-goud) 35%, transparent);
+        }
+    }
+
+    .ui-kaart__kop {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 1.1rem 1.35rem;
+        border-bottom: 1px solid var(--color-rand);
+    }
+
+    .ui-kaart__titel {
+        font-size: 0.98rem;
+        font-weight: 800;
+        color: var(--color-espresso);
+        line-height: 1.2;
+
+        .ui-kaart--espresso & {
+            color: var(--color-room);
+        }
+    }
+
+    .ui-kaart__sub {
+        font-size: 0.74rem;
+        color: var(--color-gedempt);
+
+        .ui-kaart--espresso & {
+            color: var(--color-room-meta);
+        }
+    }
+
+    .ui-kaart__acties {
+        margin-inline-start: auto;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .ui-kaart__inhoud {
+        padding: 1.25rem 1.35rem;
+    }
+
+    .ui-kaart__voet {
+        padding: 0.9rem 1.35rem;
+        border-top: 1px solid var(--color-rand);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.8rem;
+        color: var(--color-gedempt);
+    }
+
+    .ui-icoonvak {
+        flex: none;
+        display: inline-grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-icoonvak);
+        background: var(--color-goud-licht);
+        color: var(--color-goud-tekst);
+
+        svg {
+            width: 1.15rem;
+            height: 1.15rem;
+        }
+    }
+
+    .ui-icoonvak--rond {
+        border-radius: 50%;
+    }
+
+    .ui-icoonvak--klein {
+        width: 32px;
+        height: 32px;
+
+        svg {
+            width: 0.95rem;
+            height: 0.95rem;
+        }
+    }
+
+    .ui-icoonvak--espresso {
+        background: var(--color-espresso);
+        color: var(--color-goud);
+    }
+
+    .ui-icoonvak--goud {
+        background: var(--color-goud);
+        color: var(--color-espresso);
+    }
+
+    .ui-icoonvak--succes {
+        background: var(--color-status-succes-bg);
+        color: var(--color-status-succes);
+    }
+
+    .ui-icoonvak--info {
+        background: var(--color-status-info-bg);
+        color: var(--color-status-info);
+    }
+
+    .ui-icoonvak--waarschuwing {
+        background: var(--color-status-waarschuwing-bg);
+        color: var(--color-status-waarschuwing);
+    }
+
+    .ui-icoonvak--fout {
+        background: var(--color-status-fout-bg);
+        color: var(--color-status-fout);
+    }
+
+    .ui-icoonvak--neutraal {
+        background: var(--color-status-neutraal-bg);
+        color: var(--color-status-neutraal);
+    }
+
+    .ui-tegel {
+        position: relative;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+        padding: 1.35rem 1.45rem;
+        border-radius: var(--radius-kaart);
+        border: 1px solid var(--color-rand);
+        background: var(--color-wit);
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+        transition: transform var(--ui-overgang), box-shadow var(--ui-overgang);
+
+        &:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-kaart-hover);
+        }
+    }
+
+    .ui-tegel__kop {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.84rem;
+        font-weight: 700;
+        color: var(--color-espresso);
+    }
+
+    .ui-tegel__cijfer {
+        font-family: var(--font-kop);
+        font-size: clamp(2rem, 2.4vw, 2.6rem);
+        font-weight: 700;
+        line-height: 1;
+        color: var(--color-espresso);
+        font-variant-numeric: lining-nums tabular-nums;
+        overflow-wrap: anywhere;
+    }
+
+    .ui-tegel__kop {
+        min-width: 0;
+    }
+
+    .ui-tegel__voet {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.4rem 0.75rem;
+        font-size: 0.74rem;
+        color: var(--color-gedempt);
+    }
+
+    .ui-tegel__link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-weight: 800;
+        color: var(--color-goud-tekst);
+
+        svg {
+            width: 0.85rem;
+            height: 0.85rem;
+        }
+    }
+
+    .ui-tegel__watermerk {
+        position: absolute;
+        right: -0.5rem;
+        bottom: -0.75rem;
+        width: 96px;
+        height: 96px;
+        opacity: 0.08;
+        color: var(--color-espresso);
+        pointer-events: none;
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .ui-tegel--goud {
+        background: var(--color-goud-licht);
+        border-color: transparent;
+    }
+
+    .ui-tegel--succes {
+        background: var(--color-status-succes-bg);
+        border-color: transparent;
+    }
+
+    .ui-tegel--info {
+        background: var(--color-status-info-bg);
+        border-color: transparent;
+    }
+
+    .ui-tegel--waarschuwing {
+        background: var(--color-status-waarschuwing-bg);
+        border-color: transparent;
+    }
+
+    .ui-tegel--fout {
+        background: var(--color-status-fout-bg);
+        border-color: transparent;
+    }
+
+    .ui-tegel--espresso {
+        background: var(--color-espresso);
+        border-color: transparent;
+
+        .ui-tegel__kop,
+        .ui-tegel__cijfer {
+            color: var(--color-room);
+        }
+
+        .ui-tegel__voet {
+            color: var(--color-room-meta);
+        }
+
+        .ui-tegel__link {
+            color: var(--color-goud);
+        }
+
+        .ui-tegel__watermerk {
+            color: var(--color-goud);
+            opacity: 0.18;
+        }
+    }
+
+    .ui-tegel--mini {
+        gap: 0.35rem;
+        padding: 1rem 1.1rem;
+
+        .ui-tegel__cijfer {
+            font-size: 1.7rem;
+        }
+    }
+
+    .ui-stat {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .ui-stat__cijfer {
+        font-family: var(--font-kop);
+        font-size: 2.2rem;
+        font-weight: 700;
+        line-height: 1;
+        color: var(--color-espresso);
+        font-variant-numeric: lining-nums tabular-nums;
+    }
+
+    .ui-stat__label {
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--color-gedempt);
+    }
+
+    .ui-stat__delta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--color-status-succes);
+
+        &.is-neer {
+            color: var(--color-status-neutraal);
+        }
+
+        svg {
+            width: 0.8rem;
+            height: 0.8rem;
+        }
+    }
+
+    .ui-rij {
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
+        padding: 0.8rem 1rem;
+        border-radius: var(--radius-blok);
+        background: var(--color-wit);
+        border: 1px solid var(--color-rand);
+        color: inherit;
+        text-decoration: none;
+        transition: background-color var(--ui-overgang), border-color var(--ui-overgang), transform var(--ui-overgang);
+
+        &:hover {
+            border-color: color-mix(in srgb, var(--color-goud) 40%, transparent);
+            background: var(--color-room);
+        }
+    }
+
+    .ui-rij--klik:hover {
+        transform: translateX(3px);
+    }
+
+    .ui-rij--tint {
+        border-color: transparent;
+        background: var(--color-zand);
+    }
+
+    .ui-rij--goud {
+        border-color: transparent;
+        background: var(--color-goud-licht);
+    }
+
+    .ui-rij--succes {
+        border-color: transparent;
+        background: var(--color-status-succes-bg);
+    }
+
+    .ui-rij--info {
+        border-color: transparent;
+        background: var(--color-status-info-bg);
+    }
+
+    .ui-rij--waarschuwing {
+        border-color: transparent;
+        background: var(--color-status-waarschuwing-bg);
+    }
+
+    .ui-rij--fout {
+        border-color: transparent;
+        background: var(--color-status-fout-bg);
+    }
+
+    .ui-rij__tekst {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .ui-rij__titel {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--color-espresso);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .ui-rij__sub {
+        display: block;
+        font-size: 0.74rem;
+        color: var(--color-gedempt);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .ui-rij__meta {
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .ui-rij__chevron {
+        flex: none;
+        width: 1rem;
+        height: 1rem;
+        color: var(--color-gedempt);
+    }
+
+    .ui-lijst {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .ui-datumblok {
+        flex: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 52px;
+        padding: 0.4rem 0;
+        border-radius: var(--radius-veld);
+        background: var(--color-zand);
+        line-height: 1;
+    }
+
+    .ui-datumblok__dag,
+    .ui-datumblok__maand {
+        font-size: 0.58rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--color-gedempt);
+    }
+
+    .ui-datumblok__nr {
+        font-family: var(--font-kop);
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--color-espresso);
+        font-variant-numeric: lining-nums;
+    }
+
+    .ui-datumblok--goud {
+        background: var(--color-goud);
+
+        .ui-datumblok__dag,
+        .ui-datumblok__maand,
+        .ui-datumblok__nr {
+            color: var(--color-espresso);
+        }
+    }
+
+    .ui-avatar {
+        flex: none;
+        display: inline-grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--color-goud);
+        color: var(--color-espresso);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+    }
+
+    .ui-avatar--klein {
+        width: 30px;
+        height: 30px;
+        font-size: 0.64rem;
+    }
+
+    .ui-avatar--espresso {
+        background: var(--color-espresso);
+        color: var(--color-goud);
+    }
+
+    .ui-avatar--zand {
+        background: var(--color-zand);
+        color: var(--color-espresso);
+    }
+
+    .ui-avatars {
+        display: inline-flex;
+
+        .ui-avatar {
+            box-shadow: 0 0 0 2px var(--color-wit);
+
+            + .ui-avatar {
+                margin-inline-start: -8px;
+            }
+        }
+    }
+
+    .ui-balk {
+        height: 6px;
+        border-radius: var(--radius-pil);
+        background: var(--color-zand);
+        overflow: hidden;
+    }
+
+    .ui-balk__vulling {
+        height: 100%;
+        border-radius: var(--radius-pil);
+        background: var(--color-goud);
+    }
+
+    .ui-staven {
+        display: flex;
+        align-items: flex-end;
+        gap: 4px;
+        height: 64px;
+    }
+
+    .ui-staven__staaf {
+        flex: 1;
+        display: flex;
+        align-items: flex-end;
+        height: 100%;
+        border-radius: 6px;
+        background: var(--color-zand);
+        overflow: hidden;
+    }
+
+    .ui-staven__vulling {
+        width: 100%;
+        border-radius: 6px;
+        background: color-mix(in srgb, var(--color-goud) 55%, var(--color-zand));
+    }
+
+    .ui-staven__staaf--vandaag .ui-staven__vulling {
+        background: var(--color-goud);
+    }
+
+    .ui-score {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.7rem;
+        border-radius: var(--radius-pil);
+        background: var(--color-goud-tint);
+        color: var(--color-goud-tekst);
+        font-size: 0.8rem;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .ui-score--top {
+        background: var(--color-goud);
+        color: var(--color-espresso);
+    }
+
+    /* ---------- Tabel, paginering ---------- */
+    .ui-tabel-wrap {
+        background: var(--color-wit);
+        border: 1px solid var(--color-rand);
+        border-radius: var(--radius-kaart);
+        overflow: hidden;
+    }
+
+    .ui-tabel-wrap__toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.9rem 1.1rem;
+        border-bottom: 1px solid var(--color-rand);
+    }
+
+    .ui-tabel-wrap__scroll {
+        overflow-x: auto;
+    }
+
+    .ui-tabel {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.86rem;
+
+        th,
+        td {
+            padding: 0.8rem 1.1rem;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        thead th {
+            font-size: 0.64rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--color-gedempt);
+            background: var(--color-zand);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-top: 1px solid var(--color-rand);
+            transition: background-color 0.12s ease;
+        }
+
+        tbody tr:hover {
+            background: var(--color-room);
+        }
+
+        tbody tr.is-gekozen {
+            background: var(--color-goud-licht);
+        }
+
+        td.is-getal,
+        th.is-getal {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        td.is-acties {
+            width: 1%;
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        .ui-tabel__primair {
+            font-weight: 700;
+            color: var(--color-espresso);
+        }
+
+        .ui-tabel__sub {
+            display: block;
+            font-size: 0.72rem;
+            color: var(--color-gedempt);
+        }
+    }
+
+    .ui-tabel--compact th,
+    .ui-tabel--compact td {
+        padding: 0.5rem 0.9rem;
+    }
+
+    .ui-tabel--zebra tbody tr:nth-child(even) {
+        background: color-mix(in srgb, var(--color-zand) 40%, white);
+    }
+
+    .ui-tabel__sorteer {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        border: 0;
+        background: transparent;
+        font: inherit;
+        color: inherit;
+        letter-spacing: inherit;
+        text-transform: inherit;
+        cursor: pointer;
+
+        svg {
+            width: 0.8rem;
+            height: 0.8rem;
+            opacity: 0.4;
+        }
+
+        &.is-actief {
+            color: var(--color-espresso);
+
+            svg {
+                opacity: 1;
+                color: var(--color-goud-tekst);
+            }
+        }
+    }
+
+    .ui-tabel__acties {
+        display: inline-flex;
+        gap: 0.2rem;
+    }
+
+    .ui-tabel-wrap__voet {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.8rem 1.1rem;
+        border-top: 1px solid var(--color-rand);
+        font-size: 0.78rem;
+        color: var(--color-gedempt);
+    }
+
+    .ui-paginering {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+
+        a,
+        button,
+        span {
+            display: inline-grid;
+            place-items: center;
+            min-width: 34px;
+            height: 34px;
+            padding: 0 0.5rem;
+            border-radius: var(--radius-pil);
+            border: 0;
+            background: transparent;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--color-gedempt);
+            text-decoration: none;
+            cursor: pointer;
+            font-variant-numeric: tabular-nums;
+
+            &:hover {
+                background: var(--color-zand);
+                color: var(--color-espresso);
+            }
+
+            &.is-actief {
+                background: var(--color-goud);
+                color: var(--color-espresso);
+            }
+
+            &[aria-disabled='true'] {
+                opacity: 0.4;
+                pointer-events: none;
+            }
+
+            svg {
+                width: 0.9rem;
+                height: 0.9rem;
+            }
+        }
+    }
+
+    /* ---------- Tabs, accordeon, kruimels, stappen, tijdlijn ---------- */
+    .ui-tabs {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .ui-tabs__lijst {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 2px;
+        padding: 4px;
+        border-radius: var(--radius-pil);
+        background: var(--color-zand);
+        align-self: flex-start;
+        max-width: 100%;
+    }
+
+    .ui-tabs__tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        height: 36px;
+        padding: 0 1rem;
+        border-radius: var(--radius-pil);
+        border: 0;
+        background: transparent;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--color-gedempt);
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background-color var(--ui-overgang), color var(--ui-overgang);
+
+        &:hover {
+            color: var(--color-espresso);
+        }
+
+        &[aria-selected='true'] {
+            background: var(--color-goud);
+            color: var(--color-espresso);
+        }
+
+        &:focus-visible {
+            outline: none;
+            box-shadow: var(--ui-focus);
+        }
+    }
+
+    .ui-tabs__paneel[hidden] {
+        display: none;
+    }
+
+    .ui-tabs--lijn .ui-tabs__lijst {
+        padding: 0;
+        gap: 1.25rem;
+        border-radius: 0;
+        background: transparent;
+        border-bottom: 1px solid var(--color-rand-sterk);
+        align-self: stretch;
+    }
+
+    .ui-tabs--lijn .ui-tabs__tab {
+        height: 42px;
+        padding: 0 0.2rem;
+        border-radius: 0;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+
+        &[aria-selected='true'] {
+            background: transparent;
+            border-bottom-color: var(--color-goud);
+            color: var(--color-espresso);
+        }
+    }
+
+    .ui-accordeon {
+        border: 1px solid var(--color-rand);
+        border-radius: var(--radius-blok);
+        background: var(--color-wit);
+
+        + .ui-accordeon {
+            margin-top: 0.5rem;
+        }
+
+        summary {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.95rem 1.1rem;
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--color-espresso);
+            cursor: pointer;
+            list-style: none;
+
+            &::-webkit-details-marker {
+                display: none;
+            }
+        }
+
+        &[open] summary {
+            border-bottom: 1px solid var(--color-rand);
+        }
+    }
+
+    .ui-accordeon__plus {
+        margin-inline-start: auto;
+        flex: none;
+        display: inline-grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--color-zand);
+        color: var(--color-espresso);
+        transition: transform var(--ui-overgang), background-color var(--ui-overgang);
+
+        svg {
+            width: 0.9rem;
+            height: 0.9rem;
+        }
+
+        .ui-accordeon[open] & {
+            transform: rotate(45deg);
+            background: var(--color-goud);
+        }
+    }
+
+    .ui-accordeon__inhoud {
+        padding: 0.9rem 1.1rem 1.1rem;
+        font-size: 0.86rem;
+        line-height: 1.65;
+        color: var(--color-gedempt);
+    }
+
+    .ui-kruimels {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--color-gedempt);
+
+        a {
+            color: var(--color-goud-tekst);
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+
+        svg {
+            width: 0.75rem;
+            height: 0.75rem;
+            opacity: 0.6;
+        }
+
+        [aria-current] {
+            color: var(--color-espresso);
+        }
+    }
+
+    .ui-stappen {
+        display: flex;
+        gap: 0.4rem;
+        overflow-x: auto;
+        padding-bottom: 2px;
+    }
+
+    .ui-stap {
+        flex: 1;
+        min-width: 120px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.9rem 0.6rem;
+        border-radius: var(--radius-blok);
+        text-align: center;
+        text-decoration: none;
+        color: inherit;
+        transition: background-color var(--ui-overgang);
+
+        &:hover {
+            background: var(--color-zand);
+        }
+    }
+
+    .ui-stap__nr {
+        display: inline-grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: var(--color-zand);
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: var(--color-gedempt);
+        font-variant-numeric: tabular-nums;
+
+        svg {
+            width: 1rem;
+            height: 1rem;
+        }
+    }
+
+    .ui-stap__label {
+        font-size: 0.74rem;
+        font-weight: 700;
+        color: var(--color-espresso);
+    }
+
+    .ui-stap__teller {
+        font-size: 0.7rem;
+        color: var(--color-gedempt);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .ui-stap--klaar .ui-stap__nr {
+        background: var(--color-status-succes-bg);
+        color: var(--color-status-succes);
+    }
+
+    .ui-stap--actief {
+        background: var(--color-goud-licht);
+
+        .ui-stap__nr {
+            background: var(--color-goud);
+            color: var(--color-espresso);
+            box-shadow: 0 6px 16px rgba(200, 134, 10, 0.3);
+        }
+    }
+
+    .ui-tijdlijn {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        padding-inline-start: 1.6rem;
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: 9px;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: var(--color-rand-sterk);
+        }
+    }
+
+    .ui-tijdlijn__item {
+        position: relative;
+        padding: 0 0 1.25rem;
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: -1.6rem;
+            top: 3px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--color-wit);
+            border: 2px solid var(--color-rand-sterk);
+            box-sizing: border-box;
+        }
+
+        &:last-child {
+            padding-bottom: 0;
+        }
+    }
+
+    .ui-tijdlijn__item--klaar::before {
+        background: var(--color-status-succes);
+        border-color: var(--color-status-succes);
+    }
+
+    .ui-tijdlijn__item--nu::before {
+        background: var(--color-goud);
+        border-color: var(--color-goud);
+        box-shadow: 0 0 0 5px rgba(200, 134, 10, 0.18);
+    }
+
+    .ui-tijdlijn__titel {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--color-espresso);
+    }
+
+    .ui-tijdlijn__tijd {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--color-goud-tekst);
+        margin-bottom: 0.15rem;
+    }
+
+    .ui-tijdlijn__tekst {
+        font-size: 0.8rem;
+        line-height: 1.55;
+        color: var(--color-gedempt);
+    }
+
+    /* ---------- Menu, modal, lade ---------- */
+    .ui-menu {
+        position: relative;
+        display: inline-block;
+    }
+
+    .ui-menu__paneel {
+        min-width: 220px;
+        width: max-content;
+        max-width: 320px;
+    }
+
+    .ui-menu__kop {
+        padding: 0.5rem 0.75rem 0.35rem;
+        font-size: 0.62rem;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--color-gedempt);
+    }
+
+    .ui-menu__item {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        width: 100%;
+        padding: 0.6rem 0.75rem;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        font-family: var(--font-brood);
+        font-size: 0.86rem;
+        font-weight: 600;
+        color: var(--color-espresso);
+        text-align: left;
+        text-decoration: none;
+        cursor: pointer;
+
+        svg {
+            width: 1rem;
+            height: 1rem;
+            color: var(--color-gedempt);
+            flex: none;
+        }
+
+        kbd {
+            margin-inline-start: auto;
+            padding: 0.1rem 0.4rem;
+            border-radius: 5px;
+            background: var(--color-zand);
+            font-family: var(--font-brood);
+            font-size: 0.62rem;
+            font-weight: 800;
+            color: var(--color-gedempt);
+        }
+
+        &:hover,
+        &.is-focus {
+            background: var(--color-zand);
+        }
+
+        &[aria-disabled='true'] {
+            opacity: 0.45;
+            pointer-events: none;
+        }
+    }
+
+    .ui-menu__item--gevaar {
+        color: var(--color-status-fout);
+
+        svg {
+            color: inherit;
+        }
+
+        &:hover {
+            background: var(--color-status-fout-bg);
+        }
+    }
+
+    .ui-menu__scheiding {
+        height: 1px;
+        margin: 0.35rem 0.25rem;
+        background: var(--color-rand);
+    }
+
+    .ui-modal {
+        margin: auto;
+        width: min(560px, calc(100vw - 2rem));
+        max-height: calc(100vh - 2rem);
+        padding: 0;
+        border: 0;
+        border-radius: var(--radius-paneel);
+        background: var(--color-wit);
+        color: var(--color-espresso);
+        box-shadow: 0 30px 80px rgba(28, 15, 3, 0.25);
+        overflow: hidden;
+
+        &::backdrop {
+            background: rgba(28, 15, 3, 0.45);
+            backdrop-filter: blur(6px);
+        }
+
+        &[open] {
+            animation: ui-modal-in 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+    }
+
+    .ui-modal--breed {
+        width: min(880px, calc(100vw - 2rem));
+    }
+
+    .ui-modal--klein {
+        width: min(420px, calc(100vw - 2rem));
+    }
+
+    @keyframes ui-modal-in {
+        from {
+            opacity: 0;
+            transform: translateY(12px) scale(0.98);
+        }
+
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    .ui-modal__kop {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.9rem;
+        padding: 1.4rem 1.5rem 1rem;
+    }
+
+    .ui-modal__titel {
+        font-family: var(--font-kop);
+        font-size: 1.6rem;
+        font-weight: 600;
+        line-height: 1.15;
+        color: var(--color-espresso);
+    }
+
+    .ui-modal__sub {
+        margin-top: 0.2rem;
+        font-size: 0.82rem;
+        color: var(--color-gedempt);
+    }
+
+    .ui-modal__sluit {
+        margin-inline-start: auto;
+    }
+
+    .ui-modal__inhoud {
+        padding: 0 1.5rem 1.25rem;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: var(--color-gedempt);
+        overflow: auto;
+    }
+
+    .ui-modal__voet {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 0.6rem;
+        padding: 1rem 1.5rem 1.4rem;
+        background: var(--color-zand);
+    }
+
+    .ui-lade {
+        position: fixed;
+        inset: 0 0 0 auto;
+        width: min(480px, 100vw);
+        max-width: 100vw;
+        max-height: 100vh;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: var(--radius-paneel) 0 0 var(--radius-paneel);
+        background: var(--color-wit);
+        color: var(--color-espresso);
+        box-shadow: -20px 0 60px rgba(28, 15, 3, 0.2);
+        display: none;
+        flex-direction: column;
+
+        &::backdrop {
+            background: rgba(28, 15, 3, 0.45);
+            backdrop-filter: blur(6px);
+        }
+
+        &[open] {
+            display: flex;
+            animation: ui-lade-in 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .ui-modal__inhoud {
+            flex: 1;
+        }
+    }
+
+    @keyframes ui-lade-in {
+        from {
+            transform: translateX(40px);
+            opacity: 0;
+        }
+
+        to {
+            transform: none;
+            opacity: 1;
+        }
+    }
+
+    /* ---------- Navigatie ---------- */
+    .ui-sidebar {
+        display: flex;
+        flex-direction: column;
+        width: 272px;
+        min-height: 560px;
+        padding: 1.25rem 1rem;
+        border-radius: var(--radius-paneel);
+        background:
+            radial-gradient(460px 340px at 14% 108%, rgba(200, 134, 10, 0.34), rgba(200, 134, 10, 0.1) 42%, transparent 70%),
+            linear-gradient(180deg, #1c0f03 0%, #281705 60%, #37210a 100%);
+        color: var(--color-room);
+    }
+
+    .ui-sidebar__merk {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        padding: 0.25rem 0.5rem 1.25rem;
+        color: var(--color-room);
+        text-decoration: none;
+    }
+
+    .ui-sidebar__groep {
+        padding: 1rem 0.75rem 0.4rem;
+        font-size: 0.6rem;
+        font-weight: 800;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--color-room-decor);
+    }
+
+    .ui-sidebar__item {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 0.6rem 0.75rem;
+        border-radius: var(--radius-blok);
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--color-room-zacht);
+        text-decoration: none;
+        transition: background-color var(--ui-overgang), color var(--ui-overgang);
+
+        .ui-icoonvak {
+            width: 32px;
+            height: 32px;
+            background: rgba(250, 245, 234, 0.08);
+            color: var(--color-room-zacht);
+
+            svg {
+                width: 0.95rem;
+                height: 0.95rem;
+            }
+        }
+
+        .ui-badge {
+            margin-inline-start: auto;
+        }
+
+        &:hover {
+            background: rgba(250, 245, 234, 0.07);
+            color: var(--color-room);
+        }
+
+        &.is-actief {
+            background: var(--color-goud);
+            color: var(--color-espresso);
+            box-shadow: 0 10px 28px rgba(200, 134, 10, 0.35);
+
+            .ui-icoonvak {
+                background: rgba(28, 15, 3, 0.12);
+                color: var(--color-espresso);
+            }
+        }
+    }
+
+    .ui-sidebar__voet {
+        margin-top: auto;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(250, 245, 234, 0.1);
+    }
+
+    .ui-topbar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius-paneel);
+        background: color-mix(in srgb, var(--color-room) 70%, var(--color-zand));
+    }
+
+    .ui-topbar__begroeting {
+        display: flex;
+        flex-direction: column;
+        margin-inline-end: auto;
+        line-height: 1.15;
+        min-width: 0;
+    }
+
+    .ui-topbar__kop {
+        font-family: var(--font-kop);
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--color-espresso);
+        white-space: nowrap;
+    }
+
+    .ui-topbar__sub {
+        font-size: 0.74rem;
+        font-weight: 500;
+        color: var(--color-gedempt);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .ui-pilknop {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        height: 44px;
+        min-width: 44px;
+        padding: 0 0.75rem;
+        border-radius: var(--radius-pil);
+        border: 0;
+        background: var(--color-wit);
+        box-shadow: 0 1px 2px rgba(28, 15, 3, 0.04), 0 6px 18px rgba(28, 15, 3, 0.06);
+        color: var(--color-espresso);
+        font-size: 0.82rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        position: relative;
+        transition: transform var(--ui-overgang), box-shadow var(--ui-overgang);
+
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-kaart-hover);
+        }
+
+        svg {
+            width: 1.1rem;
+            height: 1.1rem;
+        }
+
+        .ui-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+        }
+    }
+
+    .ui-pilknop__tekst {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+        text-align: left;
+
+        small {
+            font-size: 0.66rem;
+            font-weight: 600;
+            color: var(--color-gedempt);
+        }
+    }
+
+    .ui-pilnav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+
+        a {
+            padding: 0.55rem 0.9rem;
+            border-radius: var(--radius-pil);
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--color-espresso);
+            text-decoration: none;
+            transition: background-color var(--ui-overgang);
+
+            &:hover {
+                background: var(--color-zand);
+            }
+
+            &.is-actief {
+                background: var(--color-goud-licht);
+                color: var(--color-goud-tekst);
+            }
+        }
+    }
+
+    .ui-filterbalk {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.75rem;
+        border-radius: var(--radius-kaart);
+        background: var(--color-zand);
+    }
+
+    .ui-paginakop {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .ui-paginakop__titel {
+        font-family: var(--font-kop);
+        font-size: clamp(2rem, 3.4vw, 2.8rem);
+        font-weight: 600;
+        line-height: 1.1;
+        color: var(--color-espresso);
+
+        em {
+            font-style: italic;
+            color: var(--color-goud-tekst);
+        }
+    }
+
+    .ui-paginakop__sub {
+        margin-top: 0.25rem;
+        font-size: 0.86rem;
+        color: var(--color-gedempt);
+    }
+
+    .ui-eyebrow {
+        display: inline-block;
+        margin-bottom: 0.4rem;
+        font-size: 0.64rem;
+        font-weight: 700;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: var(--color-goud-tekst);
+    }
+
+    .ui-scheiding {
+        height: 1px;
+        background: var(--color-rand);
+        border: 0;
+        margin: 1.25rem 0;
+    }
+
+    .ui-kbd {
+        display: inline-block;
+        padding: 0.15rem 0.45rem;
+        border-radius: 6px;
+        border: 1px solid var(--color-rand-sterk);
+        background: var(--color-wit);
+        font-family: var(--font-brood);
+        font-size: 0.66rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        color: var(--color-gedempt);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .ui-knop,
+        .ui-kaart--klik,
+        .ui-tegel,
+        .ui-rij,
+        .ui-pilknop {
+            transition: none;
+
+            &:hover {
+                transform: none;
+            }
+        }
+
+        .ui-keuze__paneel,
+        .ui-datum__paneel,
+        .ui-menu__paneel,
+        .ui-toast,
+        .ui-modal[open],
+        .ui-lade[open] {
+            animation: none;
+        }
+
+        .ui-skelet {
+            animation: none;
+        }
+    }
+}

@@ -171,7 +171,7 @@ Geen dark mode voor site, portaal en backoffice in 2026; alleen badges hebben ee
 
 ## 8. Naamgeving van componentklassen
 
-Componentklassen in `app.css` krijgen Nederlandse namen die nooit op een Tailwind-utility lijken: `kop-display`, `kop-pagina`, `kop-2`, `kop-3`, `btn-pill`, `rank-pill`, `chip`, `lege-staat`, `checklist-rij`. Patronen als `h-2`, `w-4`, `p-3`, `text-lg` zijn verboden als eigen klassenaam, omdat Tailwind v4 dan een utility met dezelfde selector genereert (bijvoorbeeld `h-2` = `height: 0.5rem`) die de component overschrijft.
+Componentklassen in `app.css` krijgen Nederlandse namen die nooit op een Tailwind-utility lijken: `kop-display`, `kop-pagina`, `kop-2`, `kop-3`, `btn-pill`, `rank-pill`, `chip`, `lege-staat`, `checklist-rij`. Nieuwe componenten komen in `ui.css` met het voorvoegsel `ui-` (zie §9); de oude klassen blijven bestaan tot de pagina's zijn overgezet. Patronen als `h-2`, `w-4`, `p-3`, `text-lg` zijn verboden als eigen klassenaam, omdat Tailwind v4 dan een utility met dezelfde selector genereert (bijvoorbeeld `h-2` = `height: 0.5rem`) die de component overschrijft.
 
 ## 9. Tokenbestand en stijlgids
 
@@ -182,3 +182,21 @@ Componentklassen in `app.css` krijgen Nederlandse namen die nooit op een Tailwin
 - SVG-templates lezen de kleuren als variabelen
 
 Een levende stijlgidspagina op `/stijlgids` (niet indexeren, alleen lokaal en acceptatie) toont alle tokens en componenten.
+
+**UI-kit (8 okt 2026).** Eén componentbibliotheek voor publiekssite, portaal en backoffice: `resources/css/ui.css` (klassen `ui-*`, geladen door `app.css` én het Filament-thema) en `resources/js/ui.js` (gedrag, geen dependencies; `initUi()` draait bij laden en na iedere Livewire-navigatie). De stijlgids is opgebouwd uit secties in `resources/views/stijlgids/secties/` (losse bestanden, omdat Livewire's Blade-precompiler op één groot sjabloon vastloopt) met het hulpcomponent `x-stijlgids.blok`; iconen via `x-ui.icoon naam="…"` (lijn-iconen op een 24-raster, `resources/views/components/ui/icoon.blade.php`). De kit bevat:
+
+| Groep | Componenten |
+|---|---|
+| Knoppen | `ui-knop` met `--secundair --omlijnd --ghost --gevaar --donker --klein --groot --icoon --rond --breed --laden`, `ui-knoppen` |
+| Velden | `ui-veld`, `ui-label`, `ui-invoer` (`--select --klein --zand`), `ui-invoer-wrap` (icoon voor/achter, toevoeging), `ui-hulp`, `ui-fout`, `ui-veld--fout`, `ui-formulier`, `ui-zoek`, `ui-vink`, `ui-radio`, `ui-schakelaar`, `ui-segment`, `ui-stapper`, `ui-upload`, `ui-bestand`, `ui-tijd` |
+| Dropdown | `[data-ui-keuze]` rond een gewone `<select>`: knop, paneel, zoeken (`data-zoek`), meerkeuze met chips (`multiple`), wissen (`data-wissen`), groepen (`optgroup`), kleurstip (`data-kleur`), subregel (`data-sub`), toetsenbord; `--klein --pil` |
+| Kalender | `[data-ui-datum]` rond een `input[type=hidden]` (periode met `data-bereik` + tweede input `[data-einde]`, `data-min/max`, `data-markeer`, `data-snel`, `data-wissen`) en `[data-ui-kalender]` inline (`ui-kalender`, `--breed`); Nederlandse namen, maandag eerst, event `ui:datum` |
+| Chips | `ui-chip` (statussen, `--goud --espresso --omlijnd --klein`, stip, verwijderknop), `ui-badge`, `ui-tag`, `ui-score` |
+| Feedback | `ui-melding` (`--succes --waarschuwing --fout --neutraal --embargo`), toasts (`uiToast()`, `[data-ui-toast]`), tooltip `[data-tip]`, `ui-lege-staat`, `ui-voortgang`, `ui-laden`, `ui-laadpil`, `ui-skelet` |
+| Kaarten | `ui-kaart` (`--zand --espresso --klik`, kop/inhoud/voet/acties), `ui-icoonvak` (tonen), `ui-tegel` (pastel kerncijfers, `--mini`), `ui-stat`, `ui-staven`, `ui-balk`, `ui-avatar(s)`, `ui-datumblok` |
+| Rijen en tabellen | `ui-lijst`, `ui-rij` (tinten, `--klik`), `ui-tabel-wrap` (toolbar, scroll, voet), `ui-tabel` (`--compact --zebra`, sorteerknoppen, selectie, icoonacties), `ui-paginering` |
+| Structuur | `ui-tabs` (`[data-ui-tabs]`, `--lijn`), `ui-accordeon`, `ui-kruimels`, `ui-stappen`/`ui-stap`, `ui-tijdlijn` |
+| Overlays | `ui-menu` (`[data-ui-menu]`), `ui-modal` en `ui-lade` op `<dialog>` (`[data-ui-modal=id]`, `[data-ui-sluit]`) |
+| Navigatie | `ui-sidebar`, `ui-topbar`, `ui-pilknop`, `ui-pilnav`, `ui-filterbalk`, `ui-paginakop`, `ui-eyebrow`, `ui-kbd` |
+
+De sectie "Voorbeeld dashboard" op de stijlgids is de maat voor het omgooien van het backoffice-overzicht: alles daarin komt uit deze kit.

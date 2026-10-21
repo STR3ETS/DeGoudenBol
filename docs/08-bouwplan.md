@@ -112,7 +112,9 @@ Nog open na release 3: PNG-badges, drukwerk-pdf, pdf-bon, OG-images en persbeeld
 
 Nog open: PNG-badges, drukwerk-pdf, pdf-bon, OG-images (Browsershot); foto-upload (medialibrary); export nieuwsbrief naar mailplatform; doorfactureren bontekorten; Wallet-pass; backup-hersteltest, loadtest en externe quickscan; proefrun 28 oktober; ketentest cadeaubonnen 9 december. Zie ook docs/07 voor de open besluiten.
 
-**Volgende stap:** ontbrekende input verwerken zodra die er is (beoordelingsmodel, pakketten, voorwaarden, logo's, persberichttemplates) en de release 1-QA: teksten nalopen, mails in het eigen mailthema controleren, toegankelijkheid, proefrun.
+**8 oktober 2026 – UI-kit en nieuwe stijlgids.** Op verzoek van Raphael (het dashboard gaat volledig op de schop) staat er nu één componentbibliotheek: `resources/css/ui.css` + `resources/js/ui.js`, klassen `ui-*`, zonder dependencies, geladen door de publieke bundel én het Filament-thema. `/stijlgids` is opnieuw opgebouwd (secties in `resources/views/stijlgids/secties/`) en toont alles: tokens, knoppen, velden, eigen dropdowns (zoeken, meerkeuze, groepen) en kalender (datum, periode, inline, markeringen), chips, meldingen en toasts, kaarten en kerncijfertegels, werkrijen, tabellen met toolbar en paginering, tabs, stappen, tijdlijn, menu's, modals en lade, sidebar/topbar en een voorbeelddashboard in de nieuwe stijl. Details en klassenlijst in docs/02 §9. Ook: `migrate:fresh` wist nu de testketen- en kluisdatabase mee, `staff:create` voor de eerste beheerder op een nieuwe omgeving, deploy op Plesk in docs/05 §8, gouden flare in de sidebar en de begroeting in de topbar.
+
+**Volgende stap:** het backoffice-dashboard (en daarna de overige backoffice-schermen) overzetten op de UI-kit volgens het voorbeelddashboard; ontbrekende input verwerken zodra die er is; release 1-QA.
 
 ## Stap 0 – Fundament (vóór release 1)
 

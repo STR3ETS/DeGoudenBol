@@ -16,7 +16,7 @@ class CreateStaffUserCommand extends Command
 {
     protected $signature = 'staff:create
         {email : E-mailadres van de medewerker}
-        {name : Naam}
+        {name* : Naam (meerdere woorden mogen los, zonder aanhalingstekens)}
         {--role=admin : Rol: admin, intake, coordinator, reviewer, publisher, communication, voucher_manager of finance}
         {--password= : Wachtwoord; leeg = gegenereerd en eenmalig getoond}';
 
@@ -46,7 +46,8 @@ class CreateStaffUserCommand extends Command
         $user = User::query()->firstOrNew(['email' => $email]);
         $created = ! $user->exists;
 
-        $user->fill(['name' => trim((string) $this->argument('name'))]);
+        // De Plesk-toolkit knipt op spaties en laat aanhalingstekens weg; daarom is de naam variadisch.
+        $user->fill(['name' => trim(implode(' ', (array) $this->argument('name')))]);
         $user->password = $password;
         $user->is_active = true;
         $user->save();
