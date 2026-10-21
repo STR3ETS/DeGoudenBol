@@ -25,6 +25,8 @@ class PublicPagesTest extends TestCase
     #[Test]
     public function the_homepage_shows_the_seeded_edition_facts_in_every_block(): void
     {
+        $this->travelTo('2026-10-01 10:00:00'); // vóór de gezaaide openingsdatum, zodat de feiten kloppen
+
         $this->seed([ProvinceSeeder::class, Edition2026Seeder::class]);
 
         $this->get('/')

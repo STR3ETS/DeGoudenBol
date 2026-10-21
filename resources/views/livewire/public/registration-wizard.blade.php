@@ -9,14 +9,21 @@
     @if (! $this->isOpen)
         <div class="mx-auto max-w-[640px] text-center">
             <x-ui.eyebrow>Aanmelden</x-ui.eyebrow>
-            <h1 class="kop-pagina mb-5">De inschrijving is <em>nog niet open</em></h1>
-            <p class="body-text mb-8">
-                @if ($edition?->registration_opens_at)
-                    De inschrijving voor De Gouden Bol {{ $edition->year }} opent op {{ DutchTime::format($edition->registration_opens_at, 'dddd D MMMM YYYY') }}.
-                @else
-                    De inschrijving voor de volgende editie wordt binnenkort aangekondigd.
-                @endif
-            </p>
+            @if ($edition?->registrationHasClosed() || in_array($edition?->status, [\App\Domain\Edition\Enums\EditionStatus::Closed, \App\Domain\Edition\Enums\EditionStatus::Frozen, \App\Domain\Edition\Enums\EditionStatus::Published], true))
+                <h1 class="kop-pagina mb-5">De inschrijving is <em>gesloten</em></h1>
+                <p class="body-text mb-8">
+                    De inschrijving voor De Gouden Bol {{ $edition->year }} is gesloten{{ $edition->registrationClosesAt() ? ' op '.DutchTime::format($edition->registrationClosesAt(), 'dddd D MMMM YYYY') : '' }}. De uitslagen verschijnen op de Voorlijst per provincie.
+                </p>
+            @else
+                <h1 class="kop-pagina mb-5">De inschrijving is <em>nog niet open</em></h1>
+                <p class="body-text mb-8">
+                    @if ($edition?->registration_opens_at)
+                        De inschrijving voor De Gouden Bol {{ $edition->year }} opent op {{ DutchTime::format($edition->registration_opens_at, 'dddd D MMMM YYYY') }}.
+                    @else
+                        De inschrijving voor de volgende editie wordt binnenkort aangekondigd.
+                    @endif
+                </p>
+            @endif
             <x-ui.button :href="route('home')" variant="outline">Terug naar de homepage</x-ui.button>
         </div>
     @else

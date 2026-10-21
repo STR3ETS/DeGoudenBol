@@ -5,7 +5,9 @@ namespace App\Domain\Edition\Models;
 use App\Domain\Edition\Enums\EditionStatus;
 use App\Domain\Edition\Settings\EditionSettings;
 use App\Domain\Edition\Settings\EditionSettingsCast;
+use App\Support\DutchTime;
 use App\Support\Models\DomainModel;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -101,9 +103,45 @@ class Edition extends DomainModel
         return $this->hasMany(TermsVersion::class);
     }
 
+    /**
+     * De inschrijfdatums beslissen (zoals de backoffice ze toont); de status is alleen een rem:
+     * na sluiting, bevriezing, publicatie of archivering is de inschrijving altijd dicht.
+     * Status "Inschrijving open" opent handmatig, ook vóór de openingsdatum.
+     */
     public function isRegistrationOpen(): bool
     {
-        return $this->status === EditionStatus::RegistrationOpen;
+        if (in_array($this->status, [EditionStatus::Closed, EditionStatus::Frozen, EditionStatus::Published, EditionStatus::Archived], true)) {
+            return false;
+        }
+
+        if ($this->registrationHasClosed()) {
+            return false;
+        }
+
+        if ($this->status === EditionStatus::RegistrationOpen) {
+            return true;
+        }
+
+        return $this->registration_opens_at !== null && $this->registration_opens_at->isPast();
+    }
+
+    /**
+     * Sluitingsmoment: de ingestelde datum, anders het einde van de laatste testdag.
+     */
+    public function registrationClosesAt(): ?CarbonImmutable
+    {
+        if ($this->registration_closes_at !== null) {
+            return $this->registration_closes_at;
+        }
+
+        return $this->last_test_day !== null ? DutchTime::display($this->last_test_day)->endOfDay()->utc() : null;
+    }
+
+    public function registrationHasClosed(): bool
+    {
+        $closesAt = $this->registrationClosesAt();
+
+        return $closesAt !== null && $closesAt->isPast();
     }
 
     public function getRouteKeyName(): string

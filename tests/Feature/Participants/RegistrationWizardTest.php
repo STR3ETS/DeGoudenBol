@@ -8,6 +8,7 @@ use App\Domain\Participants\Enums\EntryStatus;
 use App\Domain\Participants\Models\Company;
 use App\Domain\Participants\Models\Entry;
 use App\Livewire\Public\RegistrationWizard;
+use App\Support\DutchTime;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -44,12 +45,33 @@ class RegistrationWizardTest extends TestCase
     #[Test]
     public function the_page_shows_a_closed_message_when_registration_is_not_open(): void
     {
-        $this->edition->forceFill(['status' => EditionStatus::Draft])->save();
+        // Vóór de openingsdatum: nog niet open, met de datum.
+        $this->edition->forceFill(['status' => EditionStatus::Draft, 'registration_opens_at' => now()->addDays(3)])->save();
 
         $this->get(route('aanmelden'))
             ->assertOk()
             ->assertSee('nog niet open')
-            ->assertSee('12 oktober 2026');
+            ->assertSee(DutchTime::format(now()->addDays(3), 'dddd D MMMM YYYY'));
+
+        // Na de openingsdatum opent de inschrijving vanzelf, ook zonder de status aan te raken.
+        $this->edition->forceFill(['registration_opens_at' => now()->subHour()])->save();
+        $this->get(route('aanmelden'))->assertOk()->assertDontSee('nog niet open')->assertSee('officieel keuren');
+
+        // Ook in de testfase blijft inschrijven mogelijk tot de sluitingsdatum.
+        $this->edition->forceFill(['status' => EditionStatus::Testing, 'registration_closes_at' => now()->addDay()])->save();
+        $this->get(route('aanmelden'))->assertOk()->assertDontSee('nog niet open');
+
+        // Na de sluitingsdatum: gesloten.
+        $this->edition->forceFill(['registration_closes_at' => now()->subMinute()])->save();
+        $this->get(route('aanmelden'))->assertOk()->assertSee('is gesloten', false)->assertDontSee('nog niet open');
+
+        // Zonder sluitingsdatum sluit de inschrijving aan het eind van de laatste testdag.
+        $this->edition->forceFill(['registration_closes_at' => null, 'last_test_day' => now()->subDays(2)->toDateString()])->save();
+        $this->get(route('aanmelden'))->assertOk()->assertSee('is gesloten', false);
+
+        // Bevroren of gepubliceerd: altijd dicht, wat de datums ook zeggen.
+        $this->edition->forceFill(['status' => EditionStatus::Frozen, 'registration_closes_at' => now()->addDay(), 'last_test_day' => now()->addDays(10)->toDateString()])->save();
+        $this->get(route('aanmelden'))->assertOk()->assertSee('is gesloten', false);
     }
 
     #[Test]
