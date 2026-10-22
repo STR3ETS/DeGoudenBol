@@ -60,6 +60,7 @@ class EditionForm
                     }
                 }),
             Select::make('status')
+                ->helperText('Open of dicht volgt de inschrijfdatums op het tabblad Datums; "Inschrijving open" opent handmatig, Gesloten en later sluiten altijd. De aanmeldpagina blijft dicht zolang er geen gepubliceerde deelnamevoorwaarden en privacyverklaring zijn.')
                 ->label('Status')
                 ->options(EditionStatus::class)
                 ->default(EditionStatus::Draft)

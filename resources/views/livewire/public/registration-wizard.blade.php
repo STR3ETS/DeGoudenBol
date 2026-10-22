@@ -17,8 +17,10 @@
             @else
                 <h1 class="kop-pagina mb-5">De inschrijving is <em>nog niet open</em></h1>
                 <p class="body-text mb-8">
-                    @if ($edition?->registration_opens_at)
+                    @if ($edition?->registration_opens_at?->isFuture())
                         De inschrijving voor De Gouden Bol {{ $edition->year }} opent op {{ DutchTime::format($edition->registration_opens_at, 'dddd D MMMM YYYY') }}.
+                    @elseif ($edition)
+                        De inschrijving voor De Gouden Bol {{ $edition->year }} opent binnenkort. Houd deze pagina in de gaten.
                     @else
                         De inschrijving voor de volgende editie wordt binnenkort aangekondigd.
                     @endif

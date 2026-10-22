@@ -6,7 +6,9 @@ use App\Domain\Commerce\Enums\InvoiceStatus;
 use App\Domain\Commerce\Enums\OrderStatus;
 use App\Domain\Commerce\Models\Invoice;
 use App\Domain\Commerce\Models\Order;
+use App\Domain\Edition\Enums\TermsType;
 use App\Domain\Edition\Models\Edition;
+use App\Domain\Edition\Models\TermsVersion;
 use App\Domain\Participants\Enums\EntryStatus;
 use App\Domain\Participants\Enums\ModerationStatus;
 use App\Domain\Participants\Enums\ObjectionStatus;
@@ -42,6 +44,7 @@ use App\Filament\Resources\Orders\OrderResource;
 use App\Filament\Resources\Profiles\ProfileResource;
 use App\Filament\Resources\PublicationBatches\PublicationBatchResource;
 use App\Filament\Resources\Samples\SampleResource;
+use App\Filament\Resources\TermsVersions\TermsVersionResource;
 use App\Filament\Resources\TestSessions\TestSessionResource;
 use App\Filament\Resources\VoucherCampaigns\VoucherCampaignResource;
 use App\Models\User;
@@ -94,6 +97,7 @@ final class WorkQueue
         }
 
         return [
+            ...$this->registrationBlockedByTerms(),
             ...$this->testDay(),
             ...$this->deliveriesToday(),
             ...$this->sessionsToday(),
@@ -111,6 +115,40 @@ final class WorkQueue
             ...$this->charityPayouts(),
             ...$this->missingCoordinates(),
         ];
+    }
+
+    /**
+     * De inschrijving staat open (datums of status), maar zonder gepubliceerde deelnamevoorwaarden
+     * blijft de aanmeldpagina dicht. Dit is de eerste regel in de werkvoorraad, want niemand kan aanmelden.
+     *
+     * @return list<WorkItem>
+     */
+    private function registrationBlockedByTerms(): array
+    {
+        if (! TermsVersionResource::canViewAny() || ! $this->edition->isRegistrationOpen()) {
+            return [];
+        }
+
+        $missing = array_filter(
+            [TermsType::Participation, TermsType::Privacy],
+            fn (TermsType $type) => TermsVersion::latestPublished($type) === null,
+        );
+
+        if ($missing === []) {
+            return [];
+        }
+
+        $labels = array_map(fn (TermsType $type) => strtolower($type->getLabel()), $missing);
+
+        return [[
+            'title' => 'Deelnamevoorwaarden publiceren',
+            'text' => 'De inschrijving staat open, maar de aanmeldpagina blijft dicht zolang er geen gepubliceerde versie is van: '.implode(' en ', $labels).'.',
+            'count' => count($missing),
+            'url' => TermsVersionResource::getUrl('index'),
+            'action' => 'Publiceren',
+            'tone' => 'fout',
+            'icon' => 'heroicon-o-document-check',
+        ]];
     }
 
     /**
