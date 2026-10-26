@@ -32,6 +32,7 @@ use App\Domain\Testing\Models\TestSession;
 use App\Domain\Vouchers\Enums\CampaignStatus;
 use App\Domain\Vouchers\Models\VoucherCampaign;
 use App\Filament\Pages\Intake;
+use App\Filament\Pages\Setup;
 use App\Filament\Pages\TestDay;
 use App\Filament\Resources\Charities\CharityResource;
 use App\Filament\Resources\Companies\CompanyResource;
@@ -93,10 +94,11 @@ final class WorkQueue
     private function build(): array
     {
         if ($this->edition === null) {
-            return [];
+            return $this->setup();
         }
 
         return [
+            ...$this->setup(),
             ...$this->registrationBlockedByTerms(),
             ...$this->testDay(),
             ...$this->deliveriesToday(),
@@ -115,6 +117,59 @@ final class WorkQueue
             ...$this->charityPayouts(),
             ...$this->missingCoordinates(),
         ];
+    }
+
+    /**
+     * Inrichten: zolang de inschrijving dicht is en er stappen open staan, is dat het eerste werk.
+     * Staat alles klaar, dan is de knop "Inschrijving openzetten" het eerste werk, behalve als een
+     * openingsdatum in de toekomst al gepland is.
+     *
+     * @return list<WorkItem>
+     */
+    private function setup(): array
+    {
+        if (! Setup::canAccess()) {
+            return [];
+        }
+
+        $checklist = new SetupChecklist($this->edition);
+        $registration = $checklist->registration();
+
+        if (in_array($registration['state'], ['open', 'blocked'], true)) {
+            return [];
+        }
+
+        if ($registration['can_open']) {
+            if ($this->edition?->registration_opens_at?->isFuture()) {
+                return [];
+            }
+
+            return [[
+                'title' => 'Inschrijving openzetten',
+                'text' => 'Alles staat klaar. Eén knop en bakkers kunnen zich aanmelden.',
+                'count' => null,
+                'url' => Setup::getUrl(),
+                'action' => 'Openzetten',
+                'tone' => 'goud',
+                'icon' => 'heroicon-o-rocket-launch',
+            ]];
+        }
+
+        $progress = $checklist->progress();
+
+        if ($progress['done'] >= $progress['total']) {
+            return [];
+        }
+
+        return [[
+            'title' => $this->edition === null ? 'Editie aanmaken en inrichten' : 'Inrichting afmaken',
+            'text' => "{$progress['done']} van {$progress['total']} stappen klaar. Daarna kan de inschrijving open.",
+            'count' => $progress['total'] - $progress['done'],
+            'url' => Setup::getUrl(),
+            'action' => 'Inrichten',
+            'tone' => 'goud',
+            'icon' => 'heroicon-o-rocket-launch',
+        ]];
     }
 
     /**
@@ -144,7 +199,7 @@ final class WorkQueue
             'title' => 'Deelnamevoorwaarden publiceren',
             'text' => 'De inschrijving staat open, maar de aanmeldpagina blijft dicht zolang er geen gepubliceerde versie is van: '.implode(' en ', $labels).'.',
             'count' => count($missing),
-            'url' => TermsVersionResource::getUrl('index'),
+            'url' => Setup::canAccess() ? Setup::getUrl() : TermsVersionResource::getUrl('index'),
             'action' => 'Publiceren',
             'tone' => 'fout',
             'icon' => 'heroicon-o-document-check',

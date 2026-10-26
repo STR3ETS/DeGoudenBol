@@ -1,12 +1,33 @@
 {{-- Voet van de sidebar: editie-instellingen en de inklapknop (render hook SIDEBAR_FOOTER). --}}
 @php
     use App\Filament\Pages\Settings;
+    use App\Filament\Pages\Setup;
 
     $settingsUrl = filament()->auth()->check() ? Settings::getUrl() : null;
+    $setupUrl = filament()->auth()->check() && Setup::canAccess() ? Setup::getUrl() : null;
     $isSettingsActive = request()->routeIs(Settings::getRouteName());
+    $isSetupActive = request()->routeIs(Setup::getRouteName());
     $isCollapsible = filament()->isSidebarCollapsibleOnDesktop();
 @endphp
 <div class="dgb-sidebar-voet">
+    @if ($setupUrl !== null)
+        <a
+            {{ \Filament\Support\generate_href_html($setupUrl) }}
+            class="dgb-sidebar-voet__knop {{ $isSetupActive ? 'dgb-sidebar-voet__knop--actief' : '' }}"
+            title="Inrichten"
+            @if ($isSetupActive) aria-current="page" @endif
+            x-on:click="window.matchMedia(`(max-width: 1024px)`).matches && $store.sidebar.close()"
+        >
+            <span class="dgb-sidebar-voet__icoon"><x-filament::icon icon="heroicon-o-rocket-launch" /></span>
+            <span
+                class="dgb-sidebar-voet__label fi-sidebar-item-label"
+                x-show="$store.sidebar.isOpen"
+                x-transition:enter="fi-transition-enter"
+                x-transition:enter-start="fi-transition-enter-start"
+                x-transition:enter-end="fi-transition-enter-end"
+            >Inrichten</span>
+        </a>
+    @endif
     @if ($settingsUrl !== null)
         <a
             {{ \Filament\Support\generate_href_html($settingsUrl) }}

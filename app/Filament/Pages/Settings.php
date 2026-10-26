@@ -13,6 +13,7 @@ use App\Filament\Resources\ScoringModels\ScoringModelResource;
 use App\Filament\Resources\TermsVersions\TermsVersionResource;
 use App\Filament\Resources\TestLocations\TestLocationResource;
 use App\Filament\Resources\Users\UserResource;
+use App\Filament\Support\SetupChecklist;
 use App\Models\User;
 use BackedEnum;
 use Filament\Pages\Page;
@@ -46,6 +47,17 @@ class Settings extends Page
     {
         $edition = Edition::current();
         $cards = [];
+
+        if (Setup::canAccess()) {
+            $progress = (new SetupChecklist($edition))->progress();
+            $cards[] = [
+                'title' => 'Inrichten',
+                'text' => 'De checklist om het seizoen te starten en de knop om de inschrijving open te zetten.',
+                'meta' => $progress['done'] === $progress['total'] ? 'Alles staat klaar' : "{$progress['done']} van {$progress['total']} stappen klaar",
+                'url' => Setup::getUrl(),
+                'icon' => 'heroicon-o-rocket-launch',
+            ];
+        }
 
         if (EditionResource::canViewAny()) {
             $cards[] = [

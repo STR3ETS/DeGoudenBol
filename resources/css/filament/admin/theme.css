@@ -2467,3 +2467,78 @@ a.dgb-row:hover .dgb-chip--goud {
     -webkit-backdrop-filter: blur(14px);
     border-bottom: 1px solid rgba(28, 15, 3, 0.06);
 }
+
+/* Tweestapsverificatie: de zes cijfervakken groot, gecentreerd en in onze stijl (standaard zijn ze klein en grijs). */
+.fi-one-time-code-input-ctn {
+    width: 100%;
+    justify-content: center;
+    gap: 0.6rem;
+}
+
+.fi-one-time-code-input-ctn > .fi-one-time-code-input-digit {
+    width: 3.1rem;
+    height: 3.8rem;
+    border-radius: 14px;
+    border: 1.5px solid var(--color-rand-sterk);
+    background: var(--color-room);
+    font-family: var(--font-kop);
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--color-espresso);
+    box-shadow: none;
+    transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+}
+
+.fi-one-time-code-input-ctn > .fi-one-time-code-input-digit:focus {
+    border-color: var(--color-goud);
+    background: var(--color-wit);
+    box-shadow: 0 0 0 4px rgba(200, 134, 10, 0.18);
+    --tw-ring-shadow: 0 0 #0000;
+}
+
+.fi-simple-main .fi-fo-field-label,
+.fi-simple-main .fi-fo-field-label-content {
+    display: block;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--color-gedempt);
+}
+
+.fi-simple-main .fi-fo-field-label-required-mark {
+    display: none;
+}
+
+.fi-simple-main .fi-fo-field-wrp:has(.fi-one-time-code-input-ctn) .fi-fo-field-label-ctn {
+    justify-content: center;
+}
+
+.fi-simple-main .fi-link {
+    font-weight: 700;
+    color: var(--color-goud-tekst);
+}
+
+.fi-simple-main .fi-fo-field-wrp:has(.fi-one-time-code-input-ctn) + * .fi-link,
+.fi-simple-main .fi-fo-field-wrp:has(.fi-one-time-code-input-ctn) .fi-link {
+    display: block;
+    margin-top: 0.75rem;
+    text-align: center;
+}
+
+.fi-simple-main .fi-fo-field:has(.fi-one-time-code-input-ctn) {
+    text-align: center;
+}
+
+.fi-simple-main .fi-fo-field:has(.fi-one-time-code-input-ctn) .fi-fo-field-label-ctn {
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.fi-simple-main .fi-fo-field:has(.fi-one-time-code-input-ctn) .fi-sc-action {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 0.9rem;
+}
