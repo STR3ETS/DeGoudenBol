@@ -34,6 +34,7 @@ use App\Http\Controllers\Public\RegistrationStatusController;
 use App\Http\Controllers\Public\SitemapController;
 use App\Http\Controllers\Public\SponsorController;
 use App\Http\Controllers\Public\VoucherController;
+use App\Http\Controllers\RedesignController;
 use App\Http\Controllers\Staff\LabelController;
 use App\Http\Controllers\StyleguideController;
 use App\Http\Controllers\Webhooks\MollieWebhookController;
@@ -78,6 +79,8 @@ Route::get('/nieuwsbrief/bevestigen/{subscription}', [NewsletterController::clas
 Route::get('/nieuwsbrief/afmelden/{subscription}', [NewsletterController::class, 'unsubscribe'])->middleware('signed')->name('nieuwsbrief.afmelden');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('/stijlgids', StyleguideController::class)->name('stijlgids');
+Route::get('/redesign-dashboard', [RedesignController::class, 'dashboard'])->name('redesign.dashboard');
+Route::get('/redesign-dashboard-klant', [RedesignController::class, 'klant'])->name('redesign.klant');
 
 // Aanmelden
 Route::get('/aanmelden', RegistrationWizard::class)->name('aanmelden');

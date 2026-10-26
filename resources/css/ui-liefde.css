@@ -1,0 +1,1067 @@
+/* ------------------------------------------------------------------
+   UI-kit v2 "Met liefde" (okt 2026).
+   Uitgangspunten: één belangrijkste actie per scherm, status in gewone taal,
+   hulp op de plek zelf, grote tikdoelen (≥ 48 px), zachte vormen, warme gloed.
+   Bouwt op ui.css (zelfde tokens, zelfde ui-* naamgeving).
+   ------------------------------------------------------------------ */
+@layer components {
+    /* App-schil: sidebar + hoofdvlak met warme gloed */
+    .ui-app {
+        min-height: 100vh;
+        background:
+            radial-gradient(1100px 600px at 100% -10%, rgba(200, 134, 10, 0.12), transparent 60%),
+            radial-gradient(800px 500px at -10% 110%, rgba(200, 134, 10, 0.07), transparent 60%),
+            color-mix(in srgb, var(--color-room) 75%, var(--color-zand));
+        color: var(--color-espresso);
+        font-family: var(--font-brood);
+        font-size: 1rem;
+    }
+
+    .ui-app__raster {
+        display: grid;
+        min-height: 100vh;
+
+        @media (min-width: 1024px) {
+            grid-template-columns: 280px minmax(0, 1fr);
+        }
+    }
+
+    .ui-app__zij {
+        display: none;
+
+        @media (min-width: 1024px) {
+            display: block;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            padding: 1rem 0 1rem 1rem;
+        }
+
+        .ui-sidebar {
+            display: flex;
+            height: 100%;
+            width: 100%;
+        }
+    }
+
+    .ui-app__hoofd {
+        min-width: 0;
+        width: 100%;
+        max-width: 1360px;
+        justify-self: center;
+        padding: 1rem 1rem 6rem;
+
+        @media (min-width: 1024px) {
+            padding: 1.75rem 2.5rem 5rem;
+        }
+
+        @media (min-width: 1536px) {
+            padding: 2.25rem 3rem 6rem;
+        }
+    }
+
+    .ui-app__blok {
+        margin-bottom: 2.75rem;
+    }
+
+    /* Bestaande pagina's binnen de app-schil: koppen kleiner en rustiger dan op de publiekssite */
+    .ui-app .kop-pagina {
+        font-size: clamp(1.7rem, 2.6vw, 2.2rem);
+        line-height: 1.1;
+    }
+
+    .ui-app .eyebrow + .kop-pagina {
+        margin-top: 0.2rem;
+    }
+
+    .ui-app .ui-sidebar__item {
+        min-height: 48px;
+    }
+
+    .ui-app button.ui-sidebar__item {
+        width: 100%;
+        font: inherit;
+        font-size: 0.88rem;
+        font-weight: 600;
+        border: 0;
+        background: none;
+        cursor: pointer;
+        text-align: left;
+    }
+
+    .ui-app__gast {
+        width: 100%;
+        max-width: 560px;
+        margin: 0 auto;
+        padding: 3rem 1rem 4rem;
+    }
+
+    .ui-mobielnav button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.2rem;
+        min-width: 60px;
+        padding: 0.4rem 0.5rem;
+        border: 0;
+        border-radius: var(--radius-veld);
+        background: none;
+        font: inherit;
+        font-size: 0.62rem;
+        font-weight: 800;
+        color: var(--color-gedempt);
+        cursor: pointer;
+
+        svg {
+            width: 1.3rem;
+            height: 1.3rem;
+        }
+    }
+
+    .ui-app__kop {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .ui-app__kop-tekst {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .ui-app__titel {
+        font-family: var(--font-kop);
+        font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+        font-weight: 600;
+        line-height: 1.1;
+        color: var(--color-espresso);
+    }
+
+    .ui-app__sub {
+        margin-top: 0.2rem;
+        font-size: 0.85rem;
+        color: var(--color-gedempt);
+    }
+
+    .ui-app__knoppen {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Mascotte */
+    .ui-bol {
+        display: inline-block;
+        width: 72px;
+        height: 72px;
+        flex: none;
+        filter: drop-shadow(0 6px 10px rgba(28, 15, 3, 0.15));
+    }
+
+    .ui-bol--klein {
+        width: 48px;
+        height: 48px;
+    }
+
+    .ui-bol--groot {
+        width: 124px;
+        height: 124px;
+    }
+
+    /* Vandaag-kaart: één belangrijkste actie */
+    .ui-vandaag {
+        position: relative;
+        display: grid;
+        gap: 1.25rem;
+        padding: 1.75rem;
+        border-radius: var(--radius-paneel);
+        background: var(--color-espresso);
+        color: var(--color-room);
+        overflow: hidden;
+        box-shadow: var(--shadow-paneel);
+
+        &::before {
+            content: "";
+            position: absolute;
+            inset: auto -10% -40% auto;
+            width: 420px;
+            height: 320px;
+            background: radial-gradient(closest-side, rgba(200, 134, 10, 0.45), transparent 70%);
+            pointer-events: none;
+        }
+
+        @media (min-width: 768px) {
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 2.5rem;
+            padding: 2.5rem 2.75rem;
+        }
+    }
+
+    .ui-vandaag--licht {
+        background: var(--color-wit);
+        color: var(--color-espresso);
+        border: 1.5px solid var(--color-rand);
+
+        .ui-vandaag__tekst {
+            color: var(--color-gedempt);
+        }
+
+        .ui-vandaag__titel em {
+            color: var(--color-goud-tekst);
+        }
+    }
+
+    .ui-vandaag__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.6rem;
+        font-size: 0.66rem;
+        font-weight: 800;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--color-goud);
+
+        svg {
+            width: 0.9rem;
+            height: 0.9rem;
+        }
+    }
+
+    /* Kerncijfertegels: voet altijd in twee vaste regels (uitleg, dan link), gelijk in elke tegel */
+    .ui-tegel:not(.ui-tegel--mini) .ui-tegel__voet {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.45rem;
+        margin-top: 0.35rem;
+        min-height: 2.6rem;
+        justify-content: flex-end;
+
+        .ui-tegel__link {
+            order: 2;
+        }
+    }
+
+    .ui-tegel .ui-icoonvak--goud {
+        background: var(--color-goud-licht);
+        color: var(--color-goud-tekst);
+    }
+
+    /* Knoppen op een donker vlak: de gewone hover (espresso) verdwijnt daar in de achtergrond. */
+    .ui-vandaag:not(.ui-vandaag--licht),
+    .ui-kaart--espresso,
+    .ui-sidebar {
+        .ui-knop:not(.ui-knop--ghost):not(.ui-knop--secundair):not(.ui-knop--omlijnd):hover {
+            background: #e0a54b;
+            color: var(--color-espresso);
+            box-shadow: 0 10px 28px rgba(200, 134, 10, 0.35);
+        }
+
+        .ui-knop--ghost {
+            color: var(--color-room-zacht);
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: var(--color-room);
+            }
+        }
+
+        .ui-knop--secundair,
+        .ui-knop--omlijnd {
+            border-color: var(--color-room-decor);
+            color: var(--color-room);
+            background: transparent;
+
+            &:hover {
+                background: var(--color-room);
+                color: var(--color-espresso);
+            }
+        }
+    }
+
+    .ui-vandaag__titel {
+        max-width: 32ch;
+        font-family: var(--font-kop);
+        font-size: clamp(1.9rem, 2.6vw, 2.5rem);
+        font-weight: 600;
+        line-height: 1.15;
+
+        em {
+            font-style: italic;
+            color: var(--color-goud);
+        }
+    }
+
+    .ui-vandaag__tekst {
+        margin-top: 0.6rem;
+        max-width: 560px;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: var(--color-room-zacht);
+    }
+
+    .ui-vandaag__acties {
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        align-items: center;
+        margin-top: 1.25rem;
+    }
+
+    .ui-vandaag__zij {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        text-align: center;
+    }
+
+    /* Grote actieknop als kaart */
+    .ui-actie {
+        display: flex;
+        align-items: center;
+        gap: 1.1rem;
+        min-height: 92px;
+        padding: 1.25rem 1.4rem;
+        border-radius: var(--radius-kaart);
+        background: var(--color-wit);
+        border: 1.5px solid var(--color-rand);
+        color: var(--color-espresso);
+        text-decoration: none;
+        text-align: left;
+        cursor: pointer;
+        transition: transform var(--ui-overgang), box-shadow var(--ui-overgang), border-color var(--ui-overgang);
+
+        &:hover {
+            transform: translateY(-3px);
+            border-color: var(--color-goud);
+            box-shadow: var(--shadow-kaart-hover);
+        }
+
+        &:focus-visible {
+            outline: none;
+            box-shadow: var(--ui-focus);
+        }
+
+        .ui-icoonvak {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+
+            svg {
+                width: 1.4rem;
+                height: 1.4rem;
+            }
+        }
+    }
+
+    .ui-actie__tekst {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .ui-actie__titel {
+        display: block;
+        font-size: 1.05rem;
+        font-weight: 800;
+        line-height: 1.25;
+    }
+
+    .ui-actie__sub {
+        display: block;
+        margin-top: 0.2rem;
+        font-size: 0.82rem;
+        line-height: 1.45;
+        color: var(--color-gedempt);
+    }
+
+    .ui-actie__pijl {
+        flex: none;
+        display: inline-grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--color-goud);
+        color: var(--color-espresso);
+
+        svg {
+            width: 1.1rem;
+            height: 1.1rem;
+        }
+    }
+
+    .ui-actie--primair {
+        background: var(--color-goud-licht);
+        border-color: var(--color-goud);
+    }
+
+    .ui-actie--klaar {
+        background: var(--color-status-succes-bg);
+        border-color: transparent;
+
+        .ui-actie__pijl {
+            background: var(--color-status-succes);
+            color: var(--color-wit);
+        }
+
+        &:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: transparent;
+        }
+    }
+
+    .ui-actie--later {
+        opacity: 0.55;
+        cursor: default;
+
+        .ui-actie__pijl {
+            background: var(--color-zand);
+            color: var(--color-gedempt);
+        }
+
+        &:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: var(--color-rand);
+        }
+    }
+
+    /* Status in gewone taal */
+    .ui-statusregel {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
+        padding: 1rem 1.15rem;
+        border-radius: var(--radius-kaart-in-kaart);
+        background: var(--color-goud-licht);
+        font-size: 0.95rem;
+        line-height: 1.55;
+        color: var(--color-espresso);
+
+        strong {
+            font-weight: 800;
+        }
+
+        .ui-icoonvak {
+            margin-top: 0.05rem;
+            flex: none;
+        }
+    }
+
+    .ui-statusregel--succes {
+        background: var(--color-status-succes-bg);
+    }
+
+    .ui-statusregel--info {
+        background: var(--color-status-info-bg);
+    }
+
+    .ui-statusregel--waarschuwing {
+        background: var(--color-status-waarschuwing-bg);
+    }
+
+    .ui-statusregel--fout {
+        background: var(--color-status-fout-bg);
+    }
+
+    /* Stappenhulp: waar sta ik, wat is de volgende stap */
+    .ui-stappenhulp {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ui-stappenhulp__stap {
+        position: relative;
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr);
+        gap: 0.9rem;
+        padding: 0.8rem 0;
+
+        &::before {
+            content: "";
+            position: absolute;
+            left: 21px;
+            top: 56px;
+            bottom: -6px;
+            width: 2px;
+            background: var(--color-rand-sterk);
+        }
+
+        &:last-child::before {
+            display: none;
+        }
+    }
+
+    .ui-stappenhulp__nr {
+        display: inline-grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--color-zand);
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: var(--color-gedempt);
+        font-variant-numeric: tabular-nums;
+
+        svg {
+            width: 1.1rem;
+            height: 1.1rem;
+        }
+    }
+
+    .ui-stappenhulp__titel {
+        display: block;
+        padding-top: 0.55rem;
+        font-size: 1rem;
+        font-weight: 800;
+        line-height: 1.3;
+        color: var(--color-espresso);
+    }
+
+    .ui-stappenhulp__tekst {
+        margin-top: 0.2rem;
+        font-size: 0.85rem;
+        line-height: 1.55;
+        color: var(--color-gedempt);
+    }
+
+    .ui-stappenhulp__stap--klaar .ui-stappenhulp__nr {
+        background: var(--color-status-succes-bg);
+        color: var(--color-status-succes);
+    }
+
+    .ui-stappenhulp__stap--klaar .ui-stappenhulp__titel {
+        color: var(--color-gedempt);
+    }
+
+    .ui-stappenhulp__stap--nu .ui-stappenhulp__nr {
+        background: var(--color-goud);
+        color: var(--color-espresso);
+        box-shadow: 0 0 0 6px rgba(200, 134, 10, 0.18);
+    }
+
+    .ui-stappenhulp__stap--nu .ui-stappenhulp__titel {
+        font-size: 1.1rem;
+        padding-top: 0.45rem;
+    }
+
+    .ui-stappenhulp__stap--later {
+        opacity: 0.6;
+    }
+
+    /* Hulpkaart, tipje, waarom */
+    .ui-hulpkaart {
+        padding: 1.25rem 1.35rem;
+        border-radius: var(--radius-kaart);
+        background: var(--color-zand);
+    }
+
+    .ui-hulpkaart__kop {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 0.5rem;
+        font-family: var(--font-kop);
+        font-size: 1.3rem;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    .ui-hulpkaart__tekst {
+        font-size: 0.88rem;
+        line-height: 1.6;
+        color: var(--color-gedempt);
+    }
+
+    .ui-hulpkaart__link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        margin-top: 0.75rem;
+        font-size: 0.82rem;
+        font-weight: 800;
+        color: var(--color-goud-tekst);
+        text-decoration: none;
+
+        svg {
+            width: 0.9rem;
+            height: 0.9rem;
+        }
+    }
+
+    .ui-tipje {
+        display: flex;
+        gap: 0.6rem;
+        padding: 0.7rem 0.9rem;
+        border-radius: var(--radius-veld);
+        background: var(--color-goud-licht);
+        font-size: 0.8rem;
+        line-height: 1.5;
+        color: var(--color-goud-tekst);
+
+        svg {
+            flex: none;
+            width: 1rem;
+            height: 1rem;
+            margin-top: 0.1rem;
+        }
+    }
+
+    .ui-waarom {
+        font-size: 0.8rem;
+        color: var(--color-gedempt);
+
+        summary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            cursor: pointer;
+            font-weight: 800;
+            color: var(--color-goud-tekst);
+            list-style: none;
+
+            svg {
+                width: 0.9rem;
+                height: 0.9rem;
+                transition: transform var(--ui-overgang);
+            }
+
+            &::-webkit-details-marker {
+                display: none;
+            }
+        }
+
+        &[open] summary svg {
+            transform: rotate(180deg);
+        }
+
+        p {
+            margin-top: 0.4rem;
+            max-width: 560px;
+            line-height: 1.55;
+        }
+    }
+
+    .ui-vandaag .ui-waarom {
+        color: var(--color-room-zacht);
+
+        summary {
+            color: var(--color-goud);
+        }
+    }
+
+    /* Vraag-en-antwoord (accordeon in gewone taal) */
+    .ui-vraag {
+        border-top: 1px solid var(--color-rand);
+
+        &:first-child {
+            border-top: 0;
+        }
+
+        summary {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-height: 52px;
+            padding: 0.6rem 0;
+            cursor: pointer;
+            font-size: 0.92rem;
+            font-weight: 800;
+            color: var(--color-espresso);
+            list-style: none;
+
+            &::-webkit-details-marker {
+                display: none;
+            }
+
+            svg {
+                flex: none;
+                width: 1rem;
+                height: 1rem;
+                margin-left: auto;
+                color: var(--color-goud-tekst);
+                transition: transform var(--ui-overgang);
+            }
+        }
+
+        &[open] summary svg {
+            transform: rotate(180deg);
+        }
+
+        p {
+            padding: 0 0 0.9rem;
+            font-size: 0.86rem;
+            line-height: 1.6;
+            color: var(--color-gedempt);
+        }
+    }
+
+    /* Voortgangsring */
+    .ui-ring {
+        --ring-pct: 0;
+        position: relative;
+        display: inline-grid;
+        place-items: center;
+        width: 112px;
+        height: 112px;
+        border-radius: 50%;
+        background: conic-gradient(var(--color-goud) calc(var(--ring-pct) * 1%), rgba(200, 134, 10, 0.18) 0);
+
+        &::before {
+            content: "";
+            position: absolute;
+            inset: 9px;
+            border-radius: 50%;
+            background: var(--color-wit);
+        }
+    }
+
+    .ui-ring__tekst {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        line-height: 1;
+    }
+
+    .ui-ring__cijfer {
+        font-family: var(--font-kop);
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--color-espresso);
+        font-variant-numeric: lining-nums tabular-nums;
+    }
+
+    .ui-ring__label {
+        margin-top: 0.25rem;
+        font-size: 0.56rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--color-gedempt);
+    }
+
+    .ui-ring--donker::before {
+        background: var(--color-espresso);
+    }
+
+    .ui-ring--donker .ui-ring__cijfer {
+        color: var(--color-room);
+    }
+
+    .ui-ring--donker .ui-ring__label {
+        color: var(--color-room-zacht);
+    }
+
+    .ui-ring--groot {
+        width: 148px;
+        height: 148px;
+
+        .ui-ring__cijfer {
+            font-size: 2.4rem;
+        }
+    }
+
+    /* Plakbalk onderaan formulieren: één primaire actie, altijd zichtbaar */
+    .ui-plakbalk {
+        position: sticky;
+        bottom: 0.75rem;
+        z-index: 20;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        padding: 0.9rem 1.1rem;
+        border-radius: var(--radius-kaart);
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--color-rand);
+        box-shadow: var(--ui-schaduw-paneel);
+    }
+
+    .ui-plakbalk__tekst {
+        flex: 1;
+        min-width: 180px;
+        font-size: 0.82rem;
+        color: var(--color-gedempt);
+
+        strong {
+            color: var(--color-espresso);
+        }
+    }
+
+    /* Rustig formulier: één kolom, grote labels, grotere velden */
+    .ui-rustig {
+        display: flex;
+        flex-direction: column;
+        gap: 1.4rem;
+        max-width: 640px;
+
+        .ui-label {
+            font-size: 0.82rem;
+            letter-spacing: 0.02em;
+            text-transform: none;
+            color: var(--color-espresso);
+        }
+
+        .ui-invoer,
+        .ui-keuze__knop,
+        .ui-datum__knop {
+            min-height: 52px;
+            font-size: 1rem;
+        }
+
+        .ui-hulp {
+            font-size: 0.82rem;
+        }
+    }
+
+    /* Feestelijke mijlpaal */
+    .ui-feest {
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1.25rem;
+        padding: 1.5rem 1.6rem;
+        border-radius: var(--radius-paneel);
+        background: linear-gradient(135deg, var(--color-goud-licht), var(--color-wit));
+        border: 1.5px solid var(--color-goud);
+        overflow: hidden;
+
+        &::after {
+            content: "";
+            position: absolute;
+            inset: -40% -10% auto auto;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(closest-side, rgba(200, 134, 10, 0.25), transparent 70%);
+            pointer-events: none;
+        }
+    }
+
+    .ui-feest__tekstvak {
+        position: relative;
+        flex: 1;
+        min-width: 220px;
+    }
+
+    .ui-feest__titel {
+        font-family: var(--font-kop);
+        font-size: 1.7rem;
+        font-weight: 600;
+        line-height: 1.15;
+
+        em {
+            font-style: italic;
+            color: var(--color-goud-tekst);
+        }
+    }
+
+    .ui-feest__tekst {
+        margin-top: 0.3rem;
+        font-size: 0.88rem;
+        line-height: 1.55;
+        color: var(--color-gedempt);
+    }
+
+    .ui-feest__acties {
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.9rem;
+    }
+
+    /* Sectietitel in de app */
+    .ui-sectie {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.5rem 1rem;
+        margin: 0 0 1.1rem;
+    }
+
+    .ui-sectie__titel {
+        font-family: var(--font-kop);
+        font-size: 1.5rem;
+        font-weight: 600;
+        line-height: 1.2;
+        color: var(--color-espresso);
+    }
+
+    .ui-sectie__sub {
+        display: block;
+        margin-top: 0.1rem;
+        font-family: var(--font-brood);
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--color-gedempt);
+    }
+
+    .ui-sectie__link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.82rem;
+        font-weight: 800;
+        color: var(--color-goud-tekst);
+        text-decoration: none;
+
+        svg {
+            width: 0.9rem;
+            height: 0.9rem;
+        }
+    }
+
+    /* Mobiele navigatie onderaan */
+    .ui-mobielnav {
+        position: fixed;
+        inset: auto 0 0 0;
+        z-index: 30;
+        display: flex;
+        justify-content: space-around;
+        padding: 0.4rem 0.5rem calc(0.4rem + env(safe-area-inset-bottom));
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid var(--color-rand);
+
+        a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+            min-width: 60px;
+            padding: 0.4rem 0.5rem;
+            border-radius: var(--radius-veld);
+            font-size: 0.62rem;
+            font-weight: 800;
+            color: var(--color-gedempt);
+            text-decoration: none;
+
+            svg {
+                width: 1.3rem;
+                height: 1.3rem;
+            }
+
+            &.is-actief {
+                color: var(--color-goud-tekst);
+                background: var(--color-goud-licht);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            display: none;
+        }
+    }
+
+    /* Rustige lege staat met mascotte */
+    .ui-klaar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1.75rem 1rem;
+        text-align: center;
+        border-radius: var(--radius-kaart-in-kaart);
+        background: var(--color-status-succes-bg);
+    }
+
+    .ui-klaar__titel {
+        font-family: var(--font-kop);
+        font-size: 1.35rem;
+        font-weight: 600;
+    }
+
+    .ui-klaar__tekst {
+        max-width: 360px;
+        font-size: 0.84rem;
+        line-height: 1.55;
+        color: var(--color-gedempt);
+    }
+
+    /* Ontwerpprincipes in de stijlgids */
+    .ui-principe {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        padding: 1.35rem;
+        border-radius: var(--radius-kaart);
+        background: var(--color-wit);
+        border: 1px solid var(--color-rand);
+
+        .ui-icoonvak {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+        }
+    }
+
+    .ui-principe__nr {
+        font-size: 0.66rem;
+        font-weight: 800;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--color-goud-tekst);
+    }
+
+    .ui-principe__titel {
+        font-family: var(--font-kop);
+        font-size: 1.35rem;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    .ui-principe__tekst {
+        font-size: 0.86rem;
+        line-height: 1.6;
+        color: var(--color-gedempt);
+    }
+
+    .ui-principe__doe {
+        display: grid;
+        gap: 0.4rem;
+        margin-top: 0.3rem;
+        padding-top: 0.75rem;
+        border-top: 1px dashed var(--color-rand-sterk);
+        font-size: 0.78rem;
+        line-height: 1.5;
+
+        span {
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        svg {
+            flex: none;
+            width: 0.95rem;
+            height: 0.95rem;
+            margin-top: 0.15rem;
+        }
+
+        .is-goed svg {
+            color: var(--color-status-succes);
+        }
+
+        .is-fout svg {
+            color: var(--color-status-fout);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .ui-actie:hover {
+            transform: none;
+        }
+    }
+}

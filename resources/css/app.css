@@ -3,6 +3,7 @@
 @import './tokens.css';
 @import './panel.css';
 @import './ui.css';
+@import './ui-liefde.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';

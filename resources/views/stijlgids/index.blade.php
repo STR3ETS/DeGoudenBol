@@ -1,5 +1,8 @@
 @php
     $secties = [
+        'principes' => 'Zes principes',
+        'liefde' => 'Nieuw in versie 2',
+        'prototypes' => 'Prototypes',
         'fundament' => 'Fundament',
         'knoppen' => 'Knoppen',
         'velden' => 'Velden',
@@ -13,7 +16,6 @@
         'structuur' => 'Tabs, stappen, tijdlijn',
         'overlays' => 'Menu, modal, lade',
         'navigatie' => 'Navigatie',
-        'dashboard' => 'Voorbeeld dashboard',
     ];
     $kleuren = [
         ['goud', '#C8860A', 'Accent, knoppen, pillen. Nooit als tekst op licht.'],
@@ -34,16 +36,21 @@
     ];
     $provincies = ['Drenthe', 'Flevoland', 'Friesland', 'Gelderland', 'Groningen', 'Limburg', 'Noord-Brabant', 'Noord-Holland', 'Overijssel', 'Utrecht', 'Zeeland', 'Zuid-Holland'];
 @endphp
-<x-layouts.public title="Stijlgids" description="Componentbibliotheek van De Gouden Bol.">
+<x-layouts.public title="Stijlgids" description="Ontwerpprincipes en componentbibliotheek van De Gouden Bol.">
     <x-slot:head>
         <meta name="robots" content="noindex, nofollow">
     </x-slot:head>
 
     <section class="pt-32 pb-10">
         <div class="site-container">
-            <x-ui.eyebrow>Het Register Soft · UI-kit 2026</x-ui.eyebrow>
-            <h1 class="kop-pagina mb-4">Stijl<em>gids</em></h1>
-            <p class="body-text max-w-[680px]">Alle bouwstenen van De Gouden Bol in één bibliotheek: tokens, knoppen, velden met eigen dropdowns en kalender, chips, meldingen, tabellen, tegels, overlays en navigatie. Klassen heten <code class="text-goud-tekst">ui-*</code>, zijn Nederlands en werken op de publiekssite, in het portaal en in de backoffice (gedrag in <code class="text-goud-tekst">resources/js/ui.js</code>, geen dependencies).</p>
+            <div class="flex flex-wrap items-end gap-6">
+                <div class="min-w-0 flex-1">
+                    <x-ui.eyebrow>Het Register Soft · UI-kit versie 2 · oktober 2026</x-ui.eyebrow>
+                    <h1 class="kop-pagina mb-4">Stijlgids <em>met liefde</em></h1>
+                    <p class="body-text max-w-[680px]">Hoe De Gouden Bol eruitziet en aanvoelt, voor de publiekssite, het deelnemersportaal en de backoffice. Eerst de zes principes die elk scherm eenvoudig en vriendelijk houden, dan de nieuwe componenten, twee klikbare prototypes en de volledige bibliotheek. Klassen heten <code class="text-goud-tekst">ui-*</code>, zijn Nederlands en hebben geen dependencies.</p>
+                </div>
+                <x-ui.bol stemming="blij" class="ui-bol--groot" />
+            </div>
         </div>
     </section>
 
@@ -52,12 +59,16 @@
             <ul class="sticky top-[100px] flex flex-col gap-1 text-[0.8rem]">
                 @foreach ($secties as $anker => $label)
                     <li><a href="#{{ $anker }}" class="block rounded-[8px] px-3 py-1.5 font-semibold text-gedempt no-underline hover:bg-zand hover:text-espresso">{{ $label }}</a></li>
+                    @if ($anker === 'prototypes')<li class="my-2 border-t border-rand"></li>@endif
                 @endforeach
             </ul>
         </nav>
 
         <div class="min-w-0">
-                        @include('stijlgids.secties.fundament')
+            @include('stijlgids.secties.principes')
+            @include('stijlgids.secties.liefde')
+            @include('stijlgids.secties.dashboard')
+            @include('stijlgids.secties.fundament')
             @include('stijlgids.secties.knoppen')
             @include('stijlgids.secties.velden')
             @include('stijlgids.secties.dropdowns')
@@ -70,7 +81,6 @@
             @include('stijlgids.secties.structuur')
             @include('stijlgids.secties.overlays')
             @include('stijlgids.secties.navigatie')
-            @include('stijlgids.secties.dashboard')
         </div>
     </div>
 </x-layouts.public>

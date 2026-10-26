@@ -78,9 +78,13 @@ class PublicPagesTest extends TestCase
         $this->seed(ProvinceSeeder::class);
 
         config()->set('site.styleguide_enabled', true);
-        $this->get('/stijlgids')->assertOk()->assertSee('Het Register');
+        $this->get('/stijlgids')->assertOk()->assertSee('Het Register')->assertSee('Zes principes');
+        $this->get('/redesign-dashboard')->assertOk()->assertSee('Jouw werk vandaag');
+        $this->get('/redesign-dashboard-klant')->assertOk()->assertSee('Jouw volgende stap');
 
         config()->set('site.styleguide_enabled', false);
         $this->get('/stijlgids')->assertNotFound();
+        $this->get('/redesign-dashboard')->assertNotFound();
+        $this->get('/redesign-dashboard-klant')->assertNotFound();
     }
 }

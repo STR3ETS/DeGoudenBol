@@ -2,87 +2,140 @@
     use App\Domain\Participants\Enums\EntryStatus;
     use App\Support\DutchTime;
 
-    $timeline = ['Aangemeld', 'Ingepland', 'Getest', 'Uitslag'];
+    $first = $companies->first();
+    $vragen = [
+        ['Wat neem ik mee op de testdag?', ($edition?->settings->piecesPerEntry ?? 12).' oliebollen, gebakken op de dag zelf, in een doos zonder naam of logo. De code op je aanleverbewijs is genoeg: wij plakken hem erop.'],
+        ['Kan ik mijn aanlevermoment nog wijzigen?', 'Ja, tot de dag ervoor. Open Aanleveren en kies een ander moment. Je oude plek komt vrij voor een andere bakker.'],
+        ['Wanneer hoor ik de uitslag?', ($edition?->main_publication_at ? ucfirst(DutchTime::format($edition->main_publication_at, 'dddd D MMMM [om] HH:mm')).', tegelijk met heel Nederland. ' : 'Op de publicatiedag, tegelijk met heel Nederland. ').'Je krijgt een e-mail en ziet het hier in het portaal.'],
+        ['Ziet het panel mijn naam?', 'Nee. Het panel ziet alleen een testnummer. De koppeling tussen nummer en bakker staat in een aparte, versleutelde kluis en iedere inzage wordt vastgelegd.'],
+    ];
 @endphp
-<x-layouts.portal title="Overzicht">
-    <x-ui.eyebrow>Welkom, {{ $user->name }}</x-ui.eyebrow>
-    <h1 class="kop-pagina mb-8">Uw <em>deelname</em>{{ $edition ? ' aan De Gouden Bol '.$edition->year : '' }}</h1>
+<x-layouts.portal title="Mijn deelname">
+    <header class="ui-app__kop">
+        <x-ui.bol class="ui-bol--klein" stemming="blij" />
+        <div class="ui-app__kop-tekst">
+            <h1 class="ui-app__titel">Hoi, {{ $first?->name ?? $user->name }}</h1>
+            <p class="ui-app__sub">
+                @if ($first && $first->entries->first())
+                    Je doet mee in {{ $first->entries->first()->province->name }}{{ $edition ? ' · De Gouden Bol '.$edition->year : '' }}
+                @else
+                    {{ $user->name }}{{ $edition ? ' · De Gouden Bol '.$edition->year : '' }}
+                @endif
+            </p>
+        </div>
+    </header>
 
     @forelse ($companies as $company)
-        @php $entry = $company->entries->first(); @endphp
-        <x-ui.card class="mb-6">
-            <div class="mb-5 flex flex-wrap items-start justify-between gap-4">
-                <div>
-                    <h2 class="kop-3">{{ $company->name }}</h2>
-                    <p class="text-[0.85rem] text-gedempt">{{ $company->type->getLabel() }}@if ($company->kvk_number) · KvK {{ $company->kvk_number }}@endif</p>
+        @php
+            $entry = $company->entries->first();
+            $journey = $journeys[$company->getKey()];
+            $actie = $journey->nextAction();
+            $status = $journey->statusLine();
+            $stappen = $journey->steps();
+            $klaar = $journey->stepsDone();
+            $zijacties = $journey->sideActions();
+        @endphp
+
+        @if ($companies->count() > 1)
+            <div class="ui-sectie mt-6"><h2 class="ui-sectie__titel">{{ $company->name }} <span class="ui-sectie__sub">{{ $company->type->getLabel() }}@if ($company->kvk_number) · KvK {{ $company->kvk_number }}@endif</span></h2></div>
+        @endif
+
+        <section class="ui-vandaag ui-app__blok" aria-labelledby="vandaag-{{ $company->getKey() }}">
+            <div>
+                <div class="ui-vandaag__eyebrow"><x-ui.icoon naam="zon" /> {{ $actie['eyebrow'] }}</div>
+                <h2 id="vandaag-{{ $company->getKey() }}" class="ui-vandaag__titel">{{ $actie['titel'] }}@if ($actie['accent']) <em>{{ $actie['accent'] }}</em>@endif.</h2>
+                <p class="ui-vandaag__tekst">{{ $actie['tekst'] }}</p>
+                @if ($actie['knop'] || $actie['secundair'])
+                    <div class="ui-vandaag__acties">
+                        @if ($actie['knop'])<a href="{{ $actie['url'] }}" class="ui-knop ui-knop--groot">{{ $actie['knop'] }} <x-ui.icoon naam="pijl-rechts" dikte="2.4" /></a>@endif
+                        @if ($actie['secundair'])<a href="{{ $actie['secundair_url'] }}" class="ui-knop ui-knop--groot ui-knop--ghost">{{ $actie['secundair'] }}</a>@endif
+                    </div>
+                @endif
+            </div>
+            <div class="ui-vandaag__zij">
+                <div class="ui-ring ui-ring--donker ui-ring--groot" style="--ring-pct: {{ $klaar * 25 }}"><span class="ui-ring__tekst"><span class="ui-ring__cijfer">{{ $klaar }}<span class="text-[1.1rem] text-room-zacht">/4</span></span><span class="ui-ring__label">stappen klaar</span></span></div>
+                <span class="text-[0.78rem] text-room-zacht">{{ $klaar === 4 ? 'Helemaal klaar' : ($klaar === 0 ? 'Nog niet begonnen' : 'Je bent goed op weg') }}</span>
+            </div>
+        </section>
+
+        @if ($status)
+            <div class="ui-statusregel ui-statusregel--{{ $status['toon'] }} ui-app__blok">
+                <span class="ui-icoonvak ui-icoonvak--{{ $status['toon'] }} ui-icoonvak--rond"><x-ui.icoon :naam="$status['icoon']" dikte="2.4" /></span>
+                <div>{!! $status['tekst'] !!} <span class="sr-only">Status: {{ $entry->status->getLabel() }}</span></div>
+            </div>
+        @endif
+
+        <div class="ui-app__blok grid gap-6 xl:grid-cols-[3fr_2fr]">
+            <div class="flex flex-col gap-6">
+                <div class="ui-kaart">
+                    <div class="ui-kaart__kop"><span class="ui-icoonvak ui-icoonvak--goud"><x-ui.icoon naam="vlag" /></span><div><div class="ui-kaart__titel">Zo werkt je deelname</div><div class="ui-kaart__sub">Vier stappen. Jij doet er twee, wij de rest.</div></div>@if ($entry)<div class="ui-kaart__acties"><span class="ui-chip ui-chip--klein ui-chip--{{ $entry->status === EntryStatus::PendingPayment ? 'waarschuwing' : ($entry->status->isPubliclyVisible() ? 'succes' : 'info') }}">{{ $entry->status->getLabel() }}</span></div>@endif</div>
+                    <div class="ui-kaart__inhoud !pt-2">
+                        <ol class="ui-stappenhulp">
+                            @foreach ($stappen as $i => $stap)
+                                <li class="ui-stappenhulp__stap ui-stappenhulp__stap--{{ $stap['staat'] }}">
+                                    <span class="ui-stappenhulp__nr">@if ($stap['staat'] === 'klaar')<x-ui.icoon naam="vink" dikte="3" />@else{{ $i + 1 }}@endif</span>
+                                    <div><span class="ui-stappenhulp__titel">{{ $stap['titel'] }}</span><p class="ui-stappenhulp__tekst">{{ $stap['tekst'] }}</p>@if ($stap['knop'] && $stap['url'])<a href="{{ $stap['url'] }}" class="ui-knop ui-knop--klein mt-3">{{ $stap['knop'] }}</a>@endif</div>
+                                </li>
+                            @endforeach
+                        </ol>
+                    </div>
                 </div>
-                @if ($entry)
-                    <x-ui.chip :status="$entry->status === EntryStatus::PendingPayment ? 'waarschuwing' : ($entry->status->isPubliclyVisible() ? 'succes' : 'info')" :dot="true">{{ $entry->status->getLabel() }}</x-ui.chip>
+
+                @if ($zijacties !== [])
+                    <div class="ui-sectie !mb-0"><h2 class="ui-sectie__titel">Ook handig <span class="ui-sectie__sub">Niet verplicht, wel fijn.</span></h2></div>
+                    <div class="grid gap-3 md:grid-cols-2">
+                        @foreach ($zijacties as $zij)
+                            @php $tag = $zij['url'] ? 'a' : 'span'; @endphp
+                            <{{ $tag }} @if ($zij['url']) href="{{ $zij['url'] }}" @else aria-disabled="true" @endif class="ui-actie {{ $zij['staat'] ? 'ui-actie--'.$zij['staat'] : '' }}"><span class="ui-icoonvak ui-icoonvak--{{ $zij['toon'] }}"><x-ui.icoon :naam="$zij['icoon']" /></span><span class="ui-actie__tekst"><span class="ui-actie__titel">{{ $zij['titel'] }}</span><span class="ui-actie__sub">{{ $zij['tekst'] }}</span></span><span class="ui-actie__pijl"><x-ui.icoon :naam="$zij['pijl']" dikte="2.4" /></span></{{ $tag }}>
+                        @endforeach
+                    </div>
                 @endif
             </div>
 
-            @if ($entry)
-                @php $currentStep = $entry->status->timelineStep(); @endphp
-                <ol class="mb-6 grid gap-3 sm:grid-cols-4" aria-label="Voortgang van de inzending">
-                    @foreach ($timeline as $index => $label)
-                        @php $number = $index + 1; @endphp
-                        <li class="rounded-blok border p-3 text-[0.8rem] {{ $currentStep !== null && $number <= $currentStep ? 'border-goud bg-goud-licht' : 'border-rand bg-room' }}">
-                            <span class="font-kop text-[1.1rem] font-bold {{ $currentStep !== null && $number <= $currentStep ? 'text-goud-tekst' : 'text-gedempt' }}">{{ $number }}</span>
-                            <span class="ml-1 font-semibold">{{ $label }}</span>
-                        </li>
-                    @endforeach
-                </ol>
+            <div class="flex flex-col gap-6">
+                @if ($entry && $entry->publishedItem())
+                    <section class="ui-feest">
+                        <x-ui.bol stemming="trots" />
+                        <div class="ui-feest__tekstvak">
+                            <h2 class="ui-feest__titel">@if ($entry->publicTotal() !== null)Een <em>{{ number_format($entry->publicTotal(), 1, ',', '.') }}</em> voor je oliebollen @else Officieel <em>getest</em>@endif</h2>
+                            <p class="ui-feest__tekst">{{ $entry->publicTotal() !== null ? 'Officieel getest door De Gouden Bol. Je badges staan klaar voor je raam, je website en je socials.' : 'Je resultaat is vertrouwelijk teruggekoppeld. Bekijk je rapport en het verbeteradvies.' }}</p>
+                            <div class="ui-feest__acties"><a href="{{ route('portaal.uitslag', $company) }}" class="ui-knop ui-knop--klein">Bekijk je uitslag</a>@if (Route::has('portaal.marketing') && $entry->publicTotal() !== null)<a href="{{ route('portaal.marketing', $company) }}" class="ui-knop ui-knop--klein ui-knop--secundair"><x-ui.icoon naam="download" /> Badges</a>@endif</div>
+                        </div>
+                    </section>
+                @elseif ($edition?->main_publication_at)
+                    <div class="ui-kaart">
+                        <div class="ui-kaart__kop"><span class="ui-icoonvak ui-icoonvak--espresso"><x-ui.icoon naam="ster" /></span><div><div class="ui-kaart__titel">De uitslag</div><div class="ui-kaart__sub">{{ ucfirst(DutchTime::format($edition->main_publication_at, 'dddd D MMMM [om] HH:mm')) }}</div></div></div>
+                        <div class="ui-kaart__inhoud !pt-3">
+                            <div class="flex items-center gap-4">
+                                <span class="ui-datumblok ui-datumblok--goud"><span class="ui-datumblok__dag">{{ DutchTime::format($edition->main_publication_at, 'dd') }}</span><span class="ui-datumblok__nr">{{ DutchTime::format($edition->main_publication_at, 'D') }}</span><span class="ui-datumblok__maand">{{ DutchTime::format($edition->main_publication_at, 'MMM') }}</span></span>
+                                @php $dagen = (int) now()->startOfDay()->diffInDays(DutchTime::display($edition->main_publication_at)->startOfDay(), false); @endphp
+                                <div class="text-[0.88rem] leading-relaxed text-gedempt">@if ($dagen > 1)Nog <strong class="text-espresso">{{ $dagen }} dagen</strong>. @elseif ($dagen === 1)<strong class="text-espresso">Morgen.</strong> @elseif ($dagen === 0)<strong class="text-espresso">Vandaag.</strong> @endif Je krijgt een e-mail zodra je cijfer er is. Tot die tijd is alles geheim, ook voor ons.</div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
-                <dl class="grid gap-x-8 gap-y-2 text-[0.9rem] sm:grid-cols-[160px_1fr]">
-                    <dt class="text-gedempt">Provincie</dt><dd>{{ $entry->province->name }}</dd>
-                    <dt class="text-gedempt">Op de site als</dt><dd>{{ $entry->public_name }}</dd>
-                    @if ($entry->status === EntryStatus::PendingPayment)
-                        <dt class="text-gedempt">Betaling</dt>
-                        <dd>
-                            Nog niet afgerond.
-                            @if ($entry->order && ! $entry->isReservationExpired())
-                                <a href="{{ route('aanmelden.status', $entry->order) }}" class="text-goud-tekst underline">Betaling afronden</a>
-                                (plek gereserveerd tot {{ DutchTime::format($entry->reservation_expires_at, 'HH:mm') }})
-                            @endif
-                        </dd>
-                    @elseif ($entry->order?->invoice)
-                        <dt class="text-gedempt">Factuur</dt>
-                        <dd>{{ $entry->order->invoice->number }} · {{ $entry->order->invoice->formattedTotal() }}@if (Route::has('portaal.facturen.toon')) · <a href="{{ route('portaal.facturen.toon', $entry->order->invoice) }}" class="text-goud-tekst underline">bekijken</a>@endif</dd>
-                    @endif
-                    @if ($entry->publishedItem())
-                        <dt class="text-gedempt">Uitslag</dt>
-                        <dd>
-                            @if ($entry->publicTotal() !== null)
-                                Cijfer <strong>{{ number_format($entry->publicTotal(), 1, ',', '.') }}</strong> · officieel getest
-                            @else
-                                Vertrouwelijk resultaat
-                            @endif
-                            · <a href="{{ route('portaal.uitslag', $company) }}" class="font-bold text-goud-tekst underline">bekijk uw uitslag</a>
-                        </dd>
-                    @endif
-                    @if ($entry->deliverySlot)
-                        <dt class="text-gedempt">Aanleveren</dt>
-                        <dd>
-                            {{ ucfirst(DutchTime::format($entry->deliverySlot->starts_at, 'dddd D MMMM, HH:mm')) }} – {{ DutchTime::format($entry->deliverySlot->ends_at, 'HH:mm') }}
-                            · code <strong>{{ $entry->delivery_code }}</strong>
-                            · <a href="{{ route('portaal.planning.bewijs', $company) }}" class="text-goud-tekst underline">aanleverbewijs</a>
-                        </dd>
-                    @elseif (in_array($entry->status, [EntryStatus::Registered, EntryStatus::FreshnessExpired], true))
-                        <dt class="text-gedempt">Aanleveren</dt>
-                        <dd><a href="{{ route('portaal.planning', $company) }}" class="font-bold text-goud-tekst underline">Kies een aanlevermoment</a>@if ($edition?->first_test_day) · testdagen {{ DutchTime::date($edition->first_test_day) }} t/m {{ DutchTime::date($edition->last_test_day) }}@endif</dd>
-                    @elseif ($edition?->first_test_day)
-                        <dt class="text-gedempt">Testperiode</dt><dd>{{ DutchTime::date($edition->first_test_day) }} t/m {{ DutchTime::date($edition->last_test_day) }}</dd>
-                    @endif
-                </dl>
-            @else
-                <x-ui.empty-state titel="Nog geen inschrijving voor deze editie">
-                    @if (Route::has('aanmelden'))
-                        <x-ui.button :href="route('aanmelden')">Aanmelden</x-ui.button>
-                    @endif
-                </x-ui.empty-state>
-            @endif
-        </x-ui.card>
+                <div class="ui-kaart">
+                    <div class="ui-kaart__kop"><span class="ui-icoonvak"><x-ui.icoon naam="vraag" /></span><div><div class="ui-kaart__titel">Veelgestelde vragen</div><div class="ui-kaart__sub">Kort en in gewone taal</div></div></div>
+                    <div class="ui-kaart__inhoud !pt-1">
+                        @foreach ($vragen as [$vraag, $antwoord])
+                            <details class="ui-vraag"><summary>{{ $vraag }} <x-ui.icoon naam="chevron-omlaag" dikte="2.4" /></summary><p>{{ $antwoord }}</p></details>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="ui-hulpkaart">
+                    <div class="ui-hulpkaart__kop"><x-ui.icoon naam="hart" class="h-5 w-5 text-goud-tekst" /> We helpen graag</div>
+                    <p class="ui-hulpkaart__tekst">Kom je ergens niet uit? Mail ons, je krijgt op werkdagen dezelfde dag antwoord.</p>
+                    <div class="mt-3 flex flex-wrap gap-2"><a href="mailto:{{ config('site.contact_email', config('mail.from.address')) }}" class="ui-knop ui-knop--klein ui-knop--secundair"><x-ui.icoon naam="mail" /> Mail ons</a>@if (Route::has('hoe-werkt-de-test'))<a href="{{ route('hoe-werkt-de-test') }}" class="ui-knop ui-knop--klein ui-knop--ghost">Hoe werkt de keuring</a>@endif</div>
+                </div>
+            </div>
+        </div>
     @empty
-        <x-ui.empty-state titel="Aan dit account is nog geen bedrijf gekoppeld" tekst="Meld een bedrijf aan of vraag de eigenaar om u als medewerker toe te voegen." />
+        <div class="ui-kaart">
+            <div class="ui-kaart__inhoud">
+                <div class="ui-klaar !bg-zand"><x-ui.bol stemming="neutraal" class="ui-bol--klein" /><div class="ui-klaar__titel">Aan dit account is nog geen bedrijf gekoppeld</div><p class="ui-klaar__tekst">Meld een bedrijf aan of vraag de eigenaar om je als medewerker toe te voegen.</p>@if (Route::has('aanmelden'))<a href="{{ route('aanmelden') }}" class="ui-knop mt-3">Bedrijf aanmelden</a>@endif</div>
+            </div>
+        </div>
     @endforelse
 </x-layouts.portal>

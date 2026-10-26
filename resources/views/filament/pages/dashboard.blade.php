@@ -19,16 +19,17 @@
     $links = $data->quickLinks();
     $trend = $data->registrationTrend();
     $finance = $data->finance();
+    $canSeeEntries = EntryResource::canViewAny();
 
-    $tone = fn (string $tone): string => match ($tone) {
-        'goud' => 'bg-goud-licht text-goud-tekst',
-        'succes' => 'bg-status-succes-bg text-status-succes',
-        'waarschuwing' => 'bg-status-waarschuwing-bg text-status-waarschuwing',
-        'fout' => 'bg-status-fout-bg text-status-fout',
-        'info' => 'bg-status-info-bg text-status-info',
-        'espresso' => 'bg-espresso text-goud',
-        default => 'bg-status-neutraal-bg text-status-neutraal',
-    };
+    // Het belangrijkste van vandaag: het eerste werkitem; de rest wordt een actiekaart.
+    $top = $work[0] ?? null;
+    $rest = array_slice($work, 1);
+    $doneSteps = count(array_filter($steps, fn (array $step) => $step['state'] === 'done'));
+    $busySteps = count(array_filter($steps, fn (array $step) => in_array($step['state'], ['current', 'running'], true)));
+    $seasonPct = (int) round(($doneSteps + $busySteps / 2) / max(count($steps), 1) * 100);
+    // Donkere tegels passen niet tussen de pasteltinten; "espresso" wordt een waarschuwingstint.
+    $tileTone = fn (string $tone): string => $tone === 'espresso' ? 'waarschuwing' : $tone;
+
     $statusTone = fn (EntryStatus $status): string => match ($status) {
         EntryStatus::PendingPayment => 'waarschuwing',
         EntryStatus::Published => 'succes',
@@ -37,293 +38,193 @@
         default => 'info',
     };
     $daysLabel = fn (array $milestone): string => match (true) {
-        $milestone['is_past'] => 'klaar',
+        $milestone['is_past'] => 'geweest',
         $milestone['days'] === 0 => 'vandaag',
         $milestone['days'] === 1 => 'morgen',
-        default => "over {$milestone['days']} dgn",
+        default => "over {$milestone['days']} dagen",
     };
-    $canSeeEntries = EntryResource::canViewAny();
+    $stepState = fn (string $state): string => match ($state) {
+        'done' => 'klaar',
+        'current', 'running' => 'nu',
+        default => 'later',
+    };
 @endphp
 <x-filament-panels::page>
-    <div class="dgb-dash flex flex-col gap-6">
+    <div class="dgb-dash ui-dash">
 
-        {{-- Seizoen: fase en de negen processtappen --}}
-        <section class="dgb-card dgb-keten overflow-hidden">
-            <div class="dgb-card-head">
-                <span class="dgb-icoon bg-goud text-espresso"><x-filament::icon icon="heroicon-o-flag" /></span>
-                <div class="min-w-0 flex-1">
-                    <p class="dgb-card-title">{{ $phase['label'] }}</p>
-                    <p class="dgb-card-sub">{{ $phase['note'] }}</p>
-                </div>
-                @if ($edition !== null)
-                    <span class="dgb-pill bg-goud-licht text-goud-tekst">Editie {{ $edition->year }}</span>
+        {{-- Het belangrijkste van vandaag --}}
+        <section class="ui-vandaag ui-app__blok" aria-labelledby="dash-vandaag">
+            <div>
+                @if ($top !== null)
+                    <div class="ui-vandaag__eyebrow"><x-ui.icoon naam="zon" /> Het belangrijkste van vandaag</div>
+                    <h2 id="dash-vandaag" class="ui-vandaag__titel"><em>{{ $top['title'] }}</em></h2>
+                    <p class="ui-vandaag__tekst">{{ $top['text'] }}</p>
+                    <div class="ui-vandaag__acties">
+                        @if ($top['url'])
+                            <a {{ \Filament\Support\generate_href_html($top['url']) }} class="ui-knop ui-knop--groot">{{ $top['action'] }} <x-ui.icoon naam="pijl-rechts" dikte="2.4" /></a>
+                        @endif
+                        @if ($top['count'] !== null)
+                            <span class="text-[0.82rem] text-room-zacht">{{ $top['count'] }} {{ $top['count'] === 1 ? 'item' : 'items' }}</span>
+                        @endif
+                    </div>
+                @else
+                    <div class="ui-vandaag__eyebrow"><x-ui.icoon naam="zon" /> {{ $phase['label'] }}</div>
+                    <h2 id="dash-vandaag" class="ui-vandaag__titel">Je bent <em>helemaal bij</em>.</h2>
+                    <p class="ui-vandaag__tekst">{{ $phase['note'] }} @if ($nextMilestone !== null) Het eerstvolgende moment is {{ lcfirst($nextMilestone['label']) }} op {{ $nextMilestone['date'] }}.@endif</p>
                 @endif
             </div>
-            <ol class="dgb-keten__stappen" aria-label="Processtappen van aanmelding tot publicatie">
-                @foreach ($steps as $step)
-                    @php $tag = $step['url'] ? 'a' : 'span'; @endphp
-                    <li class="dgb-keten__stap dgb-keten__stap--{{ $step['state'] }}">
-                        <{{ $tag }} @if ($step['url']) {{ \Filament\Support\generate_href_html($step['url']) }} @endif class="dgb-keten__knop" title="Stap {{ $step['n'] }}: {{ $step['label'] }}">
-                            <span class="dgb-keten__nr">
-                                @if ($step['state'] === 'done')
-                                    <x-filament::icon icon="heroicon-m-check" />
-                                @else
-                                    {{ $step['n'] }}
-                                @endif
-                            </span>
-                            <span class="dgb-keten__label">{{ $step['label'] }}</span>
-                            @if ($step['note'])
-                                <span class="dgb-keten__note">{{ $step['note'] }}</span>
-                            @else
-                                <span class="dgb-keten__teller">{{ $step['count'] === null ? '–' : $step['count'] }}</span>
-                            @endif
-                        </{{ $tag }}>
-                    </li>
-                @endforeach
-            </ol>
+            <div class="ui-vandaag__zij">
+                <div class="ui-ring ui-ring--donker ui-ring--groot" style="--ring-pct: {{ $seasonPct }}"><span class="ui-ring__tekst"><span class="ui-ring__cijfer">{{ $seasonPct }}%</span><span class="ui-ring__label">van het seizoen</span></span></div>
+                <span class="text-[0.78rem] text-room-zacht">{{ $edition !== null ? 'Editie '.$edition->year.' · '.$phase['label'] : 'Geen actieve editie' }}</span>
+            </div>
         </section>
+
+        {{-- Jouw werk vandaag --}}
+        <div class="ui-sectie">
+            <h2 class="ui-sectie__titel">Jouw werk vandaag <span class="ui-sectie__sub">{{ $work === [] ? 'Er wacht niets op je.' : (count($work) === 1 ? 'Eén ding, en dat staat hierboven.' : count($work).' dingen. Begin bovenaan, de rest kan wachten.') }}</span></h2>
+        </div>
+        @if ($rest !== [])
+            <div class="ui-app__blok grid gap-4 md:grid-cols-2">
+                @foreach ($rest as $item)
+                    @php $tag = $item['url'] ? 'a' : 'div'; @endphp
+                    <{{ $tag }} @if ($item['url']) {{ \Filament\Support\generate_href_html($item['url']) }} @endif class="ui-actie">
+                        <span class="ui-icoonvak ui-icoonvak--{{ $item['tone'] }}"><x-filament::icon :icon="$item['icon']" /></span>
+                        <span class="ui-actie__tekst"><span class="ui-actie__titel">{{ $item['title'] }}</span><span class="ui-actie__sub">{{ $item['text'] }}</span></span>
+                        @if ($item['count'] !== null)<span class="ui-badge ui-badge--espresso">{{ $item['count'] }}</span>@endif
+                        <span class="ui-actie__pijl" aria-hidden="true"><x-ui.icoon naam="pijl-rechts" dikte="2.4" /></span>
+                    </{{ $tag }}>
+                @endforeach
+            </div>
+        @elseif ($work === [])
+            <div class="ui-app__blok ui-klaar"><x-ui.bol stemming="blij" class="ui-bol--klein" /><div class="ui-klaar__titel">Je bent helemaal bij</div><p class="ui-klaar__tekst">Zodra er iets te doen is, staat het hier met de knop erbij.</p></div>
+        @else
+            <div class="ui-app__blok"></div>
+        @endif
 
         {{-- Kerncijfers --}}
         @if ($kpis !== [])
-            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div class="ui-sectie"><h2 class="ui-sectie__titel">Hoe staat het ervoor <span class="ui-sectie__sub">De cijfers die je vandaag nodig hebt.</span></h2></div>
+            <div class="ui-app__blok grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 @foreach ($kpis as $kpi)
                     @php $tag = $kpi['url'] ? 'a' : 'div'; @endphp
-                    <{{ $tag }} @if ($kpi['url']) {{ \Filament\Support\generate_href_html($kpi['url']) }} @endif class="dgb-tegel dgb-tegel--{{ $kpi['tone'] }}">
-                        <span class="dgb-tegel__kop">
-                            <span class="dgb-tegel__icoon"><x-filament::icon :icon="$kpi['icon']" /></span>
-                            <span class="dgb-tegel__label">{{ $kpi['label'] }}</span>
-                        </span>
-                        <span class="dgb-tegel__cijfer">{{ $kpi['value'] }}</span>
-                        <span class="dgb-tegel__voet">
-                            @if ($kpi['url'])
-                                <span class="dgb-tegel__link"><x-filament::icon icon="heroicon-m-arrow-right" /> Bekijk alle</span>
-                            @endif
-                            <span class="dgb-tegel__hint">{{ $kpi['hint'] }}</span>
-                        </span>
-                        <span class="dgb-tegel__watermerk" aria-hidden="true"><x-filament::icon :icon="$kpi['icon']" /></span>
+                    <{{ $tag }} @if ($kpi['url']) {{ \Filament\Support\generate_href_html($kpi['url']) }} @endif class="ui-tegel ui-tegel--{{ $tileTone($kpi['tone']) }}">
+                        <div class="ui-tegel__kop"><span class="ui-icoonvak ui-icoonvak--{{ $tileTone($kpi['tone']) }}"><x-filament::icon :icon="$kpi['icon']" /></span>{{ $kpi['label'] }}</div>
+                        <div class="ui-tegel__cijfer">{{ $kpi['value'] }}</div>
+                        <div class="ui-tegel__voet">
+                            @if ($kpi['url'])<span class="ui-tegel__link">Bekijk alle <x-ui.icoon naam="pijl-rechts" dikte="2.4" /></span>@endif
+                            <span>{{ $kpi['hint'] }}</span>
+                        </div>
+                        <span class="ui-tegel__watermerk" aria-hidden="true"><x-filament::icon :icon="$kpi['icon']" /></span>
                     </{{ $tag }}>
                 @endforeach
             </div>
         @endif
 
-        <div class="grid gap-6 xl:grid-cols-5">
-            {{-- Jouw werk vandaag --}}
-            <section id="werk" class="dgb-card overflow-hidden xl:col-span-3">
-                <div class="dgb-card-head">
-                    <span class="dgb-icoon bg-goud text-espresso"><x-filament::icon icon="heroicon-o-bolt" /></span>
-                    <div class="min-w-0 flex-1">
-                        <p class="dgb-card-title">Jouw werk vandaag</p>
-                        <p class="dgb-card-sub">Wat nu op jou wacht, met de knop erbij</p>
-                    </div>
-                    @if ($work !== [])
-                        <span class="dgb-count">{{ count($work) }}</span>
-                    @endif
+        <div class="ui-app__blok grid gap-6 xl:grid-cols-[3fr_2fr]">
+            {{-- Seizoen in negen stappen --}}
+            <div class="ui-kaart dgb-card">
+                <div class="ui-kaart__kop"><span class="ui-icoonvak ui-icoonvak--goud"><x-ui.icoon naam="vlag" /></span><div><div class="ui-kaart__titel">Waar we zijn in het seizoen</div><div class="ui-kaart__sub">{{ $phase['note'] }}</div></div>@if ($edition !== null)<div class="ui-kaart__acties"><span class="ui-chip ui-chip--goud ui-chip--klein">Editie {{ $edition->year }}</span></div>@endif</div>
+                <div class="ui-kaart__inhoud !pt-2">
+                    <ol class="ui-stappenhulp ui-stappenhulp--compact">
+                        @foreach ($steps as $step)
+                            @php $state = $stepState($step['state']); $tag = $step['url'] ? 'a' : 'span'; @endphp
+                            <li class="ui-stappenhulp__stap ui-stappenhulp__stap--{{ $state }}">
+                                <span class="ui-stappenhulp__nr">@if ($state === 'klaar')<x-ui.icoon naam="vink" dikte="3" />@else{{ $step['n'] }}@endif</span>
+                                <div class="flex flex-wrap items-baseline gap-x-3">
+                                    <{{ $tag }} @if ($step['url']) {{ \Filament\Support\generate_href_html($step['url']) }} @endif class="ui-stappenhulp__titel no-underline">{{ $step['label'] }}</{{ $tag }}>
+                                    <span class="ui-stappenhulp__tekst !mt-0">
+                                        @if ($step['note']) {{ $step['note'] }}
+                                        @elseif ($step['count'] !== null) {{ $step['count'] }} {{ $step['count'] === 1 ? 'inschrijving' : 'inschrijvingen' }}
+                                        @endif
+                                    </span>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ol>
                 </div>
-                <div class="dgb-lijst">
-                    @forelse ($work as $item)
-                        @php $tag = $item['url'] ? 'a' : 'div'; @endphp
-                        <{{ $tag }} @if ($item['url']) {{ \Filament\Support\generate_href_html($item['url']) }} @endif class="dgb-row dgb-row--tint dgb-row--{{ $item['tone'] }}">
-                            <span class="dgb-rij-icoon"><x-filament::icon :icon="$item['icon']" /></span>
-                            <span class="min-w-0 flex-1">
-                                <span class="dgb-rij-titel">{{ $item['title'] }}</span>
-                                <span class="dgb-rij-sub">{{ $item['text'] }}</span>
-                            </span>
-                            @if ($item['count'] !== null)
-                                <span class="dgb-pill bg-wit text-espresso">{{ $item['count'] }}</span>
-                            @endif
-                            <span class="dgb-chip dgb-chip--goud dgb-chip--klein">{{ $item['action'] }}</span>
-                        </{{ $tag }}>
-                    @empty
-                        <div class="dgb-empty">
-                            <span class="dgb-icoon bg-status-succes-bg text-status-succes"><x-filament::icon icon="heroicon-o-check" /></span>
-                            <p class="text-[0.86rem] font-extrabold text-espresso">Niets wacht op je</p>
-                            <p class="text-[0.75rem] text-gedempt">Zodra er iets te doen is, staat het hier met de knop erbij.</p>
-                        </div>
-                    @endforelse
-                </div>
-                @if ($nextMilestone !== null)
-                    <div class="dgb-notitie">
-                        <span class="dgb-icoon"><x-filament::icon icon="heroicon-o-calendar-days" /></span>
-                        <span class="min-w-0 flex-1 truncate">
-                            {{ $nextMilestone['label'] }}
-                            @if ($nextMilestone['days'] === 0) is vandaag
-                            @elseif ($nextMilestone['days'] === 1) is morgen
-                            @else over {{ $nextMilestone['days'] }} dagen
-                            @endif
-                            · {{ $nextMilestone['date'] }}
-                        </span>
-                    </div>
-                @endif
-            </section>
+            </div>
 
-            {{-- Mijlpalen --}}
-            <section class="dgb-card overflow-hidden xl:col-span-2">
-                <div class="dgb-card-head">
-                    <span class="dgb-icoon bg-espresso text-goud"><x-filament::icon icon="heroicon-o-forward" /></span>
-                    <div class="min-w-0 flex-1">
-                        <p class="dgb-card-title">Mijlpalen {{ $edition?->year }}</p>
-                        <p class="dgb-card-sub">Wat er komt</p>
-                    </div>
-                    @if ($edition !== null && EditionResource::canViewAny())
-                        <a {{ \Filament\Support\generate_href_html(EditionResource::getUrl('edit', ['record' => $edition])) }} class="dgb-link">Instellen <x-filament::icon icon="heroicon-m-arrow-right" /></a>
-                    @endif
+            <div class="flex flex-col gap-6">
+                {{-- Belangrijke data --}}
+                <div class="ui-kaart dgb-card">
+                    <div class="ui-kaart__kop"><span class="ui-icoonvak ui-icoonvak--espresso"><x-ui.icoon naam="kalender" /></span><div><div class="ui-kaart__titel">Belangrijke data</div><div class="ui-kaart__sub">Wat eraan komt</div></div>@if ($edition !== null && EditionResource::canViewAny())<div class="ui-kaart__acties"><a {{ \Filament\Support\generate_href_html(EditionResource::getUrl('edit', ['record' => $edition])) }} class="ui-sectie__link">Aanpassen</a></div>@endif</div>
+                    <div class="ui-kaart__inhoud !pt-3"><div class="ui-lijst">
+                        @forelse ($milestones as $milestone)
+                            @if (! $milestone['is_past'] || $loop->remaining < 3)
+                                <div class="ui-rij {{ $milestone['is_next'] ? 'ui-rij--goud' : '' }} {{ $milestone['is_past'] ? 'opacity-50' : '' }}"><span class="ui-datumblok {{ $milestone['is_next'] ? 'ui-datumblok--goud' : '' }}"><span class="ui-datumblok__dag">{{ $milestone['weekday'] }}</span><span class="ui-datumblok__nr">{{ $milestone['day'] }}</span><span class="ui-datumblok__maand">{{ $milestone['month'] }}</span></span><span class="ui-rij__tekst"><span class="ui-rij__titel">{{ $milestone['label'] }}</span><span class="ui-rij__sub">{{ $milestone['time'] ? "om {$milestone['time']} uur" : 'hele dag' }}</span></span><span class="ui-rij__meta"><span class="ui-chip ui-chip--klein {{ $milestone['is_next'] ? 'ui-chip--goud' : '' }}">{{ $daysLabel($milestone) }}</span></span></div>
+                            @endif
+                        @empty
+                            <p class="text-[0.82rem] text-gedempt">Geen editie-datums ingesteld.</p>
+                        @endforelse
+                    </div></div>
                 </div>
-                <ol class="dgb-lijst">
-                    @forelse ($milestones as $milestone)
-                        <li class="dgb-row {{ $milestone['is_next'] ? 'dgb-row--tint dgb-row--goud' : '' }} {{ $milestone['is_past'] ? 'opacity-50' : '' }}">
-                            <span class="dgb-datum {{ $milestone['is_next'] ? 'dgb-datum--goud' : '' }}">
-                                <span class="dgb-datum__dag">{{ $milestone['weekday'] }}</span>
-                                <span class="dgb-datum__nr">{{ $milestone['day'] }}</span>
-                                <span class="dgb-datum__maand">{{ $milestone['month'] }}</span>
-                            </span>
-                            <span class="min-w-0 flex-1">
-                                <span class="dgb-rij-titel">{{ $milestone['label'] }}</span>
-                                <span class="dgb-rij-sub">{{ $milestone['time'] ? "om {$milestone['time']} uur" : 'hele dag' }}</span>
-                            </span>
-                            <span class="dgb-pill {{ $milestone['is_next'] ? 'bg-goud text-espresso' : ($milestone['is_past'] ? 'bg-status-neutraal-bg text-status-neutraal' : 'bg-zand text-gedempt') }}">{{ $daysLabel($milestone) }}</span>
-                        </li>
-                    @empty
-                        <li class="dgb-empty"><p class="text-[0.8rem] text-gedempt">Geen editie-datums ingesteld.</p></li>
-                    @endforelse
-                </ol>
-            </section>
+
+                <div class="ui-hulpkaart">
+                    <div class="ui-hulpkaart__kop"><x-ui.icoon naam="vraag" class="h-5 w-5 text-goud-tekst" /> Hulp nodig?</div>
+                    <p class="ui-hulpkaart__tekst">Elke pagina legt bovenaan uit wat je er doet. Kom je er niet uit, dan belt of mailt Eazyonline je terug op dezelfde werkdag.</p>
+                    <a href="mailto:{{ config('mail.from.address') }}" class="ui-hulpkaart__link">Mail Eazyonline <x-ui.icoon naam="pijl-rechts" dikte="2.4" /></a>
+                </div>
+            </div>
         </div>
 
         {{-- Financiën per inkomstenstroom --}}
         @if ($finance)
-            <section class="dgb-card overflow-hidden">
-                <div class="dgb-card-head">
-                    <span class="dgb-icoon bg-status-succes-bg text-status-succes"><x-filament::icon icon="heroicon-o-banknotes" /></span>
-                    <div class="min-w-0 flex-1">
-                        <p class="dgb-card-title">Financiën per inkomstenstroom</p>
-                        <p class="dgb-card-sub">Betaald excl. btw · openstaand · {{ $finance['charity_percentage'] }}%-reservering goede doelen</p>
-                    </div>
-                    @if (CharityResource::canViewAny())
-                        <a {{ \Filament\Support\generate_href_html(CharityResource::getUrl('index')) }} class="dgb-link">Goede doelen <x-filament::icon icon="heroicon-m-arrow-right" /></a>
-                    @endif
-                </div>
-                <div class="grid gap-3 px-5 pb-5 md:grid-cols-2 xl:grid-cols-4">
-                    @foreach ($finance['streams'] as $stream)
-                        <a {{ \Filament\Support\generate_href_html($stream['url']) }} class="dgb-tegel dgb-tegel--mini dgb-tegel--{{ $loop->first ? 'succes' : 'info' }}">
-                            <span class="dgb-tegel__label">{{ $stream['label'] }}</span>
-                            <span class="dgb-tegel__cijfer">{{ Money::format($stream['paid_cents']) }}</span>
-                            <span class="dgb-tegel__hint">{{ $stream['open_count'] > 0 ? $stream['open_count'].' open · '.Money::format($stream['open_cents']) : 'niets openstaand' }}</span>
-                        </a>
-                    @endforeach
-                    <div class="dgb-tegel dgb-tegel--mini dgb-tegel--goud">
-                        <span class="dgb-tegel__label">Gereserveerd goede doelen</span>
-                        <span class="dgb-tegel__cijfer">{{ Money::format($finance['charity_reserved_cents']) }}</span>
-                        <span class="dgb-tegel__hint">{{ Money::format($finance['charity_pot_cents']) }} in de regionale potten</span>
-                    </div>
-                    <div class="dgb-tegel dgb-tegel--mini dgb-tegel--{{ $finance['charity_open_cents'] > 0 ? 'waarschuwing' : 'neutraal' }}">
-                        <span class="dgb-tegel__label">Nog uit te betalen</span>
-                        <span class="dgb-tegel__cijfer">{{ Money::format($finance['charity_open_cents']) }}</span>
-                        <span class="dgb-tegel__hint">{{ Money::format($finance['charity_paid_cents']) }} al uitbetaald</span>
-                    </div>
-                </div>
-            </section>
+            <div class="ui-sectie"><h2 class="ui-sectie__titel">Geld <span class="ui-sectie__sub">Betaald exclusief btw, wat nog openstaat en de {{ $finance['charity_percentage'] }}% voor goede doelen.</span></h2>@if (CharityResource::canViewAny())<a {{ \Filament\Support\generate_href_html(CharityResource::getUrl('index')) }} class="ui-sectie__link">Goede doelen <x-ui.icoon naam="pijl-rechts" dikte="2.4" /></a>@endif</div>
+            <div class="ui-app__blok grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                @foreach ($finance['streams'] as $stream)
+                    <a {{ \Filament\Support\generate_href_html($stream['url']) }} class="ui-tegel ui-tegel--mini ui-tegel--{{ $loop->first ? 'succes' : 'info' }}"><div class="ui-label">{{ $stream['label'] }}</div><div class="ui-tegel__cijfer">{{ Money::format($stream['paid_cents']) }}</div><div class="ui-tegel__voet">{{ $stream['open_count'] > 0 ? $stream['open_count'].' open · '.Money::format($stream['open_cents']) : 'niets openstaand' }}</div></a>
+                @endforeach
+                <div class="ui-tegel ui-tegel--mini ui-tegel--goud"><div class="ui-label">Gereserveerd goede doelen</div><div class="ui-tegel__cijfer">{{ Money::format($finance['charity_reserved_cents']) }}</div><div class="ui-tegel__voet">{{ Money::format($finance['charity_pot_cents']) }} in de regionale potten</div></div>
+                <div class="ui-tegel ui-tegel--mini ui-tegel--{{ $finance['charity_open_cents'] > 0 ? 'waarschuwing' : 'neutraal' }}"><div class="ui-label">Nog uit te betalen</div><div class="ui-tegel__cijfer">{{ Money::format($finance['charity_open_cents']) }}</div><div class="ui-tegel__voet">{{ Money::format($finance['charity_paid_cents']) }} al uitbetaald</div></div>
+            </div>
         @endif
 
         <div class="grid gap-6 xl:grid-cols-3">
             {{-- Recente aanmeldingen --}}
             @if ($canSeeEntries && $edition !== null)
-                <section class="dgb-card overflow-hidden">
-                    <div class="dgb-card-head">
-                        <span class="dgb-icoon bg-status-info-bg text-status-info"><x-filament::icon icon="heroicon-o-clipboard-document-check" /></span>
-                        <div class="min-w-0 flex-1">
-                            <p class="dgb-card-title">Recente aanmeldingen</p>
-                            <p class="dgb-card-sub">{{ $trend['total'] }} in {{ count($trend['days']) }} dagen</p>
-                        </div>
-                        <a {{ \Filament\Support\generate_href_html(EntryResource::getUrl('index')) }} class="dgb-link">Alles <x-filament::icon icon="heroicon-m-arrow-right" /></a>
-                    </div>
-                    @if ($trend['days'] !== [])
-                        <div class="dgb-trend" aria-label="Aanmeldingen per dag, laatste {{ count($trend['days']) }} dagen">
-                            <div class="dgb-trend__staven">
+                <div class="ui-kaart dgb-card">
+                    <div class="ui-kaart__kop"><span class="ui-icoonvak ui-icoonvak--info"><x-ui.icoon naam="klembord" /></span><div><div class="ui-kaart__titel">Nieuwe aanmeldingen</div><div class="ui-kaart__sub">{{ $trend['total'] }} in {{ count($trend['days']) }} dagen</div></div><div class="ui-kaart__acties"><a {{ \Filament\Support\generate_href_html(EntryResource::getUrl('index')) }} class="ui-sectie__link">Alle bakkers</a></div></div>
+                    <div class="ui-kaart__inhoud !pt-3">
+                        @if ($trend['days'] !== [])
+                            <div class="ui-staven mb-4" aria-label="Aanmeldingen per dag, laatste {{ count($trend['days']) }} dagen">
                                 @foreach ($trend['days'] as $day)
-                                    <span class="dgb-trend__staaf {{ $day['is_today'] ? 'dgb-trend__staaf--vandaag' : '' }}" title="{{ $day['label'] }}: {{ $day['count'] }}">
-                                        <span class="dgb-trend__vulling" style="height: {{ $day['count'] > 0 ? max(10, (int) round($day['count'] / $trend['max'] * 100)) : 0 }}%"></span>
-                                    </span>
+                                    <span class="ui-staven__staaf {{ $day['is_today'] ? 'ui-staven__staaf--vandaag' : '' }}" title="{{ $day['label'] }}: {{ $day['count'] }}"><span class="ui-staven__vulling" style="height: {{ $day['count'] > 0 ? max(10, (int) round($day['count'] / $trend['max'] * 100)) : 0 }}%"></span></span>
                                 @endforeach
                             </div>
-                            <div class="dgb-trend__onderschrift">
-                                <span>{{ $trend['days'][0]['label'] }}</span>
-                                <span>vandaag</span>
-                            </div>
+                        @endif
+                        <div class="ui-lijst">
+                            @forelse ($recent as $entry)
+                                <a {{ \Filament\Support\generate_href_html(EntryResource::getUrl('index', ['tableSearch' => $entry->public_name])) }} class="ui-rij ui-rij--klik"><span class="ui-avatar {{ $loop->odd ? '' : 'ui-avatar--espresso' }}">{{ strtoupper(mb_substr($entry->public_name, 0, 1)) }}</span><span class="ui-rij__tekst"><span class="ui-rij__titel">{{ $entry->public_name }}</span><span class="ui-rij__sub">{{ $entry->province->name }} · {{ $entry->registered_at ? DutchTime::display($entry->registered_at)->locale('nl')->diffForHumans() : '' }}</span></span><span class="ui-rij__meta"><span class="ui-chip ui-chip--klein ui-chip--{{ $statusTone($entry->status) }}">{{ $entry->status->getLabel() }}</span></span></a>
+                            @empty
+                                <p class="text-[0.82rem] text-gedempt">Nog geen aanmeldingen. Zodra de inschrijving open is verschijnen ze hier.</p>
+                            @endforelse
                         </div>
-                    @endif
-                    <div class="dgb-lijst">
-                        @forelse ($recent as $entry)
-                            <a {{ \Filament\Support\generate_href_html(EntryResource::getUrl('index', ['tableSearch' => $entry->public_name])) }} class="dgb-row">
-                                <span class="dgb-avatar">{{ strtoupper(mb_substr($entry->public_name, 0, 1)) }}</span>
-                                <span class="min-w-0 flex-1">
-                                    <span class="dgb-rij-titel">{{ $entry->public_name }}</span>
-                                    <span class="dgb-rij-sub">{{ $entry->province->name }} · {{ $entry->registered_at ? DutchTime::display($entry->registered_at)->locale('nl')->diffForHumans() : '' }}</span>
-                                </span>
-                                <span class="dgb-pill {{ $tone($statusTone($entry->status)) }}">{{ $entry->status->getLabel() }}</span>
-                            </a>
-                        @empty
-                            <div class="dgb-empty">
-                                <p class="text-[0.86rem] font-extrabold text-espresso">Nog geen aanmeldingen</p>
-                                <p class="text-[0.75rem] text-gedempt">Zodra de inschrijving open is verschijnen ze hier.</p>
-                            </div>
-                        @endforelse
                     </div>
-                </section>
+                </div>
             @endif
 
             {{-- Plekken per provincie --}}
-            <section class="dgb-card overflow-hidden">
-                <div class="dgb-card-head">
-                    <span class="dgb-icoon bg-goud-licht text-goud-tekst"><x-filament::icon icon="heroicon-o-map" /></span>
-                    <div class="min-w-0 flex-1">
-                        <p class="dgb-card-title">Plekken per provincie</p>
-                        <p class="dgb-card-sub">Bezet van beschikbaar</p>
-                    </div>
-                </div>
-                <ul class="flex flex-col gap-2.5 px-5 pb-5">
+            <div class="ui-kaart dgb-card">
+                <div class="ui-kaart__kop"><span class="ui-icoonvak"><x-ui.icoon naam="kaart" /></span><div><div class="ui-kaart__titel">Plekken per provincie</div><div class="ui-kaart__sub">Rood betekent vol: de wachtlijst staat aan.</div></div></div>
+                <div class="ui-kaart__inhoud !pt-3 flex flex-col gap-3">
                     @forelse ($provinces as $province)
-                        <li>
-                            <div class="mb-1 flex items-center justify-between text-[0.78rem]">
-                                <span class="font-bold text-espresso">{{ $province['name'] }}</span>
-                                <span class="tabular-nums text-gedempt">{{ $province['taken'] }} / {{ $province['capacity'] }}</span>
-                            </div>
-                            <div class="dgb-balk">
-                                <div class="dgb-balk__vulling {{ $province['available'] === 0 ? 'dgb-balk__vulling--vol' : ($province['percentage'] >= 80 ? 'dgb-balk__vulling--bijna' : '') }}" style="width: {{ max(2, $province['percentage']) }}%"></div>
-                            </div>
-                        </li>
+                        <div><div class="mb-1 flex justify-between text-[0.78rem] font-bold"><span>{{ $province['name'] }}</span><span class="text-gedempt">{{ $province['taken'] }} van {{ $province['capacity'] }}</span></div><div class="ui-balk"><div class="ui-balk__vulling {{ $province['available'] === 0 ? '!bg-status-fout' : ($province['percentage'] >= 80 ? '!bg-status-waarschuwing' : '') }}" style="width: {{ max(2, $province['percentage']) }}%"></div></div></div>
                     @empty
-                        <li class="text-[0.8rem] text-gedempt">Geen provincies gekoppeld aan de editie.</li>
+                        <p class="text-[0.82rem] text-gedempt">Geen provincies gekoppeld aan de editie.</p>
                     @endforelse
-                </ul>
-            </section>
+                </div>
+            </div>
 
             {{-- Snel naar --}}
-            <section class="dgb-card overflow-hidden">
-                <div class="dgb-card-head">
-                    <span class="dgb-icoon bg-zand text-espresso"><x-filament::icon icon="heroicon-o-squares-2x2" /></span>
-                    <div class="min-w-0 flex-1">
-                        <p class="dgb-card-title">Snel naar</p>
-                        <p class="dgb-card-sub">Veelgebruikte onderdelen</p>
-                    </div>
-                </div>
-                <div class="dgb-lijst">
+            <div class="ui-kaart dgb-card">
+                <div class="ui-kaart__kop"><span class="ui-icoonvak ui-icoonvak--neutraal"><x-ui.icoon naam="lijst" /></span><div><div class="ui-kaart__titel">Snel naar</div><div class="ui-kaart__sub">Veelgebruikte onderdelen</div></div></div>
+                <div class="ui-kaart__inhoud !pt-3"><div class="ui-lijst">
                     @foreach ($links as $link)
-                        <a {{ \Filament\Support\generate_href_html($link['url']) }} class="dgb-row">
-                            <span class="dgb-icoon bg-zand text-espresso"><x-filament::icon :icon="$link['icon']" /></span>
-                            <span class="dgb-rij-titel min-w-0 flex-1">{{ $link['label'] }}</span>
-                            <x-filament::icon icon="heroicon-m-chevron-right" class="dgb-rij-chevron" />
-                        </a>
+                        <a {{ \Filament\Support\generate_href_html($link['url']) }} class="ui-rij ui-rij--klik"><span class="ui-icoonvak"><x-filament::icon :icon="$link['icon']" /></span><span class="ui-rij__tekst"><span class="ui-rij__titel">{{ $link['label'] }}</span></span><span class="ui-rij__chevron"><x-ui.icoon naam="chevron-rechts" dikte="2.4" /></span></a>
                     @endforeach
-                    <a href="{{ $data->publicSiteUrl() }}" target="_blank" rel="noopener" class="dgb-row dgb-row--tint dgb-row--goud">
-                        <span class="dgb-rij-icoon"><x-filament::icon icon="heroicon-o-arrow-top-right-on-square" /></span>
-                        <span class="min-w-0 flex-1">
-                            <span class="dgb-rij-titel">Publiekssite</span>
-                            <span class="dgb-rij-sub">Opent in een nieuw tabblad</span>
-                        </span>
-                        <x-filament::icon icon="heroicon-m-chevron-right" class="dgb-rij-chevron" />
-                    </a>
-                </div>
-            </section>
+                    <a href="{{ $data->publicSiteUrl() }}" target="_blank" rel="noopener" class="ui-rij ui-rij--klik ui-rij--goud"><span class="ui-icoonvak ui-icoonvak--goud"><x-ui.icoon naam="link" /></span><span class="ui-rij__tekst"><span class="ui-rij__titel">Publiekssite</span><span class="ui-rij__sub">Opent in een nieuw tabblad</span></span><span class="ui-rij__chevron"><x-ui.icoon naam="chevron-rechts" dikte="2.4" /></span></a>
+                </div></div>
+            </div>
         </div>
     </div>
 </x-filament-panels::page>

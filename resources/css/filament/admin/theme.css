@@ -8,6 +8,7 @@
 @import '../../fonts.css';
 @import '../../tokens.css';
 @import '../../ui.css';
+@import '../../ui-liefde.css';
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
@@ -2389,4 +2390,80 @@ a.dgb-row:hover .dgb-chip--goud {
 .fi-tabs-item.fi-active .fi-badge {
     background: rgba(28, 15, 3, 0.12) !important;
     color: var(--color-espresso) !important;
+}
+
+/* ------------------------------------------------------------------
+   Redesign "met liefde" (okt 2026): rustiger hoofdvlak, zelfde maat als het portaal
+   ------------------------------------------------------------------ */
+.fi-main {
+    max-width: 1400px;
+    margin-inline: auto;
+}
+
+@media (min-width: 1024px) {
+    .fi-page {
+        padding-top: 0.75rem;
+    }
+}
+
+.ui-dash .ui-icoonvak .fi-icon,
+.ui-dash .ui-tegel__watermerk .fi-icon {
+    width: 100%;
+    height: 100%;
+}
+
+.ui-dash .ui-icoonvak .fi-icon {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.ui-dash .ui-actie .ui-icoonvak .fi-icon {
+    width: 1.4rem;
+    height: 1.4rem;
+}
+
+.ui-dash .ui-tegel__watermerk .fi-icon {
+    width: 4.5rem;
+    height: 4.5rem;
+}
+
+.ui-dash .ui-stappenhulp--compact .ui-stappenhulp__stap {
+    padding: 0.45rem 0;
+    grid-template-columns: 36px minmax(0, 1fr);
+}
+
+.ui-dash .ui-stappenhulp--compact .ui-stappenhulp__stap::before {
+    left: 17px;
+    top: 44px;
+}
+
+.ui-dash .ui-stappenhulp--compact .ui-stappenhulp__nr {
+    width: 36px;
+    height: 36px;
+    font-size: 0.8rem;
+}
+
+.ui-dash .ui-stappenhulp--compact .ui-stappenhulp__titel {
+    padding-top: 0.45rem;
+    font-size: 0.95rem;
+}
+
+.ui-dash .ui-stappenhulp--compact .ui-stappenhulp__stap--nu .ui-stappenhulp__titel {
+    font-size: 1.02rem;
+}
+
+.ui-dash .ui-stappenhulp--compact .ui-stappenhulp__tekst {
+    padding-top: 0.5rem;
+}
+
+.ui-dash a.ui-stappenhulp__titel:hover {
+    color: var(--color-goud-tekst);
+}
+
+/* Topbar plakt bovenaan; een doorschijnende roomlaag met blur houdt begroeting en pillen leesbaar boven scrollende inhoud. */
+.fi-topbar {
+    background: rgba(250, 245, 234, 0.84) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(28, 15, 3, 0.06);
 }
