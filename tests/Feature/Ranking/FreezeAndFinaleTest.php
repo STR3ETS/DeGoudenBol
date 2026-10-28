@@ -127,8 +127,7 @@ class FreezeAndFinaleTest extends TestCase
 
         $this->get(route('provincies.show', $this->first->province))
             ->assertOk()
-            ->assertSee('Voorlopige Top')
-            ->assertSee('provinciewinnaar van Gelderland:');
+            ->assertSee('provinciewinnaar van Gelderland worden bekendgemaakt op');
 
         // Reveal op de publicatiedag: per provincie, daarna is de editie gepubliceerd.
         foreach ($this->edition->provinces as $province) {

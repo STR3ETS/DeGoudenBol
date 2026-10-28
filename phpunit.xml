@@ -21,6 +21,8 @@
         </include>
     </source>
     <php>
+        <!-- De publiekssite rendert grote pagina's (CMS-export); met de standaard 128M stierf de testrun halverwege zonder melding ("Premature end of PHP process"). -->
+        <ini name="memory_limit" value="1G"/>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>

@@ -6,6 +6,7 @@ use App\Domain\Commerce\Services\SponsorPlacements;
 use App\Domain\Edition\Models\Edition;
 use App\Http\Controllers\Controller;
 use App\Support\DutchTime;
+use App\Support\Site\SiteFacts;
 use Illuminate\Contracts\View\View;
 
 class HomeController extends Controller
@@ -26,7 +27,8 @@ class HomeController extends Controller
         $settings = $edition?->settings;
         $criteria = $edition?->activeScoringModel?->criteria ?? collect();
 
-        return view('public.home', [
+        return view('site.home', [
+            'mapInfo' => SiteFacts::mapInfo($edition),
             'edition' => $edition,
             'settings' => $settings,
             'criteria' => $criteria,

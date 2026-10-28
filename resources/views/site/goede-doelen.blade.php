@@ -1,0 +1,29 @@
+{{-- Gegenereerd door tools/site-dynamic.mjs; de statische delen komen uit de site-export. Pas de dynamische stukken aan in dat script. --}}
+<x-layouts.site title="Goede doelen" description="10% van de daarvoor aangewezen opbrengsten van De Gouden Bol gaat naar regionale goede doelen. Lees hoe een goed doel wordt geselecteerd." main-class="page-sec">
+<section class="page-hero" aria-labelledby="h1">
+<div class="bgv bgv-sugar" aria-hidden="true" style="background-image:url(/site/assets/de9a2decc8dbca0f6e523df67380ff6cd81b1c8f.jpg)"><video muted loop playsinline preload="none" tabindex="-1" poster="/site/assets/de9a2decc8dbca0f6e523df67380ff6cd81b1c8f.jpg" data-webm="/goede-doelen/storage/cms-assets/c95a0de9f8f2f925ace8f2d62c36bcd7ef802dd5.webm" data-mp4="/goede-doelen/storage/cms-assets/1c93aebbdfc9b2fd908a3242ab7bed873d3524bf.mp4"></video></div><div class="hero-art" aria-hidden="true"><svg class="hero-rings" viewBox="0 0 600 600" aria-hidden="true" focusable="false"><g fill="none" stroke="#C8860A" stroke-linecap="round"><circle class="r1" cx="300" cy="300" r="270" stroke-width="1.4" stroke-dasharray="4 14" opacity=".45"/><circle class="r2" cx="300" cy="300" r="205" stroke-width="2" stroke-dasharray="90 26" opacity=".30"/><circle class="r3" cx="300" cy="300" r="140" stroke-width="1.2" stroke-dasharray="2 10" opacity=".5"/></g></svg></div>
+<div class="hero-vol" aria-hidden="true">SAMEN</div>
+<div class="page-hero-inner">
+<span class="eyebrow">Goede doelen</span>
+<h1 class="h1" id="h1">Iets teruggeven <em>aan de regio</em></h1>
+<p class="lead">10% van de daarvoor aangewezen deelnemers- en sponsoropbrengsten wordt gereserveerd voor geselecteerde regionale goede doelen. Zo krijgt De Gouden Bol naast een feestelijke ook een maatschappelijke betekenis.</p>
+<div class="btn-row" style="justify-content:flex-start;margin-top:32px"><a href="mailto:info@@degoudenbol.nl?subject=Goed%20doel%20voordragen" class="btn-pill btn-pill-lg"><span>Draag een goed doel voor</span></a></div>
+</div></section>
+<section class="sec bg-linen" id="doelen" aria-labelledby="doelen-h"><div class="sec-inner">
+<span class="eyebrow rev">Welke doelen?</span><h2 class="h2 rev" id="doelen-h">Lokaal en waardevol</h2>
+<p class="body-text" style="margin-bottom:18px">Deelnemers en sponsoren kunnen een goed doel voordragen. De organisatie toetst en selecteert.</p><ul class="list-plain cols-2"><li><span>Kinderen</span></li><li><span>Ouderen</span></li><li><span>Voedselhulp</span></li><li><span>Welzijn</span></li><li><span>Sport</span></li><li><span>Andere lokale maatschappelijke initiatieven</span></li></ul>
+</div></section>
+<section class="sec bg-linen" id="route" aria-labelledby="route-h"><div class="sec-inner">
+<span class="eyebrow rev">Hoe werkt het?</span><h2 class="h2 rev" id="route-h">Van opbrengst naar goed doel</h2>
+<ol class="flow rev"><li><b>Opbrengst</b><p>Een deel van de deelnemers- en sponsoropbrengsten wordt aangewezen.</p></li><li><b>10% reserveren</b><p>10% wordt gereserveerd voor regionale goede doelen.</p></li><li><b>Selecteren</b><p>Voordragen kan door deelnemers en sponsoren. De organisatie toetst en selecteert.</p></li><li><b>Uitbetalen</b><p>Transparant over grondslag, bedrag, selectie en uitbetaling.</p></li></ol>
+</div></section>
+<section class="sec-tight" aria-label="Beeld"><div class="sec-inner"><div class="photo-grid two stagger-grid"><figure class="photo-fig"><img src="/site/assets/cb57e5e84a698635cfc85d1fff1a3513ad8d5cbd.jpg" srcset="/site/assets/cb57e5e84a698635cfc85d1fff1a3513ad8d5cbd.jpg 500w, /site/assets/cb57e5e84a698635cfc85d1fff1a3513ad8d5cbd.jpg 800w, /site/assets/cb57e5e84a698635cfc85d1fff1a3513ad8d5cbd.jpg 1200w" sizes="(max-width:768px) 100vw, 33vw" width="800" height="560" alt="Sfeerbeeld: oliebollen en bakkersvak" decoding="async" loading="lazy"><figcaption>Iets teruggeven</figcaption></figure><figure class="photo-fig"><img src="/site/assets/97d1f20a29aa5551d10f88866ecddee1ca8b4488.jpg" srcset="/site/assets/97d1f20a29aa5551d10f88866ecddee1ca8b4488.jpg 500w, /site/assets/97d1f20a29aa5551d10f88866ecddee1ca8b4488.jpg 800w, /site/assets/97d1f20a29aa5551d10f88866ecddee1ca8b4488.jpg 1200w" sizes="(max-width:768px) 100vw, 33vw" width="800" height="560" alt="Sfeerbeeld: oliebollen en bakkersvak" decoding="async" loading="lazy"><figcaption>Regionaal betrokken</figcaption></figure></div></div></section>
+<section class="sec" id="criteria" aria-labelledby="criteria-h"><div class="sec-inner">
+<span class="eyebrow rev">Selectiecriteria</span><h2 class="h2 rev" id="criteria-h">Hoe wordt een goed doel gekozen?</h2>
+<ul class="crit-list stagger-grid"><li><h3>Regionale betekenis</h3><p>Een duidelijke regionale of maatschappelijke betekenis.</p></li><li><h3>Controleerbaar</h3><p>Een controleerbare organisatie en besteding.</p></li><li><h3>Passend</h3><p>Passend bij kinderen, ouderen, voedselhulp, welzijn, sport of andere lokale initiatieven.</p></li><li><h3>Onafhankelijk van de test</h3><p>Een goed doel heeft geen invloed op de test of de ranglijst.</p></li></ul><div class="note rev"><p>Er wordt transparant gecommuniceerd over grondslag, bedrag, selectie en uitbetaling.</p></div>
+</div></section>
+@include('site.partials.goede-doelen-overzicht')
+<section class="cta-dark small" aria-labelledby="cta-h"><div class="bgv bgv-oil glow" aria-hidden="true"><i></i><i></i><i></i><b></b></div><div class="cta-dots" aria-hidden="true"></div><div class="sec-inner">
+<span class="eyebrow">Editie 2026</span><h2 class="cta-h" id="cta-h">Draag een <em>goed doel</em> voor</h2>
+<p class="cta-p">Weet je een organisatie die dit verdient?</p><div class="btn-row"><a href="mailto:info@@degoudenbol.nl?subject=Goed%20doel%20voordragen" class="btn-pill btn-pill-lg"><span>Neem contact op</span></a><a href="/sponsoring" class="btn-light">Sponsoring</a></div></div></section>
+</x-layouts.site>

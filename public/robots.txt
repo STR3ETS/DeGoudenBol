@@ -2,6 +2,7 @@ User-agent: *
 Disallow: /admin
 Disallow: /portaal
 Disallow: /stijlgids
+Disallow: /docs
 Disallow: /betaling
 Disallow: /aanmelden/status
 Disallow: /webhooks

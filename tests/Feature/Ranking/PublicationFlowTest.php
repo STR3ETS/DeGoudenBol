@@ -196,7 +196,10 @@ class PublicationFlowTest extends TestCase
         $this->assertNull(RankingSnapshot::latestForProvince($this->edition->getKey(), $entry->province_id)?->positions()->first());
         $this->assertFalse(Recognition::query()->where('entry_id', $entry->getKey())->exists());
 
-        $this->get(route('provincies.show', $entry->province))->assertOk()->assertDontSee('Voorlopige Top');
+        // Een vertrouwelijk resultaat staat nergens op de site: niet op de Voorlijst en niet in de live-gegevens.
+        // De bakker doet wel mee (en staat dus bij de aanmeldingen in de live-widget), maar nooit op de Voorlijst.
+        $this->get(route('provincies.show', $entry->province))->assertOk()->assertDontSee('>'.$entry->public_name.'</a>', false)->assertSee('Er zijn nog geen scores gepubliceerd');
+        $this->assertSame([], $this->get('/live.json')->json('rankings.'.$entry->province->slug));
     }
 
     private function scoreAndFinalize(int $smaak): void

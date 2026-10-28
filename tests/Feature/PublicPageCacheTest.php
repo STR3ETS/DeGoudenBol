@@ -26,18 +26,18 @@ class PublicPageCacheTest extends TestCase
     #[Test]
     public function anonymous_public_pages_are_cached_and_invalidated_when_content_changes(): void
     {
-        $this->get('/nieuws')->assertOk()->assertHeader('X-Public-Cache', 'MISS')->assertHeader('Cache-Control', 'max-age=0, public, s-maxage=600');
-        $this->get('/nieuws')->assertOk()->assertHeader('X-Public-Cache', 'HIT');
+        $this->get('/pers')->assertOk()->assertHeader('X-Public-Cache', 'MISS')->assertHeader('Cache-Control', 'max-age=0, public, s-maxage=600');
+        $this->get('/pers')->assertOk()->assertHeader('X-Public-Cache', 'HIT');
 
         // Een nieuw bericht verhoogt de generatie: de volgende aanvraag is vers.
         NewsPost::query()->create(['title' => 'Testbericht over de keuring', 'body' => '<p>Tekst</p>', 'published_at' => now()->subMinute()]);
 
-        $this->get('/nieuws')->assertOk()->assertHeader('X-Public-Cache', 'MISS')->assertSee('Testbericht over de keuring');
-        $this->get('/nieuws')->assertOk()->assertHeader('X-Public-Cache', 'HIT')->assertSee('Testbericht over de keuring');
+        $this->get('/pers')->assertOk()->assertHeader('X-Public-Cache', 'MISS')->assertSee('Testbericht over de keuring');
+        $this->get('/pers')->assertOk()->assertHeader('X-Public-Cache', 'HIT')->assertSee('Testbericht over de keuring');
 
         // Handmatig verversen (deploy) werkt ook.
         PublicCache::bump();
-        $this->get('/nieuws')->assertOk()->assertHeader('X-Public-Cache', 'MISS');
+        $this->get('/pers')->assertOk()->assertHeader('X-Public-Cache', 'MISS');
     }
 
     #[Test]

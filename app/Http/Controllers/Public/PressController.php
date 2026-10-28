@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Public;
 
+use App\Domain\Edition\Models\Edition;
+use App\Domain\Marketing\Models\NewsPost;
 use App\Domain\Marketing\Models\PressRelease;
 use App\Http\Controllers\Controller;
+use App\Support\Site\SiteFacts;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -14,8 +17,12 @@ class PressController extends Controller
 {
     public function index(): View
     {
-        return view('public.pers.index', [
+        $edition = Edition::query()->current()->first();
+
+        return view('site.pers', [
             'releases' => PressRelease::query()->published()->with('province')->orderByDesc('published_at')->get(),
+            'posts' => NewsPost::query()->published()->orderByDesc('published_at')->limit(12)->get(),
+            'startLabel' => SiteFacts::startLabel($edition),
         ]);
     }
 

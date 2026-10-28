@@ -73,7 +73,7 @@ final class SetupChecklist
         $items[] = [
             'key' => 'provincies',
             'title' => 'Plekken per provincie',
-            'text' => $edition === null ? 'Eerst de editie.' : ($capacity > 0 ? $provinces->count().' provincies, samen '.$capacity.' plekken. Vol is vol: daarna komt een bakker op de wachtlijst.' : 'Koppel de provincies aan de editie en geef elke provincie een aantal plekken. Zonder plekken kan niemand zich aanmelden.'),
+            'text' => $edition === null ? 'Eerst de editie.' : ($capacity > 0 ? $provinces->count().' provincies, samen '.$capacity.' plekken. Vol is vol: daarna kan niemand zich in die provincie meer aanmelden.' : 'Koppel de provincies aan de editie en geef elke provincie een aantal plekken. Zonder plekken kan niemand zich aanmelden.'),
             'done' => $capacity > 0,
             'optional' => false,
             'url' => $edition !== null && EditionResource::canViewAny() ? EditionResource::getUrl('edit', ['record' => $edition]) : null,

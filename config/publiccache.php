@@ -22,9 +22,10 @@ return [
     // Alleen deze routes worden gecachet: anoniem, zonder formulieren met CSRF-token.
     'routes' => [
         'home', 'provincies.index', 'provincies.show', 'bakkers.index', 'bakkers.toon', 'finale',
-        'edities.index', 'edities.show', 'hoe-werkt-de-test', 'panel', 'nieuws.index', 'nieuws.toon',
-        'voorwaarden', 'privacy', 'actievoorwaarden', 'winnaars', 'sponsoren', 'goede-doelen',
-        'pers', 'pers.toon', 'sitemap',
+        'edities.index', 'edities.show', 'hoe-werkt-de-test', 'nieuws.toon', 'deelnemen', 'faq',
+        'ondernemers', 'over', 'cadeaubonnen', 'bakkers-academie', 'voorwaarden', 'voorwaarden.deelname',
+        'voorwaarden.onderdeel', 'privacy', 'actievoorwaarden', 'winnaars', 'sponsoren', 'goede-doelen',
+        'pers', 'pers.toon', 'sitemap', 'live',
     ],
 
     // CDN-invalidatie: 'null' (geen CDN) of 'cloudflare' (purge everything bij iedere wijziging).

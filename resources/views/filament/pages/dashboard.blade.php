@@ -162,7 +162,7 @@
                 <div class="ui-hulpkaart">
                     <div class="ui-hulpkaart__kop"><x-ui.icoon naam="vraag" class="h-5 w-5 text-goud-tekst" /> Hulp nodig?</div>
                     <p class="ui-hulpkaart__tekst">Elke pagina legt bovenaan uit wat je er doet. Kom je er niet uit, dan belt of mailt Eazyonline je terug op dezelfde werkdag.</p>
-                    <a href="mailto:{{ config('mail.from.address') }}" class="ui-hulpkaart__link">Mail Eazyonline <x-ui.icoon naam="pijl-rechts" dikte="2.4" /></a>
+                    <a href="{{ route('docs') }}" class="ui-hulpkaart__link">Open de handleiding <x-ui.icoon naam="pijl-rechts" dikte="2.4" /></a>
                 </div>
             </div>
         </div>
@@ -205,7 +205,7 @@
 
             {{-- Plekken per provincie --}}
             <div class="ui-kaart dgb-card">
-                <div class="ui-kaart__kop"><span class="ui-icoonvak"><x-ui.icoon naam="kaart" /></span><div><div class="ui-kaart__titel">Plekken per provincie</div><div class="ui-kaart__sub">Rood betekent vol: de wachtlijst staat aan.</div></div></div>
+                <div class="ui-kaart__kop"><span class="ui-icoonvak"><x-ui.icoon naam="kaart" /></span><div><div class="ui-kaart__titel">Plekken per provincie</div><div class="ui-kaart__sub">Rood betekent vol: daar kan niemand meer bij.</div></div></div>
                 <div class="ui-kaart__inhoud !pt-3 flex flex-col gap-3">
                     @forelse ($provinces as $province)
                         <div><div class="mb-1 flex justify-between text-[0.78rem] font-bold"><span>{{ $province['name'] }}</span><span class="text-gedempt">{{ $province['taken'] }} van {{ $province['capacity'] }}</span></div><div class="ui-balk"><div class="ui-balk__vulling {{ $province['available'] === 0 ? '!bg-status-fout' : ($province['percentage'] >= 80 ? '!bg-status-waarschuwing' : '') }}" style="width: {{ max(2, $province['percentage']) }}%"></div></div></div>

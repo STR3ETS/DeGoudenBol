@@ -2,6 +2,35 @@
 
 De drie concepten zijn samen "Het Register Soft" in drie paginatypes: homepage (c1), bakkersoverzicht (c2), bakkersprofiel (c3). In de software worden het live templates die hun inhoud uit de database halen. In 2026 rendert het platform de hele publiekssite; moeten contentpagina's ooit in het Eazyonline CMS, dan draaien `/provincie`, `/bakker`, `/finale`, `/bon`, `/erkenning` op hetzelfde domein via een reverse proxy.
 
+## 0. Sinds 27 oktober 2026: de site-export van Eazyonline is de publiekssite
+
+Bennie's definitieve website is gebouwd in de CMS-sitebuilder van Eazyonline en als statische export aangeleverd (`degoudenoliebol-nl-2026-10-27.zip`, 38 pagina's). Die export is nu de publiekssite van de app; de paginakaart in §1 hieronder beschrijft de eerdere, zelfgebouwde pagina's en is historisch.
+
+**Hoe het werkt**
+
+- `node tools/site-import.mjs <uitgepakte map>` kopieert de assets naar `public/site/{assets,images}` (met herschreven font-paden in het CSS), haalt de gedeelde onderdelen uit `index.html` (kopscript, header, footer, live-widget, loader) naar `resources/views/site/partials/` en maakt van iedere pagina een statische Blade-view in `resources/views/site/pages/` (binnen `@verbatim`; relatieve links worden absolute routes, `assets/...` wordt via de media-map van de export vertaald, structured data krijgt `"@@context"` omdat `@context` een Blade-directive is).
+- `node tools/site-dynamic.mjs` maakt daarna de dynamische views in `resources/views/site/`: `provincie` (Voorlijst, plekken, kaartinfo), `deelnemers` (echte bakkers in het raster, filter en zoeken blijven client-side), `deelnemen` (het CMS-formulier is vervangen door `partials/aanmeld-box`: knop naar de aanmeldwizard `/aanmelden`, of de openingsdatum als de inschrijving dicht is), `pers` (nieuwsberichten en persberichten uit de app), `home` (kaartinfo per provincie) en `errors/404`. `deelnemer` (profiel), `nieuws-bericht` en de partials `voorlijst`, `deelnemers-grid`, `nieuws-lijst` zijn met de hand geschreven op de markup van de export.
+- Nieuwe export van Bennie? Zip uitpakken in een lege map, beide scripts draaien, `php artisan public:cache-clear`, tests draaien. De scripts overschrijven alleen `site/pages/*`, `site/partials/*` en de vijf gegenereerde dynamische views; handgeschreven views blijven staan (controleer na een export wel of de markup van profiel en Voorlijst nog klopt).
+- Layout: `x-layouts.site` (`resources/views/components/layouts/site.blade.php`) met de CMS-CSS en het CMS-script; geen `app.css`. De aanmeldwizard, betaalstatus, bon-, claim- en erkenningspagina's draaien nog in de oude `x-layouts.public` (zelfde kleuren en letters, andere kop en voet); die zet ik later om.
+- Live-widget: ieder pagina heeft `#gb-live` (JSON) en haalt `/live.json` op (`App\Support\Site\LiveData`, twee minuten cache per `PublicCache`-generatie): nieuwe deelnemers, totaal, capaciteit, startdatum en de Voorlijst per provincie in het formaat van de export. Verander de sleutels niet zonder het CMS-script aan te passen.
+
+**URL's** (routenamen van vóór de import blijven bestaan, zodat `route()` overal blijft werken)
+
+| URL | Routenaam | Inhoud |
+|---|---|---|
+| `/` | `home` | Export + kaartinfo per provincie uit de database |
+| `/provincies`, `/provincies/{slug}` | `provincies.index`, `provincies.show` | Export; provinciepagina met Voorlijst uit de laatste gepubliceerde snapshot, plekken en reveal-moment |
+| `/deelnemers`, `/deelnemers/{slug}` | `bakkers.index`, `bakkers.toon` | Bevestigde deelnemers in het raster van de export; profiel met verhaal, cijfer, plaats, openingstijden en adres (nog zonder eigen foto's) |
+| `/deelnemen` | `deelnemen` | Export; aanmeldblok linkt naar de wizard op `/aanmelden` |
+| `/test` | `hoe-werkt-de-test` | Export (de reis van één oliebol) |
+| `/finale`, `/ondernemers`, `/sponsoring` (`sponsoren`), `/cadeaubonnen`, `/goede-doelen`, `/bakkers-academie`, `/over`, `/faq`, `/privacy` | eigen naam | Export, statisch |
+| `/voorwaarden`, `/voorwaarden/deelname` (`voorwaarden.deelname`), `/voorwaarden/cadeaubonnen` (`actievoorwaarden`), `/voorwaarden/{testreglement,klachten,merkgebruik,sponsoring,goede-doelen}` | `voorwaarden`, `voorwaarden.onderdeel` | Export: de concept-teksten van Bennie. De versie waar een bakker in de wizard mee akkoord gaat, blijft de gepubliceerde `TermsVersion` in de backoffice; houd beide gelijk. |
+| `/pers`, `/nieuws/{slug}` | `pers`, `nieuws.toon` | Export met daarin nieuwsberichten en persberichten uit de app; `/nieuws` stuurt door naar `/pers#nieuws` |
+| `/live.json` | `live` | JSON voor de widget |
+| oude adressen | – | `/bakkers`, `/bakker/{slug}`, `/provincie/{slug}`, `/hoe-werkt-de-test`, `/het-panel`, `/sponsoren`, `/actievoorwaarden`, `/nieuws` sturen 301 door |
+
+Niet in de export en daarom nog in de oude layout: `/aanmelden` (wizard), `/aanmelden/status/{order}`, `/erkenning/...`, `/bon/{token}`, `/cadeaubon/claim/{token}`, `/winnaars`, `/edities`. De export kent geen `/het-panel` meer (het panel staat op `/test#organisatie`) en geen aparte nieuwsindex.
+
 ## 1. Paginakaart
 
 | URL | Pagina | Basis | Wat er live uit het platform komt | Structured data |
@@ -25,6 +54,7 @@ De drie concepten zijn samen "Het Register Soft" in drie paginatypes: homepage (
 | `/editie/{jaar}` | Archief | Nieuw | Uitslagen 2026, 2027 … blijven vindbaar | `ItemList` |
 | `/voorwaarden`, `/privacy` (gebouwd 24 sep), `/actievoorwaarden` (28 sep) | Juridisch | Nieuw | Teksten van de jurist (versiebeheer) | – |
 | `/stijlgids` | Stijlgids | Nieuw | Alle tokens en componenten; `noindex`, alleen lokaal/acceptatie | – |
+| `/docs` | Handleiding beheer | Nieuw | Vraag-en-antwoord voor medewerkers uit `resources/docs/beheer/*.md`; `/docs.json` voor de hulpbot; alleen ingelogd, `noindex` | – |
 
 **Navigatie**: Voorlijst (dropdown 12 provincies) · Alle bakkers · Hoe werkt het · Finale · Nieuws · [Aanmelden als bakker]. De "Jury"-link uit de concepten vervalt (panel pas na de editie tonen). Footer: Ranglijst (per provincie, finale, archief) · Deelnemers (aanmelden, hoe werkt het, erkenningen) · Over (goede doelen, sponsoren, pers, contact) · Juridisch.
 
@@ -50,7 +80,7 @@ De drie concepten zijn samen "Het Register Soft" in drie paginatypes: homepage (
 
 ## 3. SEO, GEO en delen
 
-- Vaste URL's zoals hierboven; slugs, nooit oplopende id's; canonical op elke pagina; sitemap.xml; `robots.txt` blokkeert portaal, panel, scan, admin, stijlgids.
+- Vaste URL's zoals hierboven; slugs, nooit oplopende id's; canonical op elke pagina; sitemap.xml; `robots.txt` blokkeert portaal, panel, scan, admin, stijlgids, docs.
 - Structured data: `Organization`, `ItemList` per Top 10, `LocalBusiness` per profiel met adres, openingstijden, geo en award, `BreadcrumbList`, `NewsArticle`, `FAQPage`.
 - Iedere provinciepagina opent met een direct antwoord in één zin, zodat zoekmachines en AI-assistenten De Gouden Bol als bron citeren.
 - Dynamische OG-image per profiel met actuele status (Browsershot, gecachet per snapshot).

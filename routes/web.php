@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HelpDocsController;
 use App\Http\Controllers\Panel\ConflictController as PanelConflictController;
 use App\Http\Controllers\Panel\LoginController as PanelLoginController;
 use App\Http\Controllers\Panel\OverviewController as PanelOverviewController;
@@ -19,20 +20,19 @@ use App\Http\Controllers\Portal\ScanController;
 use App\Http\Controllers\Portal\SponsorLinkController;
 use App\Http\Controllers\Portal\StaffController;
 use App\Http\Controllers\Public\BakkerController;
-use App\Http\Controllers\Public\CharityController;
 use App\Http\Controllers\Public\EditionArchiveController;
 use App\Http\Controllers\Public\FakeCheckoutController;
 use App\Http\Controllers\Public\FinaleController;
 use App\Http\Controllers\Public\HomeController;
+use App\Http\Controllers\Public\LiveDataController;
 use App\Http\Controllers\Public\NewsController;
 use App\Http\Controllers\Public\NewsletterController;
-use App\Http\Controllers\Public\PageController;
 use App\Http\Controllers\Public\PressController;
 use App\Http\Controllers\Public\ProvinceController;
 use App\Http\Controllers\Public\RecognitionController;
 use App\Http\Controllers\Public\RegistrationStatusController;
+use App\Http\Controllers\Public\SiteController;
 use App\Http\Controllers\Public\SitemapController;
-use App\Http\Controllers\Public\SponsorController;
 use App\Http\Controllers\Public\VoucherController;
 use App\Http\Controllers\RedesignController;
 use App\Http\Controllers\Staff\LabelController;
@@ -44,41 +44,62 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Support\Facades\Route;
 
 // Publiekssite
+// De pagina's komen uit de site-export van Eazyonline (tools/site-import.mjs); de URL's zijn die van de export.
+// Routenamen van vóór de import blijven bestaan, zodat route() in de hele app blijft werken.
 Route::get('/', HomeController::class)->name('home');
+Route::get('/live.json', LiveDataController::class)->name('live');
 Route::get('/provincies', [ProvinceController::class, 'index'])->name('provincies.index');
-Route::get('/provincie/{province}', [ProvinceController::class, 'show'])->name('provincies.show');
-Route::get('/bakkers', [BakkerController::class, 'index'])->name('bakkers.index');
-Route::get('/bakker/{company}', [BakkerController::class, 'show'])->name('bakkers.toon');
+Route::get('/provincies/{province}', [ProvinceController::class, 'show'])->name('provincies.show');
+Route::get('/deelnemers', [BakkerController::class, 'index'])->name('bakkers.index');
+Route::get('/deelnemers/{company}', [BakkerController::class, 'show'])->name('bakkers.toon');
+Route::get('/deelnemen', [SiteController::class, 'deelnemen'])->name('deelnemen');
+Route::get('/test', fn () => app(SiteController::class)->page('test'))->name('hoe-werkt-de-test');
+Route::get('/faq', fn () => app(SiteController::class)->page('faq'))->name('faq');
+Route::get('/ondernemers', fn () => app(SiteController::class)->page('ondernemers'))->name('ondernemers');
+Route::get('/sponsoring', fn () => app(SiteController::class)->page('sponsoring'))->name('sponsoren');
 Route::get('/finale', FinaleController::class)->name('finale');
+Route::get('/cadeaubonnen', fn () => app(SiteController::class)->page('cadeaubonnen'))->name('cadeaubonnen');
+Route::get('/goede-doelen', fn () => app(SiteController::class)->page('goede-doelen'))->name('goede-doelen');
+Route::get('/bakkers-academie', fn () => app(SiteController::class)->page('bakkers-academie'))->name('bakkers-academie');
+Route::get('/over', fn () => app(SiteController::class)->page('over'))->name('over');
+Route::get('/privacy', fn () => app(SiteController::class)->page('privacy'))->name('privacy');
+Route::get('/voorwaarden', fn () => app(SiteController::class)->page('voorwaarden'))->name('voorwaarden');
+Route::get('/voorwaarden/deelname', fn () => app(SiteController::class)->page('voorwaarden-deelname'))->name('voorwaarden.deelname');
+Route::get('/voorwaarden/cadeaubonnen', fn () => app(SiteController::class)->page('voorwaarden-cadeaubonnen'))->name('actievoorwaarden');
+Route::get('/voorwaarden/{onderdeel}', [SiteController::class, 'voorwaarden'])->where('onderdeel', 'testreglement|klachten|merkgebruik|sponsoring|goede-doelen')->name('voorwaarden.onderdeel');
 Route::get('/erkenning', [RecognitionController::class, 'lookup'])->name('erkenning.zoek');
 Route::get('/erkenning/{recognition}', [RecognitionController::class, 'show'])->name('erkenning.toon');
 Route::get('/erkenning/{recognition}/badge.svg', [RecognitionController::class, 'badge'])->name('erkenning.badge');
 Route::get('/edities', [EditionArchiveController::class, 'index'])->name('edities.index');
 Route::get('/editie/{edition}', [EditionArchiveController::class, 'show'])->name('edities.show');
-Route::get('/hoe-werkt-de-test', [PageController::class, 'hoeWerktDeTest'])->name('hoe-werkt-de-test');
-Route::get('/het-panel', [PageController::class, 'panel'])->name('panel');
-Route::get('/nieuws', [NewsController::class, 'index'])->name('nieuws.index');
 Route::get('/nieuws/{post}', [NewsController::class, 'show'])->name('nieuws.toon');
-Route::get('/voorwaarden', [PageController::class, 'voorwaarden'])->name('voorwaarden');
-Route::get('/actievoorwaarden', [PageController::class, 'actievoorwaarden'])->name('actievoorwaarden');
 Route::get('/winnaars', [VoucherController::class, 'winners'])->name('winnaars');
+
+// Oude adressen van vóór de site-import blijven werken.
+Route::redirect('/bakkers', '/deelnemers', 301);
+Route::get('/bakker/{company}', fn (string $company) => redirect("/deelnemers/{$company}", 301));
+Route::get('/provincie/{province}', fn (string $province) => redirect("/provincies/{$province}", 301));
+Route::redirect('/hoe-werkt-de-test', '/test', 301);
+Route::get('/het-panel', fn () => redirect('/test#organisatie', 301))->name('panel');
+Route::get('/nieuws', fn () => redirect('/pers#nieuws', 301))->name('nieuws.index');
+Route::redirect('/sponsoren', '/sponsoring', 301);
+Route::redirect('/actievoorwaarden', '/voorwaarden/cadeaubonnen', 301);
 Route::middleware('throttle:30,1')->group(function (): void {
     Route::get('/cadeaubon/claim/{token}', [VoucherController::class, 'claim'])->name('cadeaubon.claim');
     Route::post('/cadeaubon/claim/{token}', [VoucherController::class, 'store'])->name('cadeaubon.claim.bevestigen');
     Route::get('/bon/{token}', [VoucherController::class, 'show'])->name('bon.toon');
 });
-Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
 Route::get('/pers', [PressController::class, 'index'])->name('pers');
 Route::get('/pers/kit/{pressRelease}', [PressController::class, 'kit'])->middleware('signed')->name('pers.kit');
 Route::get('/pers/{pressRelease}', [PressController::class, 'show'])->name('pers.toon');
-Route::get('/sponsoren', SponsorController::class)->name('sponsoren');
-Route::get('/goede-doelen', CharityController::class)->name('goede-doelen');
 Route::post('/nieuwsbrief', [NewsletterController::class, 'subscribe'])->middleware('throttle:5,1')->name('nieuwsbrief.aanmelden')
     ->withoutMiddleware(PreventRequestForgery::class); // formulier staat op gecachte pagina's; honeypot + throttle + dubbele opt-in
 Route::get('/nieuwsbrief/bevestigen/{subscription}', [NewsletterController::class, 'confirm'])->middleware('signed')->name('nieuwsbrief.bevestigen');
 Route::get('/nieuwsbrief/afmelden/{subscription}', [NewsletterController::class, 'unsubscribe'])->middleware('signed')->name('nieuwsbrief.afmelden');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('/stijlgids', StyleguideController::class)->name('stijlgids');
+Route::get('/docs', [HelpDocsController::class, 'index'])->name('docs');
+Route::get('/docs.json', [HelpDocsController::class, 'json'])->name('docs.json');
 Route::get('/redesign-dashboard', [RedesignController::class, 'dashboard'])->name('redesign.dashboard');
 Route::get('/redesign-dashboard-klant', [RedesignController::class, 'klant'])->name('redesign.klant');
 

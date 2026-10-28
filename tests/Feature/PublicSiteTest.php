@@ -3,9 +3,8 @@
 namespace Tests\Feature;
 
 use App\Domain\Commerce\Actions\MarkOrderPaid;
-use App\Domain\Edition\Enums\TermsType;
+use App\Domain\Edition\Enums\EditionStatus;
 use App\Domain\Edition\Models\Province;
-use App\Domain\Edition\Models\TermsVersion;
 use App\Domain\Marketing\Models\NewsPost;
 use App\Domain\Participants\Actions\RegisterEntry;
 use App\Domain\Participants\Models\Entry;
@@ -14,6 +13,9 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\BuildsRegistrations;
 use Tests\TestCase;
 
+/**
+ * De publiekssite is de site-export van Eazyonline (tools/site-import.mjs) met de gegevens uit de app erin.
+ */
 class PublicSiteTest extends TestCase
 {
     use BuildsRegistrations, RefreshDatabase;
@@ -34,78 +36,104 @@ class PublicSiteTest extends TestCase
     }
 
     #[Test]
-    public function the_province_pages_list_confirmed_participants_and_capacity(): void
+    public function the_province_pages_show_the_capacity_and_the_empty_ranking(): void
     {
-        $entry = $this->confirmedEntry();
+        $this->confirmedEntry();
         app(RegisterEntry::class)($this->edition, $this->registrationData(['email' => 'b@example.test', 'companyName' => 'Onbetaald', 'publicName' => 'Onbetaalde Bakker']));
 
-        $this->get(route('provincies.index'))
-            ->assertOk()
-            ->assertSee('Gelderland')
-            ->assertSee('2 aangemeld · 48 van 50 plekken vrij');
+        $this->get(route('provincies.index'))->assertOk()->assertSee('Gelderland')->assertSee('Kies je provincie');
 
         $this->get(route('provincies.show', Province::query()->where('slug', 'gelderland')->first()))
             ->assertOk()
-            ->assertSee('De beste oliebollen')
-            ->assertSee('1 deelnemer in Gelderland')
-            ->assertSee($entry->public_name)
-            ->assertDontSee('Onbetaalde Bakker');
+            ->assertSee('De beste oliebollen van')
+            ->assertSee('2 van de 50 plaatsen ingevuld; nog 48 beschikbaar') // de reservering telt mee tot hij vervalt
+            ->assertSee('Nog niet bekend')
+            ->assertSee('Er zijn nog geen scores gepubliceerd')
+            ->assertSee('2 van 50 plekken bezet', false);
     }
 
     #[Test]
-    public function the_bakkers_overview_filters_and_the_profile_page_only_exists_for_confirmed_entries(): void
+    public function the_participants_overview_and_profiles_only_show_confirmed_entries(): void
     {
         $entry = $this->confirmedEntry();
-        $second = $this->confirmedEntry(['email' => 'c@example.test', 'companyName' => 'Tweede Bakker', 'publicName' => 'Tweede Bakker']);
+        $this->confirmedEntry(['email' => 'c@example.test', 'companyName' => 'Tweede Bakker', 'publicName' => 'Tweede Bakker']);
         $pending = app(RegisterEntry::class)($this->edition, $this->registrationData(['email' => 'b@example.test', 'companyName' => 'Onbetaald', 'publicName' => 'Onbetaalde Bakker']));
 
-        // Meerdere deelnemers: hier viel de lazy-loading-bewaking eerder over.
-        $this->get(route('bakkers.index'))->assertOk()->assertSee('Bakkerij Testers')->assertSee('Tweede Bakker')->assertDontSee('Onbetaalde Bakker');
-        $this->get(route('provincies.show', 'gelderland'))->assertOk()->assertSee('2 deelnemers in Gelderland');
-        $this->get(route('bakkers.index', ['provincie' => 'zeeland']))->assertOk()->assertSee('Geen bakkers gevonden');
-        $this->get(route('bakkers.index', ['q' => 'Arnhem']))->assertOk()->assertSee('Bakkerij Testers');
+        $this->get(route('bakkers.index'))
+            ->assertOk()
+            ->assertSee('Bakkerij Testers')
+            ->assertSee('Tweede Bakker')
+            ->assertDontSee('Onbetaalde Bakker')
+            ->assertDontSee('fictief voorbeeld')
+            ->assertSee('data-prov="Gelderland"', false)
+            ->assertSee('2 bakkers doen mee');
 
         $this->get(route('bakkers.toon', $entry->company))
             ->assertOk()
             ->assertSee('Bakkerij Testers')
-            ->assertSee('Deelnemer 2026')
-            ->assertSee('Nog niet beoordeeld')
+            ->assertSee('Deelnemer De Gouden Bol 2026')
+            ->assertSee('nog niet beoordeeld')
             ->assertSee('application/ld+json', false);
 
         $this->get(route('bakkers.toon', $pending->company))->assertNotFound();
+        $this->get('/bakker/'.$entry->company->slug)->assertRedirect(route('bakkers.toon', $entry->company));
+        $this->get('/bakkers')->assertRedirect('/deelnemers');
     }
 
     #[Test]
-    public function the_explanation_pages_use_the_edition_settings(): void
+    public function the_live_json_feeds_the_widget_with_signups_and_rankings(): void
     {
-        $this->get(route('hoe-werkt-de-test'))
-            ->assertOk()
-            ->assertSee('Smaak')
-            ->assertSee('minimaal 6 kaarten')
-            ->assertSee('maandag 21 december 2026');
+        $entry = $this->confirmedEntry();
 
-        $this->get(route('panel'))->assertOk()->assertSee('Onafhankelijk en');
+        $json = $this->get('/live.json')->assertOk()->json();
+
+        $this->assertSame('2026', $json['edition']);
+        $this->assertSame(600, $json['capacity']);
+        $this->assertSame(1, $json['total']);
+        $this->assertSame('Bakkerij Testers', $json['signups'][0]['name']);
+        $this->assertSame('Gelderland', $json['signups'][0]['province']);
+        $this->assertSame(route('bakkers.toon', $entry->company), $json['signups'][0]['url']);
+        $this->assertArrayHasKey('gelderland', $json['rankings']);
+        $this->assertCount(12, $json['provinces']);
     }
 
     #[Test]
-    public function legal_pages_show_the_published_version_or_a_notice(): void
+    public function the_static_pages_and_old_addresses_keep_working(): void
     {
-        $this->get(route('voorwaarden'))->assertOk()->assertSee('Versie 2026.1');
-
-        $this->get(route('privacy'))->assertOk()->assertSee('Nog niet gepubliceerd');
-
-        TermsVersion::factory()->ofType(TermsType::Privacy)->published()->create(['version' => '2026.9', 'body' => '<p>Privacytekst van de jurist.</p>']);
-
-        $this->get(route('privacy'))->assertOk()->assertSee('Privacytekst van de jurist.');
+        $this->get(route('hoe-werkt-de-test'))->assertOk()->assertSee('De reis van');
+        $this->get('/hoe-werkt-de-test')->assertRedirect('/test');
+        $this->get('/het-panel')->assertRedirect('/test#organisatie');
+        $this->get(route('faq'))->assertOk()->assertSee('Alles wat je wilt weten');
+        $this->get(route('voorwaarden'))->assertOk()->assertSee('Voorwaarden en protocollen');
+        $this->get(route('voorwaarden.deelname'))->assertOk()->assertSee('Algemene voorwaarden voor deelneming');
+        $this->get(route('actievoorwaarden'))->assertOk()->assertSee('Actievoorwaarden cadeaubonnen');
+        $this->get('/actievoorwaarden')->assertRedirect('/voorwaarden/cadeaubonnen');
+        $this->get(route('privacy'))->assertOk()->assertSee('Privacyverklaring');
+        $this->get(route('sponsoren'))->assertOk()->assertSee('Sponsor');
+        $this->get('/sponsoren')->assertRedirect('/sponsoring');
+        $this->get(route('finale'))->assertOk()->assertSee('finale');
+        $this->get('/bestaat-niet')->assertNotFound()->assertSee('Deze pagina');
     }
 
     #[Test]
-    public function news_only_shows_published_posts(): void
+    public function the_join_page_sends_bakers_to_the_registration_wizard_when_open(): void
+    {
+        $this->get(route('deelnemen'))->assertOk()->assertSee('Start je aanmelding')->assertSee(route('aanmelden'))->assertDontSee('Aanmeldformulier');
+
+        // Status Testfase volgt de datums; een openingsdatum in de toekomst sluit de aanmelding.
+        $this->edition->forceFill(['status' => EditionStatus::Testing, 'registration_opens_at' => now()->addMonth()])->save();
+
+        $this->get(route('deelnemen'))->assertOk()->assertSee('De inschrijving opent op')->assertDontSee('Start je aanmelding');
+    }
+
+    #[Test]
+    public function news_lives_on_the_press_page_and_only_shows_published_posts(): void
     {
         $published = NewsPost::factory()->create(['title' => 'Inschrijving geopend']);
         $draft = NewsPost::factory()->draft()->create(['title' => 'Nog geheim']);
 
-        $this->get(route('nieuws.index'))->assertOk()->assertSee('Inschrijving geopend')->assertDontSee('Nog geheim');
+        $this->get('/nieuws')->assertRedirect('/pers#nieuws');
+        $this->get(route('pers'))->assertOk()->assertSee('Inschrijving geopend')->assertDontSee('Nog geheim');
         $this->get(route('nieuws.toon', $published))->assertOk()->assertSee('Inschrijving geopend');
         $this->get(route('nieuws.toon', $draft))->assertNotFound();
     }
@@ -121,17 +149,22 @@ class PublicSiteTest extends TestCase
             ->assertHeader('Content-Type', 'application/xml; charset=UTF-8')
             ->assertSee(route('provincies.show', 'gelderland'))
             ->assertSee(route('bakkers.toon', $entry->company))
+            ->assertSee(route('deelnemen'))
             ->assertSee('/nieuws/bericht');
     }
 
     #[Test]
-    public function the_navigation_now_links_to_the_real_pages(): void
+    public function the_navigation_links_to_the_real_pages(): void
     {
         $this->get('/')
             ->assertOk()
-            ->assertSee(route('provincies.index'))
-            ->assertSee(route('bakkers.index'))
-            ->assertSee(route('hoe-werkt-de-test'))
-            ->assertSee(route('nieuws.index'));
+            ->assertSee('href="'.route('provincies.index', [], false).'"', false)
+            ->assertSee('href="'.route('bakkers.index', [], false).'"', false)
+            ->assertSee('href="'.route('hoe-werkt-de-test', [], false).'"', false)
+            ->assertSee('href="'.route('deelnemen', [], false).'"', false)
+            ->assertSee('href="'.route('pers', [], false).'"', false)
+            ->assertSee('id="gb-live"', false)
+            ->assertDontSee('storage/cms-assets')
+            ->assertDontSee('href="../', false);
     }
 }

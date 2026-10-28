@@ -1,0 +1,1 @@
+<script>(function(){var c=document.documentElement.classList;c.add('js');try{var r=matchMedia('(prefers-reduced-motion:reduce)').matches;if(r||sessionStorage.getItem('gb'))c.add('no-loader');if(!r&&matchMedia('(hover:hover) and (pointer:fine)').matches)c.add('cursor-on')}catch(x){c.add('no-loader')}})()</script>

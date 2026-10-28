@@ -1,0 +1,25 @@
+{{-- Gegenereerd door tools/site-dynamic.mjs; de statische delen komen uit de site-export. Pas de dynamische stukken aan in dat script. --}}
+<x-layouts.site title="Deelnemers" description="Alle deelnemers van De Gouden Bol per provincie, met profiel, locatie en resultaat. Filter op provincie of zoek op naam of plaats." main-class="page-sec">
+<section class="page-hero" aria-labelledby="h1">
+<div class="bgv bgv-sugar" aria-hidden="true" style="background-image:url(/site/assets/de9a2decc8dbca0f6e523df67380ff6cd81b1c8f.jpg)"><video muted loop playsinline preload="none" tabindex="-1" poster="/site/assets/de9a2decc8dbca0f6e523df67380ff6cd81b1c8f.jpg" data-webm="/deelnemers/storage/cms-assets/c95a0de9f8f2f925ace8f2d62c36bcd7ef802dd5.webm" data-mp4="/deelnemers/storage/cms-assets/1c93aebbdfc9b2fd908a3242ab7bed873d3524bf.mp4"></video></div><div class="hero-art" aria-hidden="true"><svg class="hero-rings" viewBox="0 0 600 600" aria-hidden="true" focusable="false"><g fill="none" stroke="#C8860A" stroke-linecap="round"><circle class="r1" cx="300" cy="300" r="270" stroke-width="1.4" stroke-dasharray="4 14" opacity=".45"/><circle class="r2" cx="300" cy="300" r="205" stroke-width="2" stroke-dasharray="90 26" opacity=".30"/><circle class="r3" cx="300" cy="300" r="140" stroke-width="1.2" stroke-dasharray="2 10" opacity=".5"/></g></svg></div>
+<div class="hero-vol" aria-hidden="true">DEELNEMERS</div>
+<div class="page-hero-inner">
+<span class="eyebrow">Deelnemers</span>
+<h1 class="h1" id="h1">Alle deelnemers <em>van De Gouden Bol</em></h1>
+<p class="lead">@if ($entries->isEmpty())Elke deelnemer krijgt een eigen profiel met bedrijfsinformatie, locatie, verhaal en resultaat. De eerste deelnemers worden bekendgemaakt voor de start van de beoordelingen{{ $startLabel ? ' op '.$startLabel : '' }}.@else{{ $entries->count() }} {{ $entries->count() === 1 ? 'bakker doet' : 'bakkers doen' }} mee aan De Gouden Bol {{ $edition?->year }}. Elke deelnemer heeft een eigen profiel met bedrijfsinformatie, locatie, verhaal en resultaat.@endif</p>
+
+</div></section>
+<div class="filter-bar" role="group" aria-label="Filter en zoeken"><div class="filter-bar-inner"><span class="filter-label">Provincie:</span><button class="filter-pill active" type="button" data-prov="alle" aria-pressed="true">Alle provincies</button><button class="filter-pill" type="button" data-prov="Groningen" aria-pressed="false">Groningen</button><button class="filter-pill" type="button" data-prov="Friesland" aria-pressed="false">Friesland</button><button class="filter-pill" type="button" data-prov="Drenthe" aria-pressed="false">Drenthe</button><button class="filter-pill" type="button" data-prov="Overijssel" aria-pressed="false">Overijssel</button><button class="filter-pill" type="button" data-prov="Flevoland" aria-pressed="false">Flevoland</button><button class="filter-pill" type="button" data-prov="Gelderland" aria-pressed="false">Gelderland</button><button class="filter-pill" type="button" data-prov="Utrecht" aria-pressed="false">Utrecht</button><button class="filter-pill" type="button" data-prov="Noord-Holland" aria-pressed="false">Noord-Holland</button><button class="filter-pill" type="button" data-prov="Zuid-Holland" aria-pressed="false">Zuid-Holland</button><button class="filter-pill" type="button" data-prov="Zeeland" aria-pressed="false">Zeeland</button><button class="filter-pill" type="button" data-prov="Noord-Brabant" aria-pressed="false">Noord-Brabant</button><button class="filter-pill" type="button" data-prov="Limburg" aria-pressed="false">Limburg</button>
+<div class="search-wrap"><label class="sr-only" for="searchInput">Zoek op naam of plaats</label><span class="search-icon" aria-hidden="true">&#9740;</span><input type="search" class="search-input" placeholder="Zoek op naam of plaats..." id="searchInput" autocomplete="off"></div></div></div>
+<section class="sec-tight" aria-label="Deelnemers"><div class="sec-inner">
+@if ($entries->isEmpty())
+<div class="note" style="margin:0 0 28px"><p>Er zijn nog geen deelnemers bekendgemaakt. Zodra de eerste betalingen binnen zijn, verschijnen de bakkers hier met hun profiel.</p></div>
+@endif
+<p class="results-bar" aria-live="polite"><strong id="resultCount">{{ $entries->count() }}</strong> {{ $entries->count() === 1 ? 'profiel' : 'profielen' }}</p>
+@include('site.partials.deelnemers-grid')
+<div class="no-results" id="noResults"><p>Geen deelnemers gevonden</p><p>Kies een andere provincie of zoekterm</p></div>
+</div></section>
+<section class="cta-dark small" aria-labelledby="cta-h"><div class="bgv bgv-oil glow" aria-hidden="true"><i></i><i></i><i></i><b></b></div><div class="cta-dots" aria-hidden="true"></div><div class="sec-inner">
+<span class="eyebrow">Editie 2026</span><h2 class="cta-h" id="cta-h">Staat jouw bedrijf er <em>straks bij?</em></h2>
+<p class="cta-p">Laat Nederland zien hoe goed jouw oliebol is.</p><div class="btn-row"><a href="/deelnemen" class="btn-pill btn-pill-lg"><span>Nu aanmelden voor 2026</span></a><a href="/provincies" class="btn-light">Bekijk de provincies</a></div></div></section>
+</x-layouts.site>

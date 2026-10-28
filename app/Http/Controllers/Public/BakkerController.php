@@ -11,6 +11,7 @@ use App\Domain\Participants\Models\Entry;
 use App\Domain\Participants\Services\OpeningStatus;
 use App\Domain\Ranking\Models\RankingSnapshot;
 use App\Http\Controllers\Controller;
+use App\Support\Site\SiteFacts;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -39,13 +40,13 @@ class BakkerController extends Controller
                     });
                 })
                 ->orderBy('public_name')
-                ->paginate(24)
-                ->withQueryString()
-            : null;
+                ->get()
+            : collect();
 
-        return view('public.bakkers.index', [
+        return view('site.deelnemers', [
             'edition' => $edition,
             'entries' => $entries,
+            'startLabel' => SiteFacts::startLabel($edition),
             'provinces' => Province::query()->orderBy('sort')->get(),
             'types' => CompanyType::options(),
             'filters' => $filters,
@@ -66,7 +67,7 @@ class BakkerController extends Controller
         $location = $company->primaryLocation;
         $total = $entry->publicTotal();
 
-        return view('public.bakkers.show', [
+        return view('site.deelnemer', [
             'edition' => $edition,
             'company' => $company,
             'entry' => $entry,

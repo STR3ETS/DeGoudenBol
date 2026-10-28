@@ -97,7 +97,7 @@
         <div class="ui-hulpkaart">
             <div class="ui-hulpkaart__kop"><x-ui.icoon naam="vraag" class="h-5 w-5 text-goud-tekst" /> Zo werkt het seizoen</div>
             <p class="ui-hulpkaart__tekst">Eerst richt je in (deze pagina), dan zet je de inschrijving open. Bakkers melden zich aan en kiezen een aanlevermoment. Op de testdagen proeft het panel en controleer jij de scores. Na de bevriezing publiceer je de uitslag met twee goedkeurders. Alles wat per jaar verschilt, staat bij Instellingen; de code hoef je niet aan te raken.</p>
-            <a {{ \Filament\Support\generate_href_html(\App\Filament\Pages\Settings::getUrl()) }} class="ui-hulpkaart__link">Naar Instellingen <x-ui.icoon naam="pijl-rechts" dikte="2.4" /></a>
+            <a href="{{ route('docs') }}" class="ui-hulpkaart__link">Open de handleiding <x-ui.icoon naam="pijl-rechts" dikte="2.4" /></a>
         </div>
     </div>
 </x-filament-panels::page>

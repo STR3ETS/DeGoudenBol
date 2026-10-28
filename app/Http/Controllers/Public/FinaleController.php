@@ -32,7 +32,7 @@ class FinaleController extends Controller
         $national = $edition ? RankingSnapshot::latestNational($edition->getKey()) : null;
         $positions = $national?->positions()->with(['entry.company.primaryLocation', 'entry.province'])->get() ?? collect();
 
-        return view('public.finale', [
+        return view('site.finale', [
             'edition' => $edition,
             'revealed' => $revealed,
             'finalists' => $finalists,

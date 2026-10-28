@@ -1,0 +1,230 @@
+[
+  {
+    "slug": "404",
+    "path": "/404",
+    "title": "Pagina niet gevonden",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "404",
+    "path": "/",
+    "title": "Pagina niet gevonden",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "bakkers-academie",
+    "path": "/bakkers-academie",
+    "title": "De Bakkers Academie",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "cadeaubonnen",
+    "path": "/cadeaubonnen",
+    "title": "Cadeaubonnenactie",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "deelnemen",
+    "path": "/deelnemen",
+    "title": "Deelnemen aan De Gouden Bol 2026",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "deelnemers",
+    "path": "/deelnemers",
+    "title": "Deelnemers",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "deelnemers-voorbeeld",
+    "path": "/deelnemers/voorbeeld",
+    "title": "Voorbeeldbakkerij (voorbeeld)",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "faq",
+    "path": "/faq",
+    "title": "Veelgestelde vragen",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "finale",
+    "path": "/finale",
+    "title": "Landelijke finale en Top 5",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "goede-doelen",
+    "path": "/goede-doelen",
+    "title": "Goede doelen",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "home",
+    "path": "/",
+    "title": "De Gouden Bol | De Nieuwe Oliebollen Test",
+    "mainClass": ""
+  },
+  {
+    "slug": "ondernemers",
+    "path": "/ondernemers",
+    "title": "Voor ondernemers: deelnemen aan De Gouden Bol",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "over",
+    "path": "/over",
+    "title": "Over De Gouden Bol",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "pers",
+    "path": "/pers",
+    "title": "Nieuws en pers",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "privacy",
+    "path": "/privacy",
+    "title": "Privacyverklaring",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "provincies-drenthe",
+    "path": "/provincies/drenthe",
+    "title": "De beste oliebollen van Drenthe",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "provincies-flevoland",
+    "path": "/provincies/flevoland",
+    "title": "De beste oliebollen van Flevoland",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "provincies-friesland",
+    "path": "/provincies/friesland",
+    "title": "De beste oliebollen van Friesland",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "provincies-gelderland",
+    "path": "/provincies/gelderland",
+    "title": "De beste oliebollen van Gelderland",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "provincies-groningen",
+    "path": "/provincies/groningen",
+    "title": "De beste oliebollen van Groningen",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "provincies",
+    "path": "/provincies",
+    "title": "Oliebollen per provincie",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "provincies-limburg",
+    "path": "/provincies/limburg",
+    "title": "De beste oliebollen van Limburg",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "provincies-noord-brabant",
+    "path": "/provincies/noord-brabant",
+    "title": "De beste oliebollen van Noord-Brabant",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "provincies-noord-holland",
+    "path": "/provincies/noord-holland",
+    "title": "De beste oliebollen van Noord-Holland",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "provincies-overijssel",
+    "path": "/provincies/overijssel",
+    "title": "De beste oliebollen van Overijssel",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "provincies-utrecht",
+    "path": "/provincies/utrecht",
+    "title": "De beste oliebollen van Utrecht",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "provincies-zeeland",
+    "path": "/provincies/zeeland",
+    "title": "De beste oliebollen van Zeeland",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "provincies-zuid-holland",
+    "path": "/provincies/zuid-holland",
+    "title": "De beste oliebollen van Zuid-Holland",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "sponsoring",
+    "path": "/sponsoring",
+    "title": "Sponsoring",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "test",
+    "path": "/test",
+    "title": "De reis van één oliebol: zo werkt de test",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "voorwaarden-cadeaubonnen",
+    "path": "/voorwaarden/cadeaubonnen",
+    "title": "Actievoorwaarden cadeaubonnen",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "voorwaarden-deelname",
+    "path": "/voorwaarden/deelname",
+    "title": "Algemene voorwaarden voor deelneming",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "voorwaarden-goede-doelen",
+    "path": "/voorwaarden/goede-doelen",
+    "title": "Goede-doelenbeleid",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "voorwaarden",
+    "path": "/voorwaarden",
+    "title": "Voorwaarden en protocollen",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "voorwaarden-klachten",
+    "path": "/voorwaarden/klachten",
+    "title": "Klachten-, bezwaar- en procedurefoutenregeling",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "voorwaarden-merkgebruik",
+    "path": "/voorwaarden/merkgebruik",
+    "title": "Gebruiksrichtlijnen badge, merk en score",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "voorwaarden-sponsoring",
+    "path": "/voorwaarden/sponsoring",
+    "title": "Sponsorvoorwaarden",
+    "mainClass": "page-sec"
+  },
+  {
+    "slug": "voorwaarden-testreglement",
+    "path": "/voorwaarden/testreglement",
+    "title": "Testreglement",
+    "mainClass": "page-sec"
+  }
+]

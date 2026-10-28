@@ -19,6 +19,6 @@ class NewsController extends Controller
     {
         abort_unless($post->isPublished(), 404);
 
-        return view('public.nieuws.show', ['post' => $post]);
+        return view('site.nieuws-bericht', ['post' => $post]);
     }
 }

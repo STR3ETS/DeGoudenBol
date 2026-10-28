@@ -19,57 +19,45 @@ class PublicPagesTest extends TestCase
             ->assertOk()
             ->assertSee('Wie bakt de')
             ->assertSee('De Gouden Bol')
-            ->assertSee('Nog geen gepubliceerde resultaten');
+            ->assertSee('id="gb-live"', false);
     }
 
     #[Test]
-    public function the_homepage_shows_the_seeded_edition_facts_in_every_block(): void
+    public function the_homepage_shows_the_provinces_with_live_capacity_on_the_map(): void
     {
-        $this->travelTo('2026-10-01 10:00:00'); // vóór de gezaaide openingsdatum, zodat de feiten kloppen
+        $this->travelTo('2026-10-01 10:00:00');
 
         $this->seed([ProvinceSeeder::class, Edition2026Seeder::class]);
 
         $this->get('/')
             ->assertOk()
-            ->assertSee('Inschrijving opent 12 oktober 2026')
-            ->assertSee('Voorlijst 2026')
             ->assertSee('Drenthe')
             ->assertSee('Zuid-Holland')
-            ->assertSee('50 plekken')
+            ->assertSee('Max. 50 deelnemers', false)
+            ->assertSee('Voorlijst opent 1 november', false)
             ->assertSee('Smaak')
-            ->assertSee('dinsdag en vrijdag om 12:00 uur')
-            ->assertSee('maandag 21 december 2026')
-            ->assertSee('Het panel')
             ->assertSee('Veelgestelde vragen')
-            ->assertSee('Aanmeldformulier')
-            ->assertSee('Aanmelden vanaf 12 oktober 2026');
+            ->assertSee('Editie 2026 in vier momenten')
+            ->assertSee('"capacity":600', false);
     }
 
     #[Test]
-    public function placeholder_blocks_are_hidden_unless_explicitly_enabled(): void
+    public function the_site_serves_its_own_assets(): void
     {
-        $this->seed([ProvinceSeeder::class, Edition2026Seeder::class]);
-
-        config()->set('site.placeholders', false);
-        $this->get('/')->assertOk()->assertDontSee('CITAAT VOLGT')->assertDontSee('[BEELD');
-
-        config()->set('site.placeholders', true);
-        $this->get('/')->assertOk()->assertSee('CITAAT VOLGT')->assertSee('Wat deelnemers');
+        $this->assertFileExists(public_path('site/assets/82843df790355b2d6db762b59a8ceb2db51b6cf1.css'));
+        $this->assertFileExists(public_path('site/assets/f09daa7f7315e68a8b4af036abab52ea88446eb7.js'));
+        $this->assertFileExists(public_path('site/images/5097bdefb5478dc6e6537a40211dbf6432a82738.png'));
+        $this->assertStringNotContainsString('storage/cms-assets', file_get_contents(public_path('site/assets/82843df790355b2d6db762b59a8ceb2db51b6cf1.css')));
     }
 
     #[Test]
-    public function navigation_only_links_to_existing_routes_or_homepage_anchors(): void
+    public function navigation_only_links_to_existing_routes(): void
     {
         $response = $this->get('/')->assertOk();
 
-        $response->assertSee(route('provincies.index'));
-        $response->assertSee(route('bakkers.index'));
-        $response->assertSee(route('aanmelden'));
-        $response->assertSee(route('finale'));
-        $response->assertSee(route('goede-doelen'));
-        $response->assertSee(route('sponsoren'));
-        $response->assertSee(route('pers'));
-        $response->assertDontSee('Contact</a>');
+        foreach (['provincies.index', 'bakkers.index', 'deelnemen', 'finale', 'goede-doelen', 'sponsoren', 'pers', 'faq', 'over', 'privacy', 'voorwaarden'] as $name) {
+            $response->assertSee('href="'.route($name, [], false).'"', false);
+        }
     }
 
     #[Test]
