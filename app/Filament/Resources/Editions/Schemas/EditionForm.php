@@ -192,6 +192,10 @@ class EditionForm
                 ->description('Briefing 29 okt. De deelnameprijs zelf staat bij Geld > Pakketten en prijzen.')
                 ->columns(3)
                 ->schema([
+                    TextInput::make('settings.opening_offer_cents')->label('Openingsactie: deelnameprijs (centen, excl. btw)')->numeric()->minValue(0)->required()
+                        ->helperText('7500 = EUR 75,00. Vervangt zolang hij loopt de standaardprijs en de kortingsactie. 0 zet de actie uit.'),
+                    TextInput::make('settings.plain_addon_cents')->label('Extra test naturel oliebol (centen, excl. btw)')->numeric()->minValue(0)->required()
+                        ->helperText('5000 = EUR 50,00. Bakkers kiezen dit bij de aanmelding. 0 zet de optie uit.'),
                     TextInput::make('settings.discount_percentage')->label('Korting kortingsactie')->numeric()->minValue(0)->maxValue(99)->suffix('%')->required()
                         ->helperText('Filmpje maken, delen en De Gouden Bol taggen. 0 zet de actie uit.'),
                     TextInput::make('settings.discount_hold_days')->label('Plek vasthouden tijdens kortingscontrole')->numeric()->minValue(1)->suffix('dagen')->required(),

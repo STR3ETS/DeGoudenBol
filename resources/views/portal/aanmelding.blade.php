@@ -40,9 +40,16 @@
                         <dd class="font-semibold">
                             {{ $entry->rate->getLabel() }}
                             @if ($base)
-                                <span class="font-normal text-gedempt">· {{ $entry->wantsDiscount() && $settings ? Money::format($settings->discountedCents($base->unit_price_cents)) : Money::format($base->unit_price_cents) }} excl. btw</span>
+                                <span class="font-normal text-gedempt">· {{ match (true) {
+                                    $entry->wantsDiscount() && $settings !== null => Money::format($settings->discountedCents($base->unit_price_cents)),
+                                    $entry->rate === App\Domain\Participants\Enums\EntryRate::OpeningOffer => Money::format((int) $order->lines->where('lineable_type', '!=', App\Domain\Commerce\Actions\CreateOrderForEntry::PLAIN_ADDON_LINE_TYPE)->sum('subtotal_cents')),
+                                    default => Money::format($base->unit_price_cents),
+                                } }} excl. btw</span>
                             @endif
                         </dd>
+                        @if ($entry->plain_addon)
+                            <dt class="text-gedempt">Extra</dt><dd class="font-semibold">Test naturel oliebol</dd>
+                        @endif
                         @if ($entry->wantsDiscount())
                             <dt class="text-gedempt">Kortingsactie</dt>
                             <dd><span class="ui-chip ui-chip--klein ui-chip--{{ match ($entry->discount_status) { DiscountStatus::Approved => 'succes', DiscountStatus::Rejected => 'fout', DiscountStatus::Submitted => 'waarschuwing', default => 'neutraal' } }}">{{ $entry->discount_status?->getLabel() }}</span>@if ($entry->discount_proof_url) <a href="{{ $entry->discount_proof_url }}" class="ml-2 text-[0.85rem] text-goud-tekst underline" target="_blank" rel="noopener">jouw post</a>@endif</dd>

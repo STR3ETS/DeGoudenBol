@@ -144,19 +144,44 @@
                                         <div>
                                             <div class="font-kop text-[1.25rem] font-semibold">{{ $package->name }}</div>
                                             @if ($package->description)
-                                                <p class="body-text mt-1 text-[0.85rem]">{{ $package->description }}</p>
+                                                <p class="body-text mt-1 text-[0.85rem]">{{ $this->packageDescription($package) }}</p>
                                             @endif
                                         </div>
                                     </div>
                                     <div class="text-right">
-                                        <div class="cijfer text-[1.6rem] text-goud-tekst">{{ $package->formattedPrice() }}</div>
-                                        <div class="text-[0.72rem] text-gedempt">excl. btw · {{ $package->formattedPriceInclVat() }} incl.</div>
+                                        @if ($this->openingOfferEnabled() && $edition->settings->openingOfferCents < $package->price_cents)
+                                            <span class="ui-chip ui-chip--klein ui-chip--succes">Openingsactie</span>
+                                            <div class="text-[0.85rem] text-gedempt line-through">{{ $package->formattedPrice() }}</div>
+                                            <div class="cijfer text-[1.6rem] text-goud-tekst">{{ App\Support\Money::format($edition->settings->openingOfferCents) }}</div>
+                                            <div class="whitespace-nowrap text-[0.72rem] text-gedempt">excl. btw · tijdelijk</div>
+                                        @else
+                                            <div class="cijfer text-[1.6rem] text-goud-tekst">{{ $package->formattedPrice() }}</div>
+                                            <div class="text-[0.72rem] text-gedempt">excl. btw · {{ $package->formattedPriceInclVat() }} incl.</div>
+                                        @endif
                                     </div>
                                 </div>
                             </label>
                         @endforeach
                     </div>
                     @error('packageId') <p class="field-error">{{ $message }}</p> @enderror
+
+                    @if ($this->plainAddonEnabled())
+                        <label class="card card--hover mt-4 block cursor-pointer !p-6 {{ $plainAddon ? 'ring-2 ring-goud' : '' }}">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex items-start gap-3">
+                                    <input type="checkbox" wire:model.live="plainAddon" class="mt-1 h-4 w-4 accent-goud">
+                                    <div>
+                                        <div class="font-kop text-[1.25rem] font-semibold">Test ook uw naturel oliebol</div>
+                                        <p class="body-text mt-1 text-[0.85rem]">Introductieprijs: laat naast uw oliebol met krenten en rozijnen ook uw naturel oliebol beoordelen.</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="cijfer whitespace-nowrap text-[1.6rem] text-goud-tekst">+ {{ App\Support\Money::format($edition->settings->plainAddonCents) }}</div>
+                                    <div class="text-[0.72rem] text-gedempt">excl. btw</div>
+                                </div>
+                            </div>
+                        </label>
+                    @endif
 
                     @if ($this->discountEnabled() && $this->selectedPackage)
                         <fieldset class="mt-8">
@@ -214,9 +239,11 @@
                         <dt class="text-gedempt">Allergenen</dt><dd>{{ $allergens ? collect($allergens)->map(fn ($a) => $this->allergenOptions()[$a] ?? $a)->join(', ') : 'Geen opgegeven' }}</dd>
                         <dt class="text-gedempt">Pakket</dt>
                         <dd>
-                            @if ($this->selectedPackage)
-                                {{ $this->selectedPackage->name }} · {{ $this->selectedPackage->formattedPrice() }} excl. btw
-                                <span class="text-gedempt">({{ $this->selectedPackage->formattedPriceInclVat() }} incl. {{ rtrim(rtrim(number_format($this->selectedPackage->vat_rate, 2, ',', '.'), '0'), ',') }}% btw)</span>
+                            @if ($this->selectedPackage && ($totals = $this->orderTotals()))
+                                {{ $this->selectedPackage->name }}@if ($this->openingOfferEnabled()) · openingsactie @endif
+                                @if ($plainAddon && $this->plainAddonEnabled()) + extra test naturel oliebol @endif
+                                · {{ App\Support\Money::format($totals['subtotal_cents']) }} excl. btw
+                                <span class="text-gedempt">({{ App\Support\Money::format($totals['total_cents']) }} incl. {{ rtrim(rtrim(number_format($this->selectedPackage->vat_rate, 2, ',', '.'), '0'), ',') }}% btw)</span>
                             @endif
                         </dd>
                         @if ($this->wantsDiscount())
@@ -265,7 +292,7 @@
                                 @if ($this->wantsDiscount())
                                     Aanmelden met kortingsactie
                                 @else
-                                    Naar betaling · {{ $this->selectedPackage ? $this->selectedPackage->formattedPriceInclVat() : '' }}
+                                    Naar betaling · {{ ($totals = $this->orderTotals()) ? App\Support\Money::format($totals['total_cents']) : '' }}
                                 @endif
                             </x-ui.button>
                         @endif

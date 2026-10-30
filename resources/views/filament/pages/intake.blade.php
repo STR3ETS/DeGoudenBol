@@ -46,6 +46,9 @@
                                     <span class="text-gedempt">geen opgegeven</span>
                                 @endforelse
                             </dd>
+                            @if ($this->entry['plain_addon'] ?? false)
+                                <dt class="text-gedempt">Extra</dt><dd><span class="dgb-pill bg-status-info-bg text-status-info">Ook naturel oliebol</span></dd>
+                            @endif
                             @if ($this->entry['notes'])
                                 <dt class="text-gedempt">Toelichting</dt><dd>{{ $this->entry['notes'] }}</dd>
                             @endif

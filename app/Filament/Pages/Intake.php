@@ -126,6 +126,7 @@ class Intake extends Page
             'allergens' => array_map(fn (string $allergen) => Allergen::tryFrom($allergen)?->getLabel() ?? $allergen, $entry->allergens ?? []),
             'slot' => $entry->deliverySlot ? DutchTime::format($entry->deliverySlot->starts_at, 'dd D MMM, HH:mm').' – '.DutchTime::format($entry->deliverySlot->ends_at, 'HH:mm') : null,
             'notes' => $entry->product_notes,
+            'plain_addon' => $entry->plain_addon,
         ];
 
         if (! $receivable) {

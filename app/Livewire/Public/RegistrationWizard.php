@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Public;
 
+use App\Domain\Commerce\Actions\CreateOrderForEntry;
 use App\Domain\Commerce\Contracts\PaymentGateway;
 use App\Domain\Commerce\Models\Package;
 use App\Domain\Edition\Enums\TermsType;
@@ -81,12 +82,14 @@ class RegistrationWizard extends Component
 
     public string $productNotes = '';
 
-    // Stap 4: pakket en tarief (standaard of kortingsactie)
+    // Stap 4: pakket en tarief (standaard, kortingsactie of openingsactie) en de extra naturel-test
     public ?int $packageId = null;
 
     public string $rate = 'standard';
 
     public string $discountProofUrl = '';
+
+    public bool $plainAddon = false;
 
     // Stap 5: voorwaarden
     public bool $acceptTerms = false;
@@ -170,7 +173,52 @@ class RegistrationWizard extends Component
 
     public function discountEnabled(): bool
     {
-        return (bool) $this->edition?->settings->discountEnabled();
+        return (bool) $this->edition?->settings->discountEnabled() && ! $this->openingOfferEnabled();
+    }
+
+    public function openingOfferEnabled(): bool
+    {
+        return (bool) $this->edition?->settings->openingOfferEnabled();
+    }
+
+    public function plainAddonEnabled(): bool
+    {
+        return (bool) $this->edition?->settings->plainAddonEnabled();
+    }
+
+    /**
+     * De kortingsactie geldt niet zolang de openingsactie loopt; dan noemen we hem ook niet.
+     */
+    public function packageDescription(Package $package): string
+    {
+        $description = (string) $package->description;
+
+        return $this->openingOfferEnabled()
+            ? trim(str_replace('Met de kortingsactie betaalt u de helft.', '', $description))
+            : $description;
+    }
+
+    public function chosenRate(): EntryRate
+    {
+        return match (true) {
+            $this->openingOfferEnabled() => EntryRate::OpeningOffer,
+            $this->wantsDiscount() => EntryRate::Discount,
+            default => EntryRate::Standard,
+        };
+    }
+
+    /**
+     * Te betalen bij de aanmelding, met dezelfde regels als de order.
+     *
+     * @return array{subtotal_cents: int, total_cents: int}|null
+     */
+    public function orderTotals(): ?array
+    {
+        if ($this->selectedPackage === null || $this->edition === null) {
+            return null;
+        }
+
+        return CreateOrderForEntry::totals($this->selectedPackage, $this->edition->settings, $this->edition->year, $this->chosenRate(), $this->plainAddon && $this->plainAddonEnabled());
     }
 
     public function wantsDiscount(): bool
@@ -320,8 +368,9 @@ class RegistrationWizard extends Component
                 termsVersionId: $this->terms->getKey(),
                 ip: request()->ip(),
                 userAgent: request()->userAgent(),
-                rate: $this->wantsDiscount() ? EntryRate::Discount : EntryRate::Standard,
+                rate: $this->chosenRate(),
                 discountProofUrl: $this->wantsDiscount() && $this->discountProofUrl !== '' ? trim($this->discountProofUrl) : null,
+                plainAddon: $this->plainAddon && $this->plainAddonEnabled(),
             ));
         } catch (ProvinceFullException $exception) {
             $this->step = 2;
@@ -385,6 +434,7 @@ class RegistrationWizard extends Component
                 'packageId' => ['required', 'integer', Rule::in($this->packages->pluck('id')->all())],
                 'rate' => ['required', Rule::in($this->discountEnabled() ? ['standard', 'discount'] : ['standard'])],
                 'discountProofUrl' => ['nullable', 'url', 'max:500'],
+                'plainAddon' => ['boolean'],
             ],
             5 => [
                 'acceptTerms' => ['accepted'],

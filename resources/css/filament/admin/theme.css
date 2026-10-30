@@ -2511,6 +2511,21 @@ a.dgb-row:hover .dgb-chip--goud {
     display: none;
 }
 
+/* "Onthoud mij": vinkje en tekst naast elkaar, gecentreerd zoals de andere labels. */
+.fi-simple-main .fi-fo-field-label:has(.fi-checkbox-input) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.fi-simple-main .fi-fo-field-wrp:has(.fi-checkbox-input) .fi-fo-field-label-ctn {
+    justify-content: center;
+}
+
+.fi-simple-main .fi-fo-field-label:has(.fi-checkbox-input) .fi-checkbox-input {
+    margin: 0;
+}
+
 .fi-simple-main .fi-fo-field-wrp:has(.fi-one-time-code-input-ctn) .fi-fo-field-label-ctn {
     justify-content: center;
 }

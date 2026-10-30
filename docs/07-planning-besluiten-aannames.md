@@ -81,6 +81,10 @@ Een nieuwe uitvoeringsbriefing ("Technische briefing platform & sponsoring", ver
 | Organisatie | Placeholders | Nederlands Test Instituut, Voorstraat 14, 6702 DC Wageningen, KvK 42193967, contact Betsy | `config/commerce.php` (issuer), voorwaarden en privacy |
 | Mails | Laravel-standaard | Huisstijl uit "Emailtemplate Uitslag" | `resources/views/vendor/mail`, `App\Support\Mail\GoldenMail` |
 
+| Openingsactie (Bennie, 30 okt) | Keuze standaardprijs EUR 150 of kortingsactie EUR 75 | Tijdelijk één prijs: EUR 75 in plaats van EUR 150, direct betalen, geen socialmediabewijs. Optie: voor EUR 50 extra ook de naturel oliebol laten testen (introductieprijs). Bedragen excl. btw | Editie > Prijzen, korting en ophaalservice: `opening_offer_cents` (7500) en `plain_addon_cents` (5000); 0 zet ze uit, dan komen standaardprijs en kortingsactie terug. Tarief "Openingsactie", kolom `entries.plain_addon`, orderregels `opening_offer` (negatief) en `plain_addon` |
+
+**Open bij de naturel-test:** de extra test is verkocht en staat zichtbaar bij de inschrijving, in het portaal en bij ontvangst. De testketen zelf (aantal stuks, eigen testnummer, scorekaarten, rapport en of de naturel een eigen ranglijst krijgt) is nog niet ingericht. Bennie moet dit vóór de eerste naturel-levering beslissen.
+
 **Eigen aannames bij de briefing (corrigeerbaar):**
 
 - EUR 150, EUR 75 en EUR 45 zijn **exclusief btw**, net als de sponsorprijzen. Open beslispunt; omzetten is een prijswijziging in de backoffice.
@@ -106,6 +110,17 @@ Een nieuwe uitvoeringsbriefing ("Technische briefing platform & sponsoring", ver
 | Grondslag 10% goede doelen | Ongewijzigd: besluit 8 (ontvangen bedragen excl. btw) |
 
 **Inhoud die nog botst met de briefing.** De pagina's uit de site-export (home, test, provincies, pers) spreken nog van een "Voorlijst" vanaf 1 november met tussenstanden. Met de geheime ranglijst tonen de provinciepagina's tot 21 december geen cijfers. De FAQ en de deelnamevoorwaarden zijn aangepast; de overige teksten moet Bennie in de CMS-export bijwerken, of de instelling "Ranglijst geheim tot de hoofdpublicatie" uitzetten.
+
+**Voorwaarden en privacy zonder invulplekken (verzoek Raphael 30 okt 2026).** Alle gele invulplekken, conceptmeldingen en "nog te beslissen"-blokken op `/voorwaarden`, `/voorwaarden/*` en `/privacy` zijn vervangen door definitieve tekst (versie 30 oktober 2026), met de app en de briefing als bron. Waar nog geen besluit lag, is dit gekozen; Bennie (en bij voorkeur een jurist) moet dit bevestigen:
+
+- Contact voor privacy en klachten: info@degoudenbol.nl. Bevoegde rechter: Rechtbank Gelderland. Rechtsvorm van Nederlands Test Instituut weggelaten.
+- Bewaartermijnen: aanmelding 2 jaar na de editie; uitslagen en scoreregister blijvend; cadeaubonwinnaars tot 31 maart, daarna geanonimiseerd; contact 1 jaar; sponsors 2 jaar (facturen 7 jaar); panelleden 2 jaar, daarna gepseudonimiseerd (doc 05).
+- Annuleren door de deelnemer: geen terugbetaling na betaling. Annuleren door de organisatie: volledige terugbetaling. Aansprakelijkheid beperkt tot het betaalde bedrag (niet bij opzet of bewuste roekeloosheid). Wijzigingen van de voorwaarden 14 dagen vooraf aangekondigd.
+- Klachten: bezwaar tegen een uitslag via het portaal binnen 3 werkdagen; overige meldingen binnen 14 dagen; ontvangstbevestiging binnen 2 werkdagen; beslissing binnen 3 werkdagen door twee medewerkers buiten panel en registratie.
+- Cadeaubonnen: 21 t/m 28 december 2026; 18+ en in Nederland; ondernemer kiest de winnaars; foto en delen bij verzilvering zijn vrijwillig (de bon blijft geldig); de bonwaarde komt voor rekening van de ondernemer.
+- Merkgebruik: landelijke erkenning heet "Landelijke lijst" (Top 10, zoals in de app); geldigheid volgens doc 04 §6.
+- Privacy noemt Mailgun, Stripe en Google Tag Manager. Er is nog geen cookiebanner; vraag Bennie welke tags in GTM komen en of er toestemming nodig is.
+- Deze pagina's komen uit de site-export: een nieuwe `tools/site-import.mjs` overschrijft ze. De teksten in de backoffice (`TermsVersion`, akkoord in de wizard) zijn nog niet gelijkgetrokken.
 
 ## 4. Aanvullende eigen aannames (niet in de briefing; corrigeerbaar)
 

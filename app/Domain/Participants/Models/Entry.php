@@ -39,6 +39,7 @@ use Illuminate\Support\Facades\Storage;
     'province_id',
     'package_id',
     'rate',
+    'plain_addon',
     'discount_status',
     'discount_proof_url',
     'discount_proof_path',
@@ -72,6 +73,7 @@ class Entry extends DomainModel
      */
     protected $attributes = [
         'rate' => 'standard',
+        'plain_addon' => false,
     ];
 
     /**
@@ -82,6 +84,7 @@ class Entry extends DomainModel
         return [
             'status' => EntryStatus::class,
             'rate' => EntryRate::class,
+            'plain_addon' => 'boolean',
             'discount_status' => DiscountStatus::class,
             'discount_submitted_at' => 'immutable_datetime',
             'discount_reviewed_at' => 'immutable_datetime',

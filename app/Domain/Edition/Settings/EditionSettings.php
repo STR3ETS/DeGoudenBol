@@ -26,6 +26,8 @@ final readonly class EditionSettings
      * @param  int  $discountHoldDays  Zo lang houdt een aanmelding met kortingsaanvraag de plek vast.
      * @param  int  $pickupFeeCents  Ophaalservice op vrijdag, excl. btw.
      * @param  int  $changeDeadlineHours  Aanlevermoment of ophaalvrijdag wijzigen kan tot zoveel uur vooraf.
+     * @param  int  $openingOfferCents  Tijdelijke openingsactie: deelnameprijs excl. btw zolang de actie loopt; 0 zet de actie uit (dan gelden standaardprijs en kortingsactie).
+     * @param  int  $plainAddonCents  Extra test van de naturel oliebol bij de aanmelding, excl. btw; 0 zet de optie uit.
      */
     public function __construct(
         public int $capacityPerProvince = 50,
@@ -61,7 +63,19 @@ final readonly class EditionSettings
         public bool $pickupEnabled = true,
         public int $pickupFeeCents = 4500,
         public int $changeDeadlineHours = 24,
+        public int $openingOfferCents = 0,
+        public int $plainAddonCents = 0,
     ) {}
+
+    public function openingOfferEnabled(): bool
+    {
+        return $this->openingOfferCents > 0;
+    }
+
+    public function plainAddonEnabled(): bool
+    {
+        return $this->plainAddonCents > 0;
+    }
 
     public function discountEnabled(): bool
     {

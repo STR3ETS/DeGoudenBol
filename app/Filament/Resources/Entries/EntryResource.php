@@ -20,12 +20,14 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -92,6 +94,7 @@ class EntryResource extends Resource
                 ]),
                 Section::make('Tarief en betaling')->columns(3)->schema([
                     TextEntry::make('rate')->label('Tarief')->badge(),
+                    IconEntry::make('plain_addon')->label('Extra test naturel')->boolean(),
                     TextEntry::make('discount_status')->label('Kortingsactie')->badge()->placeholder('–'),
                     TextEntry::make('discount_proof_url')->label('Post')->url(fn (Entry $record) => $record->discount_proof_url, shouldOpenInNewTab: true)->placeholder('–'),
                     TextEntry::make('discount_note')->label('Toelichting korting')->placeholder('–'),
@@ -123,6 +126,7 @@ class EntryResource extends Resource
                 TextColumn::make('province.name')->label('Provincie')->sortable(),
                 TextColumn::make('status')->label('Status')->badge(),
                 TextColumn::make('rate')->label('Tarief')->badge(),
+                IconColumn::make('plain_addon')->label('Naturel')->boolean()->tooltip('Extra test naturel oliebol')->toggleable(),
                 TextColumn::make('discount_status')->label('Korting')->badge()->placeholder('–')
                     ->url(fn (Entry $record) => $record->discount_proof_url, shouldOpenInNewTab: true)
                     ->tooltip(fn (Entry $record) => $record->discount_proof_url ? 'Open de post' : null),

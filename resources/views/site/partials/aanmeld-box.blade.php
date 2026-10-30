@@ -12,7 +12,9 @@
 <h3>Aanmelden</h3><p class="form-sub">Editie {{ $edition?->year ?? now()->year }}</p>
 @if ($open)
     <p class="body-text" style="margin-bottom:18px">Aanmelden duurt vijf minuten: bedrijfsgegevens, provincie, de naam waarmee je op de site wilt staan en je akkoord op de voorwaarden. Je rekent direct af en je plek is dan zeker.</p>
-    @if ($packages->isNotEmpty())
+    @if ($packages->isNotEmpty() && $edition->settings->openingOfferEnabled())
+        <p class="body-text" style="margin-bottom:18px"><b>Openingsactie:</b> deelname voor {{ \App\Support\Money::format($edition->settings->openingOfferCents) }} in plaats van {{ \App\Support\Money::format($packages->first()->price_cents) }} excl. btw.@if ($edition->settings->plainAddonEnabled()) Test voor {{ \App\Support\Money::format($edition->settings->plainAddonCents) }} extra ook je naturel oliebol.@endif</p>
+    @elseif ($packages->isNotEmpty())
         <p class="body-text" style="margin-bottom:18px">Deelname: {{ $packages->map(fn ($p) => $p->name.' '.$p->formattedPriceInclVat())->implode(', ') }}.</p>
     @endif
     <a class="f-submit" href="{{ route('aanmelden') }}" style="display:block;text-align:center;text-decoration:none">Start je aanmelding</a>

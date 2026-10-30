@@ -74,6 +74,7 @@ trait BuildsRegistrations
             userAgent: 'PHPUnit',
             rate: $overrides['rate'] ?? EntryRate::Standard,
             discountProofUrl: $overrides['discountProofUrl'] ?? null,
+            plainAddon: $overrides['plainAddon'] ?? false,
         );
     }
 }

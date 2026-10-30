@@ -8,12 +8,15 @@
     $settings = $edition?->settings;
     $package = $edition ? Package::query()->where('edition_id', $edition->getKey())->active()->orderBy('sort')->first() : null;
     $prijs = $package ? Money::format($package->price_cents) : null;
-    $actie = $package && $settings?->discountEnabled() ? Money::format($settings->discountedCents($package->price_cents)) : null;
+    $opening = $package && $settings?->openingOfferEnabled() ? Money::format($settings->openingOfferCents) : null;
+    $naturel = $settings?->plainAddonEnabled() ? Money::format($settings->plainAddonCents) : null;
+    $actie = $package && ! $opening && $settings?->discountEnabled() ? Money::format($settings->discountedCents($package->price_cents)) : null;
     $publicatie = $edition?->main_publication_at ? DutchTime::format($edition->main_publication_at, 'dddd D MMMM YYYY [om] HH:mm') : null;
 
     // Briefing 29 okt §6: deze antwoorden komen uit de instellingen, zodat FAQ, portaal, mails en aanleverbewijs altijd gelijk lopen.
     $vragen = array_values(array_filter([
-        $prijs ? ['Wat kost deelname?', "De standaardprijs is {$prijs} excl. btw.".($actie ? " Met de kortingsactie betaal je {$actie} excl. btw." : '').' Je betaalt bij de definitieve inschrijving via iDEAL of kaart en krijgt direct een bevestiging en factuur.'] : null,
+        $opening ? ['Wat kost deelname?', "Tijdelijk geldt de openingsactie: je doet mee voor {$opening} in plaats van {$prijs} excl. btw.".($naturel ? " Voor {$naturel} excl. btw extra laat je ook je naturel oliebol testen." : '').' Je betaalt bij de definitieve inschrijving via iDEAL of kaart en krijgt direct een bevestiging en factuur.'] : null,
+        $prijs && ! $opening ? ['Wat kost deelname?', "De standaardprijs is {$prijs} excl. btw.".($actie ? " Met de kortingsactie betaal je {$actie} excl. btw." : '').' Je betaalt bij de definitieve inschrijving via iDEAL of kaart en krijgt direct een bevestiging en factuur.'] : null,
         $actie ? ['Hoe werkt de kortingsactie?', "Maak een filmpje over je deelname, deel het op social media en tag De Gouden Bol. Zet de link naar je post in het deelnemersportaal. Na goedkeuring door de organisatie betaal je {$actie} excl. btw in plaats van {$prijs}. Je plek blijft {$settings->discountHoldDays} dagen gereserveerd terwijl wij kijken."] : null,
         ['Wat neem ik mee?', ($settings->piecesPerEntry ?? 20).' oliebollen, aangeleverd in een doos of zak zonder naam of logo. Je unieke deelnemercode staat op je aanleverbewijs; daarmee is de beoordeling blind.'],
         ['Kan ik mijn aanlevermoment wijzigen?', 'Ja, in het deelnemersportaal tot '.($settings->changeDeadlineHours ?? 24).' uur vooraf. Dat geldt ook voor de vrijdag van de ophaalservice.'],

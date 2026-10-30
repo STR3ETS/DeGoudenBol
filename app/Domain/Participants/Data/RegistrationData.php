@@ -38,5 +38,6 @@ final readonly class RegistrationData
         public ?string $userAgent = null,
         public EntryRate $rate = EntryRate::Standard,
         public ?string $discountProofUrl = null,
+        public bool $plainAddon = false,
     ) {}
 }
