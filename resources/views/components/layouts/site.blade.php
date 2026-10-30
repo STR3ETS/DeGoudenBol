@@ -57,5 +57,6 @@
 @include('site.partials.widget')
 <script src="/site/assets/f09daa7f7315e68a8b4af036abab52ea88446eb7.js" defer></script>
 {{ $scripts ?? '' }}
+@include('site.partials.cookiekeuze')
 </body>
 </html>

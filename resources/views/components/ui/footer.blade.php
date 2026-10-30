@@ -47,6 +47,7 @@
 
         <div class="flex flex-wrap items-center justify-between gap-3 pt-8 text-[0.75rem] text-room-decor">
             <div>&copy; {{ now()->year }} De Gouden Bol &middot; Oliebollenkeuring Nederland</div>
+            <button type="button" class="cookie-knop" data-cookie-instellingen hidden>Cookie-instellingen</button>
             <div>Made with care by <a href="https://eazyonline.nl" class="font-bold text-goud no-underline" rel="noopener">Eazyonline</a></div>
         </div>
     </div>

@@ -23,6 +23,9 @@ return [
     // Google Tag Manager op de publiekssite (niet in portaal of backoffice); laadt alleen in productie.
     'gtm_id' => env('GTM_ID', 'GTM-TV5Z4R84'),
 
+    // Google Analytics op de publiekssite; laadt alleen in productie en pas na toestemming (site.partials.cookiekeuze).
+    'ga_id' => env('GA_ID', 'G-6V0TEJWL2E'),
+
     // Zelfde menu en voet als de website (site.partials.header en footer), zodat pagina's in de oude
     // layout (aanmelden, betaalstatus, cadeaubonnen, erkenning, archief) er hetzelfde uitzien.
     'nav' => [
@@ -31,6 +34,7 @@ return [
         ['label' => 'Finale', 'route' => 'finale'],
         ['label' => 'Ondernemers', 'route' => 'ondernemers'],
         ['label' => 'Sponsoring', 'route' => 'sponsoren'],
+        ['label' => 'Blog', 'route' => 'blog'],
     ],
 
     'nav_cta' => ['label' => 'Aanmelden als bakker', 'route' => 'deelnemen'],
@@ -52,6 +56,7 @@ return [
         ],
         'Meer' => [
             ['label' => 'Goede doelen', 'route' => 'goede-doelen'],
+            ['label' => 'Blog', 'route' => 'blog'],
             ['label' => 'Nieuws & pers', 'route' => 'pers'],
             ['label' => 'Veelgestelde vragen', 'route' => 'faq'],
             ['label' => 'Voorwaarden', 'route' => 'voorwaarden'],
