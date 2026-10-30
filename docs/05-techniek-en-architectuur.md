@@ -170,6 +170,17 @@ EMBARGO_DEFAULT_AT="2026-12-21 12:00"
 5. `php artisan migrate --force` (de kolom `payments.provider_id` wordt 255 tekens, Stripe-id's zijn langer dan die van Mollie).
 
 Werking: `App\Domain\Commerce\Gateways\StripePaymentGateway` maakt per betaalpoging een Checkout Session (bedrag, omschrijving, e-mail van de bakker, vervalt na de reserveringstijd met een minimum van 31 minuten) via de HTTP-client, zonder Stripe-SDK. De webhook (`StripeWebhookController`) controleert de handtekening (HMAC-SHA256, maximaal vijf minuten oud) en haalt de status daarna zelf bij Stripe op; de statuspagina na de checkout doet hetzelfde. Daarna volgt de gewone keten (`MarkOrderPaid`: bevestiging, factuur, 10%-reservering, mail). Tests: `tests/Feature/Commerce/StripePaymentTest.php`.
+
+### Productie (sinds 30 oktober 2026)
+
+- `degoudenoliebol.nl` staat als domein binnen het Plesk-abonnement `flamboyant-cannon.212-114-121-176.plesk.page`, document root `httpdocs/public`. De postbussen en de DNS-zone horen bij dat domein. Mail voor de site gaat via Mailgun.
+- Het oude testadres stuurt door naar het domein (document root `~/doorsturen`, met een `.htaccess`). Laat dat zo: de paginacache en de sitemap houden geen rekening met de host, dus één bezoek via een ander adres zet verkeerde links in de cache.
+- Uitrol: Plesk Git (repo `laravel_fc16ad`, handmatig, naar `httpdocs`), daarna `composer install --no-dev --optimize-autoloader`, `npm run build`, `php artisan migrate --force`, `php artisan optimize`, `php artisan public:cache-clear`. Composer: `/opt/plesk/php/8.4/bin/php /opt/psa/var/modules/composer/composer.phar`. Node: `/opt/plesk/node/24/bin`.
+- `npm ci` weigert nu: `package-lock.json` loopt achter op `package.json` (react ontbreekt, peer van `@laravel/multiplex`). De bestaande `node_modules` bouwen wel. Een `npm install` lokaal en de lock-file committen lost dit op.
+- Cron van de systeemgebruiker: elke minuut `schedule:run` en `queue:work --stop-when-empty --tries=3 --max-time=50`; `QUEUE_CONNECTION=database`.
+- `GTM_ID` staat leeg, want de site heeft nog geen cookiebalk.
+- De editie staat op `closed` tot Stripe is ingesteld; daarna terug naar `registration_open`.
+
 ### Deploy op Plesk (eerste keer)
 
 1. Drie databases aanmaken in Plesk: hoofd (`DB_*`), testketen (`DB_TESTING_*`) en kluis (`DB_VAULT_*`). Eigen gebruikers per database hebben de voorkeur; zonder `DB_TESTING_USERNAME`/`DB_VAULT_USERNAME` gebruiken de twee extra connecties de hoofdgebruiker (`DB_USERNAME`/`DB_PASSWORD`), die dan in Plesk toegang tot alle drie de databases moet hebben. "Access denied … (using password: NO)" betekent meestal dat de config nog gecachet is: `config:clear` of opnieuw `optimize`.
