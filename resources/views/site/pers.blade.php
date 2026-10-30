@@ -1,13 +1,13 @@
 {{-- Gegenereerd door tools/site-dynamic.mjs; de statische delen komen uit de site-export. Pas de dynamische stukken aan in dat script. --}}
 <x-layouts.site title="Nieuws en pers" description="Nieuws en pers over De Gouden Bol 2026: de jaarplanning van Voorlijsten tot landelijke Top 5, kernboodschap en perscontact." main-class="page-sec">
 <section class="page-hero" aria-labelledby="h1">
-<div class="bgv bgv-sugar" aria-hidden="true" style="background-image:url(/site/assets/de9a2decc8dbca0f6e523df67380ff6cd81b1c8f.jpg)"><video muted loop playsinline preload="none" tabindex="-1" poster="/site/assets/de9a2decc8dbca0f6e523df67380ff6cd81b1c8f.jpg" data-webm="/pers/storage/cms-assets/c95a0de9f8f2f925ace8f2d62c36bcd7ef802dd5.webm" data-mp4="/pers/storage/cms-assets/1c93aebbdfc9b2fd908a3242ab7bed873d3524bf.mp4"></video></div><div class="hero-art" aria-hidden="true"><svg class="hero-rings" viewBox="0 0 600 600" aria-hidden="true" focusable="false"><g fill="none" stroke="#C8860A" stroke-linecap="round"><circle class="r1" cx="300" cy="300" r="270" stroke-width="1.4" stroke-dasharray="4 14" opacity=".45"/><circle class="r2" cx="300" cy="300" r="205" stroke-width="2" stroke-dasharray="90 26" opacity=".30"/><circle class="r3" cx="300" cy="300" r="140" stroke-width="1.2" stroke-dasharray="2 10" opacity=".5"/></g></svg></div>
+<div class="bgv bgv-sugar" aria-hidden="true" style="background-image:url(/site/assets/de9a2decc8dbca0f6e523df67380ff6cd81b1c8f.jpg)"><video muted loop playsinline preload="none" tabindex="-1" poster="/site/assets/de9a2decc8dbca0f6e523df67380ff6cd81b1c8f.jpg" data-webm="/site/assets/c95a0de9f8f2f925ace8f2d62c36bcd7ef802dd5.webm" data-mp4="/site/assets/1c93aebbdfc9b2fd908a3242ab7bed873d3524bf.mp4"></video></div><div class="hero-art" aria-hidden="true"><svg class="hero-rings" viewBox="0 0 600 600" aria-hidden="true" focusable="false"><g fill="none" stroke="#C8860A" stroke-linecap="round"><circle class="r1" cx="300" cy="300" r="270" stroke-width="1.4" stroke-dasharray="4 14" opacity=".45"/><circle class="r2" cx="300" cy="300" r="205" stroke-width="2" stroke-dasharray="90 26" opacity=".30"/><circle class="r3" cx="300" cy="300" r="140" stroke-width="1.2" stroke-dasharray="2 10" opacity=".5"/></g></svg></div>
 <div class="hero-vol" aria-hidden="true">PERS</div>
 <div class="page-hero-inner">
 <span class="eyebrow">Nieuws en pers</span>
 <h1 class="h1" id="h1">Nieuws over <em>De Gouden Bol</em></h1>
 <p class="lead">Hier verschijnen persberichten, nieuwe binnenkomers en verschuivingen op de Voorlijsten. De website blijft de centrale bron voor de officiële, actuele uitslag.</p>
-<div class="btn-row" style="justify-content:flex-start;margin-top:32px"><a href="mailto:info@@degoudenbol.nl?subject=Persvraag" class="btn-pill btn-pill-lg"><span>Neem contact op voor pers</span></a></div>
+<div class="btn-row" style="justify-content:flex-start;margin-top:32px"><a href="mailto:info@@degoudenoliebol.nl?subject=Persvraag" class="btn-pill btn-pill-lg"><span>Neem contact op voor pers</span></a></div>
 </div></section>
 <section class="sec bg-linen" id="jaarplanning" aria-labelledby="jaarplanning-h"><div class="sec-inner">
 <span class="eyebrow rev">Jaarplanning</span><h2 class="h2 rev" id="jaarplanning-h">Editie 2026 in het kort</h2>
@@ -30,5 +30,5 @@
 </div></section>
 <section class="cta-dark small" aria-labelledby="cta-h"><div class="bgv bgv-oil glow" aria-hidden="true"><i></i><i></i><i></i><b></b></div><div class="cta-dots" aria-hidden="true"></div><div class="sec-inner">
 <span class="eyebrow">Editie 2026</span><h2 class="cta-h" id="cta-h">Een verhaal voor jouw <em>regio of redactie?</em></h2>
-<p class="cta-p">Neem contact op voor informatie of beeldmateriaal.</p><div class="btn-row"><a href="mailto:info@@degoudenbol.nl?subject=Persvraag" class="btn-pill btn-pill-lg"><span>Neem contact op</span></a><a href="/test" class="btn-light">Hoe werkt de test?</a></div></div></section>
+<p class="cta-p">Neem contact op voor informatie of beeldmateriaal.</p><div class="btn-row"><a href="mailto:info@@degoudenoliebol.nl?subject=Persvraag" class="btn-pill btn-pill-lg"><span>Neem contact op</span></a><a href="/test" class="btn-light">Hoe werkt de test?</a></div></div></section>
 </x-layouts.site>

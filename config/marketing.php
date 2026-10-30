@@ -13,7 +13,7 @@ return [
     'social_handle' => env('MARKETING_SOCIAL_HANDLE', '@degoudenbol'),
 
     // Leesbare weergave van de site in beeldmateriaal (zonder https://).
-    'site_label' => env('MARKETING_SITE_LABEL', 'degoudenbol.nl'),
+    'site_label' => env('MARKETING_SITE_LABEL', 'degoudenoliebol.nl'),
 
     // Formaten van de socialkit: naam => [breedte, hoogte, omschrijving].
     'formats' => [

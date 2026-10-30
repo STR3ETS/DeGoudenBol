@@ -100,9 +100,9 @@ const loaderFull = (index.match(/<div id="loader"[\s\S]*?<div class="l-pct" id="
 const cursor = (index.match(/<div class="c-dot"[\s\S]*?<div id="sBar" aria-hidden="true"><\/div>/) || [''])[0];
 
 writeFileSync(join(out.partials, 'head-script.blade.php'), headScript + '\n');
-writeFileSync(join(out.partials, 'header.blade.php'), '{{-- Gegenereerd door tools/site-import.mjs; niet met de hand bewerken. --}}\n' + rewrite(header, '') + '\n');
+writeFileSync(join(out.partials, 'header.blade.php'), '{{-- Gegenereerd door tools/site-import.mjs; niet met de hand bewerken. --}}\n' + rewrite(header, '').replace('<li><a href="/sponsoring">Sponsoring</a></li>', '$&<li><a href="/blog">Blog</a></li>') + '\n');
 // De nieuwsbrief (dubbele opt-in in de app) krijgt een plek boven "Een vraag?".
-writeFileSync(join(out.partials, 'footer.blade.php'), '{{-- Gegenereerd door tools/site-import.mjs; niet met de hand bewerken. --}}\n' + rewrite(footer, '').replace(/&copy; 2026/, '&copy; {{ now()->year }}').replace('<div class="footer-ask">', "@include('site.partials.nieuwsbrief')\n<div class=\"footer-ask\">") + '\n');
+writeFileSync(join(out.partials, 'footer.blade.php'), '{{-- Gegenereerd door tools/site-import.mjs; niet met de hand bewerken. --}}\n' + rewrite(footer, '').replace('<li><a href="/pers">', '<li><a href="/blog">Blog</a></li>$&').replace('<li><a href="/privacy">Privacyverklaring</a></li>', '$&<li><button type="button" class="cookie-knop" data-cookie-instellingen hidden>Cookie-instellingen</button></li>').replace(/&copy; 2026/, '&copy; {{ now()->year }}').replace('<div class="footer-ask">', "@include('site.partials.nieuwsbrief')\n<div class=\"footer-ask\">") + '\n');
 writeFileSync(join(out.partials, 'widget.blade.php'), '{{-- Gegenereerd door tools/site-import.mjs; $liveJson komt uit App\\Support\\Site\\LiveData. --}}\n' + rewrite(widget, '') + '\n');
 writeFileSync(join(out.partials, 'loader.blade.php'), rewrite(cursor + '\n' + loaderFull, '') + '\n');
 

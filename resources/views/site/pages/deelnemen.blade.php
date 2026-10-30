@@ -2,7 +2,7 @@
 <x-layouts.site title="Deelnemen aan De Gouden Bol 2026" description="Meld je oliebollenkraam of bakkerij aan voor De Gouden Bol 2026. Maximaal 50 deelnemers per provincie, blind en onafhankelijk getest." main-class="page-sec">
 @verbatim
 <section class="page-hero" aria-labelledby="h1">
-<div class="bgv bgv-sugar" aria-hidden="true" style="background-image:url(/site/assets/de9a2decc8dbca0f6e523df67380ff6cd81b1c8f.jpg)"><video muted loop playsinline preload="none" tabindex="-1" poster="/site/assets/de9a2decc8dbca0f6e523df67380ff6cd81b1c8f.jpg" data-webm="/deelnemen/storage/cms-assets/c95a0de9f8f2f925ace8f2d62c36bcd7ef802dd5.webm" data-mp4="/deelnemen/storage/cms-assets/1c93aebbdfc9b2fd908a3242ab7bed873d3524bf.mp4"></video></div><div class="hero-art" aria-hidden="true"><svg class="hero-rings" viewBox="0 0 600 600" aria-hidden="true" focusable="false"><g fill="none" stroke="#C8860A" stroke-linecap="round"><circle class="r1" cx="300" cy="300" r="270" stroke-width="1.4" stroke-dasharray="4 14" opacity=".45"/><circle class="r2" cx="300" cy="300" r="205" stroke-width="2" stroke-dasharray="90 26" opacity=".30"/><circle class="r3" cx="300" cy="300" r="140" stroke-width="1.2" stroke-dasharray="2 10" opacity=".5"/></g></svg></div>
+<div class="bgv bgv-sugar" aria-hidden="true" style="background-image:url(/site/assets/de9a2decc8dbca0f6e523df67380ff6cd81b1c8f.jpg)"><video muted loop playsinline preload="none" tabindex="-1" poster="/site/assets/de9a2decc8dbca0f6e523df67380ff6cd81b1c8f.jpg" data-webm="/site/assets/c95a0de9f8f2f925ace8f2d62c36bcd7ef802dd5.webm" data-mp4="/site/assets/1c93aebbdfc9b2fd908a3242ab7bed873d3524bf.mp4"></video></div><div class="hero-art" aria-hidden="true"><svg class="hero-rings" viewBox="0 0 600 600" aria-hidden="true" focusable="false"><g fill="none" stroke="#C8860A" stroke-linecap="round"><circle class="r1" cx="300" cy="300" r="270" stroke-width="1.4" stroke-dasharray="4 14" opacity=".45"/><circle class="r2" cx="300" cy="300" r="205" stroke-width="2" stroke-dasharray="90 26" opacity=".30"/><circle class="r3" cx="300" cy="300" r="140" stroke-width="1.2" stroke-dasharray="2 10" opacity=".5"/></g></svg></div>
 <div class="hero-vol" aria-hidden="true">DOE MEE</div>
 <div class="page-hero-inner">
 <span class="eyebrow">Deelnemen</span>
@@ -13,7 +13,7 @@
 <section class="sec" id="aanmelden" aria-labelledby="aan-h"><div class="sec-inner"><div class="two-col" style="align-items:start">
 <div class="rev-l"><span class="eyebrow">Aanmelden</span><h2 class="h2" id="aan-h">Zo doe je mee</h2><ul class="list-plain"><li><span><b>Aanmelden:</b> je bedrijfs-, contact-, provincie- en publicatiegegevens worden geregistreerd.</span></li><li><span><b>Aanleveren:</b> je product wordt op een vastgesteld tijdstip en een aangewezen locatie ontvangen.</span></li><li><span><b>Blind getest:</b> je oliebol krijgt een testnummer en wordt anoniem beoordeeld.</span></li><li><span><b>Terugkoppeling:</b> pas na de definitieve beoordeling wordt het nummer aan jou gekoppeld.</span></li></ul><div class="note rev"><p><b>Je betaalt nooit voor een uitslag.</b> Het deelnamepakket is een vergoeding voor deelname, presentatie, marketing en publiciteit. De hoogte van het bedrag heeft geen invloed op score of ranking. Het definitieve deelnamemodel wordt nog vastgesteld; de voorwaarden volgen op de pagina Voorwaarden.</p></div></div>
 <div class="rev-r"><div class="form-box"><h3>Aanmeldformulier</h3><p class="form-sub">Editie 2026</p>
-<form data-form-id="5e1f35d8-f1ef-4959-aca5-e19802ae8e81" data-form-label="Contact" id="aanmeld-form" novalidate data-endpoint="" data-email="info@degoudenbol.nl">
+<form data-form-id="5e1f35d8-f1ef-4959-aca5-e19802ae8e81" data-form-label="Contact" id="aanmeld-form" novalidate data-endpoint="" data-email="info@degoudenoliebol.nl">
         <input type="hidden" name="_label" value="Contact">
         <input type="hidden" name="_ts" value="">
         <input type="text" name="_hp" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
@@ -105,6 +105,6 @@
 </div></section>
 <section class="cta-dark small" aria-labelledby="cta-h"><div class="bgv bgv-oil glow" aria-hidden="true"><i></i><i></i><i></i><b></b></div><div class="cta-dots" aria-hidden="true"></div><div class="sec-inner">
 <span class="eyebrow">Editie 2026</span><h2 class="cta-h" id="cta-h">Vragen over <em>deelnemen?</em></h2>
-<p class="cta-p">Mail naar <a href="mailto:info@degoudenbol.nl" style="color:var(--gold)">info@degoudenbol.nl</a>.</p><div class="btn-row"><a href="/test" class="btn-pill btn-pill-lg"><span>Hoe werkt de test?</span></a><a href="/ondernemers" class="btn-light">Voor ondernemers</a></div></div></section>
+<p class="cta-p">Mail naar <a href="mailto:info@degoudenoliebol.nl" style="color:var(--gold)">info@degoudenoliebol.nl</a>.</p><div class="btn-row"><a href="/test" class="btn-pill btn-pill-lg"><span>Hoe werkt de test?</span></a><a href="/ondernemers" class="btn-light">Voor ondernemers</a></div></div></section>
 @endverbatim
 </x-layouts.site>

@@ -8,4 +8,4 @@ Disallow: /aanmelden/status
 Disallow: /webhooks
 Allow: /
 
-Sitemap: https://degoudenbol.nl/sitemap.xml
+Sitemap: https://degoudenoliebol.nl/sitemap.xml

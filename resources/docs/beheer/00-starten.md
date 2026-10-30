@@ -4,7 +4,7 @@
 
 ## Waar log ik in voor de backoffice?
 
-Op `/admin/login` (bijvoorbeeld https://degoudenbol.nl/admin/login). Je logt in met je e-mailadres en wachtwoord. Bij de eerste keer vraagt de backoffice om tweestapsverificatie met een authenticator-app (bijvoorbeeld Google Authenticator of 1Password). Scan de QR-code, voer de zescijferige code in en bewaar de herstelcodes op een veilige plek.
+Op `/admin/login` (bijvoorbeeld https://degoudenoliebol.nl/admin/login). Je logt in met je e-mailadres en wachtwoord. Bij de eerste keer vraagt de backoffice om tweestapsverificatie met een authenticator-app (bijvoorbeeld Google Authenticator of 1Password). Scan de QR-code, voer de zescijferige code in en bewaar de herstelcodes op een veilige plek.
 
 ## Ik ben mijn authenticator-app kwijt. Hoe kom ik binnen?
 

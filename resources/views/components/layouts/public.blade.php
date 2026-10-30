@@ -30,5 +30,6 @@
     </main>
 
     <x-ui.footer />
+    @include('site.partials.cookiekeuze')
 </body>
 </html>

@@ -41,7 +41,7 @@
 <link rel="preload" href="/site/assets/b42951014c5eca12749d87a4706caf22dc4fe081.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/site/assets/74db058fe06da79b5dbf5b33d12041ddd45de510.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/site/assets/82843df790355b2d6db762b59a8ceb2db51b6cf1.css">
-<script type="application/ld+json">{"@@context": "https://schema.org", "@type": "Organization", "name": "De Gouden Bol", "url": "{{ url('/') }}", "description": "De Nieuwe Oliebollen Test: een onafhankelijke, blinde zoektocht naar de beste oliebol van Nederland.", "email": "info@degoudenbol.nl"}</script>
+<script type="application/ld+json">{"@@context": "https://schema.org", "@type": "Organization", "name": "De Gouden Bol", "url": "{{ url('/') }}", "description": "De Nieuwe Oliebollen Test: een onafhankelijke, blinde zoektocht naar de beste oliebol van Nederland.", "email": "info@degoudenoliebol.nl"}</script>
 <script type="application/ld+json">{"@@context": "https://schema.org", "@type": "WebSite", "name": "De Gouden Bol", "url": "{{ url('/') }}", "inLanguage": "nl"}</script>
 {{ $structured ?? '' }}
 {{ $head ?? '' }}
@@ -57,5 +57,6 @@
 @include('site.partials.widget')
 <script src="/site/assets/f09daa7f7315e68a8b4af036abab52ea88446eb7.js" defer></script>
 {{ $scripts ?? '' }}
+@include('site.partials.cookiekeuze')
 </body>
 </html>

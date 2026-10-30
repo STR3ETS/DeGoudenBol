@@ -7,6 +7,7 @@ use App\Domain\Edition\Models\Province;
 use App\Domain\Marketing\Models\NewsPost;
 use App\Domain\Participants\Models\Entry;
 use App\Http\Controllers\Controller;
+use App\Support\Site\MachineContent;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 
@@ -28,6 +29,7 @@ class SitemapController extends Controller
                 ['loc' => route('goede-doelen'), 'priority' => '0.5', 'changefreq' => 'monthly'],
                 ['loc' => route('bakkers-academie'), 'priority' => '0.5', 'changefreq' => 'monthly'],
                 ['loc' => route('pers'), 'priority' => '0.6', 'changefreq' => 'weekly'],
+                ['loc' => route('blog'), 'priority' => '0.7', 'changefreq' => 'daily'],
                 ['loc' => route('faq'), 'priority' => '0.5', 'changefreq' => 'monthly'],
                 ['loc' => route('over'), 'priority' => '0.5', 'changefreq' => 'yearly'],
                 ['loc' => route('aanmelden'), 'priority' => '0.7', 'changefreq' => 'weekly'],
@@ -52,6 +54,16 @@ class SitemapController extends Controller
             NewsPost::query()->published()->each(function (NewsPost $post) use (&$urls): void {
                 $urls[] = ['loc' => route('nieuws.toon', $post), 'priority' => '0.6', 'changefreq' => 'monthly', 'lastmod' => $post->published_at?->toAtomString()];
             });
+
+            $content = app(MachineContent::class);
+
+            foreach ($content->artikelen() as $artikel) {
+                $urls[] = ['loc' => route('blog.toon', $artikel['slug']), 'priority' => '0.6', 'changefreq' => 'monthly', 'lastmod' => $artikel['updated_at'] ?? null];
+            }
+
+            foreach ($content->landingspaginas() as $pagina) {
+                $urls[] = ['loc' => route('landingspagina', $pagina['slug']), 'priority' => '0.6', 'changefreq' => 'monthly', 'lastmod' => $pagina['updated_at'] ?? null];
+            }
 
             $lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'];
 

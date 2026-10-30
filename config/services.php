@@ -61,4 +61,10 @@ return [
         'secret' => env('TURNSTILE_SECRET'),
     ],
 
+    // Blogs en landingspagina's van de contentmachine in EazyDash; zonder token doet de site niets.
+    'eazyonline' => [
+        'url' => env('EAZY_CMS_URL', 'https://eazyonline.nl/api/v1'),
+        'token' => env('EAZY_CMS_TOKEN'),
+    ],
+
 ];

@@ -28,6 +28,7 @@ use App\Http\Controllers\Public\FakeCheckoutController;
 use App\Http\Controllers\Public\FinaleController;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\LiveDataController;
+use App\Http\Controllers\Public\ContentController;
 use App\Http\Controllers\Public\NewsController;
 use App\Http\Controllers\Public\NewsletterController;
 use App\Http\Controllers\Public\PressController;
@@ -80,6 +81,8 @@ Route::get('/erkenning/{recognition}/badge.svg', [RecognitionController::class, 
 Route::get('/edities', [EditionArchiveController::class, 'index'])->name('edities.index');
 Route::get('/editie/{edition}', [EditionArchiveController::class, 'show'])->name('edities.show');
 Route::get('/nieuws/{post}', [NewsController::class, 'show'])->name('nieuws.toon');
+Route::get('/blog', [ContentController::class, 'index'])->name('blog');
+Route::get('/blog/{slug}', [ContentController::class, 'artikel'])->where('slug', '[a-z0-9-]+')->name('blog.toon');
 Route::get('/winnaars', [VoucherController::class, 'winners'])->name('winnaars');
 
 // Oude adressen van vóór de site-import blijven werken.
@@ -235,3 +238,7 @@ Route::prefix('portaal')->name('portaal.')->group(function (): void {
         Route::put('/wachtwoord', [PasswordController::class, 'update'])->name('wachtwoord.opslaan');
     });
 });
+
+// Landingspagina's van de contentmachine staan direct onder het domein. Als laatste, zodat elke
+// vaste route voorgaat; alleen adressen met een streepje, zoals de machine ze maakt.
+Route::get('/{slug}', [ContentController::class, 'landingspagina'])->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)+')->name('landingspagina');
