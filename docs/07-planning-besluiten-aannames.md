@@ -113,13 +113,13 @@ Een nieuwe uitvoeringsbriefing ("Technische briefing platform & sponsoring", ver
 
 **Voorwaarden en privacy zonder invulplekken (verzoek Raphael 30 okt 2026).** Alle gele invulplekken, conceptmeldingen en "nog te beslissen"-blokken op `/voorwaarden`, `/voorwaarden/*` en `/privacy` zijn vervangen door definitieve tekst (versie 30 oktober 2026), met de app en de briefing als bron. Waar nog geen besluit lag, is dit gekozen; Bennie (en bij voorkeur een jurist) moet dit bevestigen:
 
-- Contact voor privacy en klachten: info@degoudenbol.nl. Bevoegde rechter: Rechtbank Gelderland. Rechtsvorm van Nederlands Test Instituut weggelaten.
+- Contact voor privacy en klachten: info@degoudenoliebol.nl. Bevoegde rechter: Rechtbank Gelderland. Rechtsvorm van Nederlands Test Instituut weggelaten.
 - Bewaartermijnen: aanmelding 2 jaar na de editie; uitslagen en scoreregister blijvend; cadeaubonwinnaars tot 31 maart, daarna geanonimiseerd; contact 1 jaar; sponsors 2 jaar (facturen 7 jaar); panelleden 2 jaar, daarna gepseudonimiseerd (doc 05).
 - Annuleren door de deelnemer: geen terugbetaling na betaling. Annuleren door de organisatie: volledige terugbetaling. Aansprakelijkheid beperkt tot het betaalde bedrag (niet bij opzet of bewuste roekeloosheid). Wijzigingen van de voorwaarden 14 dagen vooraf aangekondigd.
 - Klachten: bezwaar tegen een uitslag via het portaal binnen 3 werkdagen; overige meldingen binnen 14 dagen; ontvangstbevestiging binnen 2 werkdagen; beslissing binnen 3 werkdagen door twee medewerkers buiten panel en registratie.
 - Cadeaubonnen: 21 t/m 28 december 2026; 18+ en in Nederland; ondernemer kiest de winnaars; foto en delen bij verzilvering zijn vrijwillig (de bon blijft geldig); de bonwaarde komt voor rekening van de ondernemer.
 - Merkgebruik: landelijke erkenning heet "Landelijke lijst" (Top 10, zoals in de app); geldigheid volgens doc 04 §6.
-- Privacy noemt Mailgun, Stripe en Google Tag Manager. Er is nog geen cookiebanner; vraag Bennie welke tags in GTM komen en of er toestemming nodig is.
+- Privacy noemt Mailgun, Stripe, Google Analytics (alleen na toestemming via de cookiebalk) en Google Tag Manager. Let op: Tag Manager laadt zonder toestemming; tags die cookies plaatsen moeten in GTM op toestemming wachten.
 - Deze pagina's komen uit de site-export: een nieuwe `tools/site-import.mjs` overschrijft ze. De teksten in de backoffice (`TermsVersion`, akkoord in de wizard) zijn nog niet gelijkgetrokken.
 
 ## 4. Aanvullende eigen aannames (niet in de briefing; corrigeerbaar)
