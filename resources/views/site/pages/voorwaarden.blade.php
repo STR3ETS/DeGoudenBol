@@ -14,6 +14,6 @@
 <div class="note rev"><p><b>Let op:</b> dit zijn conceptteksten. Gele invulplekken zijn gegevens of besluiten die nog ontbreken. Een definitief document wordt pas gepubliceerd nadat het juridisch is getoetst.</p></div></div></section>
 <section class="cta-dark small" aria-labelledby="cta-h"><div class="bgv bgv-oil glow" aria-hidden="true"><i></i><i></i><i></i><b></b></div><div class="cta-dots" aria-hidden="true"></div><div class="sec-inner">
 <span class="eyebrow">Editie 2026</span><h2 class="cta-h" id="cta-h">Vragen over de <em>voorwaarden?</em></h2>
-<p class="cta-p">Mail naar <a href="mailto:info@degoudenbol.nl" style="color:var(--gold)">info@degoudenbol.nl</a> of lees de veelgestelde vragen.</p><div class="btn-row"><a href="/faq" class="btn-pill btn-pill-lg"><span>Veelgestelde vragen</span></a><a href="/deelnemen" class="btn-light">Aanmelden</a></div></div></section>
+<p class="cta-p">Mail naar <a href="mailto:info@degoudenoliebol.nl" style="color:var(--gold)">info@degoudenoliebol.nl</a> of lees de veelgestelde vragen.</p><div class="btn-row"><a href="/faq" class="btn-pill btn-pill-lg"><span>Veelgestelde vragen</span></a><a href="/deelnemen" class="btn-light">Aanmelden</a></div></div></section>
 @endverbatim
 </x-layouts.site>

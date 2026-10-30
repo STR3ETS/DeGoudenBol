@@ -90,5 +90,5 @@
 </div></section>
 <section class="cta-dark small" aria-labelledby="cta-h"><div class="bgv bgv-oil glow" aria-hidden="true"><i></i><i></i><i></i><b></b></div><div class="cta-dots" aria-hidden="true"></div><div class="sec-inner">
 <span class="eyebrow">Editie 2026</span><h2 class="cta-h" id="cta-h">Vragen over <em>deelnemen?</em></h2>
-<p class="cta-p">Mail naar <a href="mailto:info@@degoudenbol.nl" style="color:var(--gold)">info@@degoudenbol.nl</a>.</p><div class="btn-row"><a href="/test" class="btn-pill btn-pill-lg"><span>Hoe werkt de test?</span></a><a href="/ondernemers" class="btn-light">Voor ondernemers</a></div></div></section>
+<p class="cta-p">Mail naar <a href="mailto:info@@degoudenoliebol.nl" style="color:var(--gold)">info@@degoudenoliebol.nl</a>.</p><div class="btn-row"><a href="/test" class="btn-pill btn-pill-lg"><span>Hoe werkt de test?</span></a><a href="/ondernemers" class="btn-light">Voor ondernemers</a></div></div></section>
 </x-layouts.site>

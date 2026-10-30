@@ -7,7 +7,7 @@
 <span class="eyebrow">Nieuws en pers</span>
 <h1 class="h1" id="h1">Nieuws over <em>De Gouden Bol</em></h1>
 <p class="lead">Hier verschijnen persberichten, nieuwe binnenkomers en verschuivingen op de Voorlijsten. De website blijft de centrale bron voor de officiële, actuele uitslag.</p>
-<div class="btn-row" style="justify-content:flex-start;margin-top:32px"><a href="mailto:info@@degoudenbol.nl?subject=Persvraag" class="btn-pill btn-pill-lg"><span>Neem contact op voor pers</span></a></div>
+<div class="btn-row" style="justify-content:flex-start;margin-top:32px"><a href="mailto:info@@degoudenoliebol.nl?subject=Persvraag" class="btn-pill btn-pill-lg"><span>Neem contact op voor pers</span></a></div>
 </div></section>
 <section class="sec bg-linen" id="jaarplanning" aria-labelledby="jaarplanning-h"><div class="sec-inner">
 <span class="eyebrow rev">Jaarplanning</span><h2 class="h2 rev" id="jaarplanning-h">Editie 2026 in het kort</h2>
@@ -30,5 +30,5 @@
 </div></section>
 <section class="cta-dark small" aria-labelledby="cta-h"><div class="bgv bgv-oil glow" aria-hidden="true"><i></i><i></i><i></i><b></b></div><div class="cta-dots" aria-hidden="true"></div><div class="sec-inner">
 <span class="eyebrow">Editie 2026</span><h2 class="cta-h" id="cta-h">Een verhaal voor jouw <em>regio of redactie?</em></h2>
-<p class="cta-p">Neem contact op voor informatie of beeldmateriaal.</p><div class="btn-row"><a href="mailto:info@@degoudenbol.nl?subject=Persvraag" class="btn-pill btn-pill-lg"><span>Neem contact op</span></a><a href="/test" class="btn-light">Hoe werkt de test?</a></div></div></section>
+<p class="cta-p">Neem contact op voor informatie of beeldmateriaal.</p><div class="btn-row"><a href="mailto:info@@degoudenoliebol.nl?subject=Persvraag" class="btn-pill btn-pill-lg"><span>Neem contact op</span></a><a href="/test" class="btn-light">Hoe werkt de test?</a></div></div></section>
 </x-layouts.site>

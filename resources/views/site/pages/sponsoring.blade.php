@@ -8,7 +8,7 @@
 <span class="eyebrow">Sponsoring</span>
 <h1 class="h1" id="h1">Verbind jouw merk aan <em>een Nederlands feestmoment</em></h1>
 <p class="lead">Sponsoring maakt zichtbaarheid mogelijk en helpt de landelijke organisatie te financieren, maar blijft strikt gescheiden van de beoordeling. Een sponsor heeft geen rol in de test.</p>
-<div class="btn-row" style="justify-content:flex-start;margin-top:32px"><a href="mailto:info@degoudenbol.nl?subject=Sponsoring%20De%20Gouden%20Bol" class="btn-pill btn-pill-lg"><span>Neem contact op</span></a></div>
+<div class="btn-row" style="justify-content:flex-start;margin-top:32px"><a href="mailto:info@degoudenoliebol.nl?subject=Sponsoring%20De%20Gouden%20Bol" class="btn-pill btn-pill-lg"><span>Neem contact op</span></a></div>
 </div></section>
 <section class="sec bg-linen" id="vormen" aria-labelledby="vormen-h"><div class="sec-inner">
 <span class="eyebrow rev">Mogelijkheden</span><h2 class="h2 rev" id="vormen-h">Waar kun je je aan verbinden?</h2>
@@ -28,6 +28,6 @@
 <div class="rev-r"><p class="body-text" style="margin-bottom:18px">De Gouden Bol staat voor Nederlandse traditie, kwaliteit, ondernemerschap, consumentenbeleving, regionale en maatschappelijke betrokkenheid, goede doelen en de feestdagen.</p><p class="body-text" style="margin-bottom:18px">Een sponsor mag een goed doel voordragen, maar de organisatie beslist. Contractueel wordt vastgelegd dat een sponsor geen rol heeft in de test.</p></div></div></div></section>
 <section class="cta-dark small" aria-labelledby="cta-h"><div class="bgv bgv-oil glow" aria-hidden="true"><i></i><i></i><i></i><b></b></div><div class="cta-dots" aria-hidden="true"></div><div class="sec-inner">
 <span class="eyebrow">Editie 2026</span><h2 class="cta-h" id="cta-h">Word <em>partner</em> van De Gouden Bol</h2>
-<p class="cta-p">Bespreek de mogelijkheden voor jouw organisatie.</p><div class="btn-row"><a href="mailto:info@degoudenbol.nl?subject=Sponsoring%20De%20Gouden%20Bol" class="btn-pill btn-pill-lg"><span>Neem contact op</span></a><a href="/goede-doelen" class="btn-light">Goede doelen</a></div></div></section>
+<p class="cta-p">Bespreek de mogelijkheden voor jouw organisatie.</p><div class="btn-row"><a href="mailto:info@degoudenoliebol.nl?subject=Sponsoring%20De%20Gouden%20Bol" class="btn-pill btn-pill-lg"><span>Neem contact op</span></a><a href="/goede-doelen" class="btn-light">Goede doelen</a></div></div></section>
 @endverbatim
 </x-layouts.site>

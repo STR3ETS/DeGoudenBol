@@ -27,6 +27,6 @@
             De inschrijving opent binnenkort. Houd deze pagina in de gaten of stel je vraag per e-mail.
         @endif
     </p>
-    <a class="f-submit" href="mailto:info@degoudenbol.nl?subject=Aanmelden%20De%20Gouden%20Bol" style="display:block;text-align:center;text-decoration:none">Houd mij op de hoogte</a>
+    <a class="f-submit" href="mailto:info@degoudenoliebol.nl?subject=Aanmelden%20De%20Gouden%20Bol" style="display:block;text-align:center;text-decoration:none">Houd mij op de hoogte</a>
     <p class="f-note">Lees alvast de <a href="{{ route('voorwaarden.deelname') }}" style="color:var(--gold)">voorwaarden voor deelneming</a>.</p>
 @endif
