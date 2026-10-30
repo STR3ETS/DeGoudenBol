@@ -6,8 +6,9 @@
     $groepen = [
         'Deelname' => [
             ['label' => 'Mijn deelname', 'route' => 'portaal.dashboard', 'icoon' => 'huis'],
-            ['label' => 'Aanleveren', 'route' => 'portaal.planning', 'icoon' => 'kalender'],
-            ['label' => 'Uitslag', 'route' => 'portaal.uitslag', 'icoon' => 'ster'],
+            ['label' => 'Aanmelding en betaling', 'route' => 'portaal.aanmelding', 'icoon' => 'klembord'],
+            ['label' => 'Aanleveren of ophalen', 'route' => 'portaal.planning', 'icoon' => 'kalender'],
+            ['label' => 'Rapport en uitslag', 'route' => 'portaal.uitslag', 'icoon' => 'ster'],
         ],
         'Mijn bedrijf' => [
             ['label' => 'Profiel op de site', 'route' => 'portaal.profiel', 'icoon' => 'winkel'],

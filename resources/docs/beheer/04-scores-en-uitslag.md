@@ -28,11 +28,11 @@ Omdat jij hem hebt ingediend, omdat er al twee goedkeuringen zijn, of omdat er e
 
 ## Een bakker heeft een cijfer onder 5,0. Wat ziet hij?
 
-Op de site niets. In zijn portaal ziet hij "vertrouwelijk resultaat" met het cijfer en, zodra Communicatie het heeft geschreven, een persoonlijk verbeteradvies (Uitslag > Terugkoppeling onder 5,0): sterke punten eerst, dan concrete ontwikkelkansen, positieve toon. Niemand buiten zijn bedrijf ziet dit.
+Op de site niets. Net als iedere bakker krijgt hij binnen drie dagen na de keuring zijn persoonlijke rapport in het portaal (Uitslag > Persoonlijke rapporten). Op de publicatiedag ziet hij dat zijn cijfer niet openbaar wordt. Niemand buiten zijn bedrijf ziet dit.
 
 ## Hoe werkt de voorlijst en de Top 10?
 
-Per provincie staan alle gepubliceerde cijfers van hoog naar laag; de eerste tien zijn de Voorlopige Top 10. Bij een gelijk cijfer beslist het gemiddelde op smaak, dan structuur en luchtigheid, dan versheid, dan vulling. Blijft het gelijk op plaats 1 of op de grens van de Top 10, dan is een beslisronde nodig. De lijst beweegt tot de bevriezing; "gedaald" krijgt een neutrale chip, nooit een rode.
+Sinds de briefing van 29 oktober blijft de ranglijst geheim tot de hoofdpublicatie: alle publicatiebatches staan gepland op dat moment (instelling "Ranglijst geheim tot de hoofdpublicatie" bij Instellingen > Editie). Daarna staan per provincie alle gepubliceerde cijfers van hoog naar laag; de eerste tien zijn de Top 10. Bij een gelijk cijfer beslist het gemiddelde op smaak, dan structuur en luchtigheid, dan versheid, dan vulling. Blijft het gelijk op plaats 1 of op de grens van de Top 10, dan is een beslisronde nodig. De lijst beweegt tot de bevriezing; "gedaald" krijgt een neutrale chip, nooit een rode.
 
 ## Wat is een beslisronde?
 
@@ -57,3 +57,23 @@ Alles wat bij de bevriezing onder embargo is gezet, komt vrij op het moment "Hoo
 ## Hoe werkt de landelijke finale?
 
 Uitslag > Finale toont de provinciewinnaars als finalisten; zij bevestigen hun deelname in het portaal. Kan een winnaar niet, dan vervalt de plek of gaat hij naar nummer twee (instelling). De finale is een aparte blinde test met nieuwe testnummers F01 tot F12; provinciale cijfers tellen niet mee. De landelijke uitslag wordt op zijn eigen moment gepubliceerd.
+
+## Wanneer krijgt een bakker zijn persoonlijke rapport?
+
+Binnen drie dagen na de keuring (instelling "Persoonlijk rapport binnen"). Zodra scorecontrole de uitslag definitief maakt, maakt het systeem een concept met de panelnotities en een uiterste datum. Uitslag > Persoonlijke rapporten toont per rapport de termijn; te late rapporten staan rood en bovenaan je werk van vandaag.
+
+## Hoe geef ik een persoonlijk rapport vrij?
+
+Open Uitslag > Persoonlijke rapporten, klik op Redigeren en controleer de sterke punten, verbeterpunten en algemene indruk. De scores per onderdeel komen vanzelf uit de uitslag. Klik daarna op Vrijgeven: het rapport staat dan in het portaal en de eigenaren krijgen één mail met de link. De landelijke ranking blijft geheim.
+
+## Wat staat er in het persoonlijke rapport?
+
+Bedrijf, vestigingsplaats, product, testdatum en deelnemercode, de acht onderdelen met score en maximum (smaak 25, structuur en luchtigheid 20, versheid 15, vulling en verhouding 15, uiterlijk 10, geur 5, vetopname en mondgevoel 5, totaalindruk 5), de totaalscore op 100 punten, het rapportcijfer en de toelichting van het panel. De bakker bewaart het als pdf via de knop "Download als pdf".
+
+## Mag een bakker zijn uitslag gebruiken in zijn reclame?
+
+Ja, zijn eigen uitslag mag hij commercieel gebruiken, zolang hij geen misleidende claims maakt. Dat staat ook onderaan het rapport en in de deelnamevoorwaarden.
+
+## Kan ik de ranglijst toch tussentijds publiceren?
+
+Ja, door bij Instellingen > Editie "Ranglijst geheim tot de hoofdpublicatie" uit te zetten. Dan gelden weer de publicatiedagen en de stille periode. Doe dit alleen na een besluit van de organisatie; de briefing van 29 oktober vraagt om een geheime ranglijst.

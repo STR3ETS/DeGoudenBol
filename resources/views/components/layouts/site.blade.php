@@ -14,6 +14,7 @@
 <html lang="nl">
 <head>
 @include('site.partials.head-script')
+@include('site.partials.gtm-head')
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{ $fullTitle }}</title>
@@ -45,6 +46,7 @@
 {{ $structured ?? '' }}
 {{ $head ?? '' }}
 </head><body>
+@include('site.partials.gtm-body')
 <a class="skip" href="#main">Ga naar de inhoud</a>
 @include('site.partials.loader')
 @include('site.partials.header')

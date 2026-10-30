@@ -120,7 +120,7 @@ class SponsoringTest extends TestCase
 
         // Homepage-sponsor en sponsorpagina.
         $this->get('/')->assertOk()->assertSee('Mede mogelijk gemaakt door')->assertSee('Sponsor Test');
-        $this->get(route('sponsoren'))->assertOk()->assertSee('Sponsor Test')->assertSee('Logo op de homepage');
+        $this->get(route('sponsoren'))->assertOk()->assertSee('Sponsor Test')->assertSee('Basis sponsor');
 
         // Een medewerker mag niet beslissen.
         $staff = ParticipantUser::factory()->create();

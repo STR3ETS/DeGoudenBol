@@ -3,6 +3,7 @@
 namespace App\Domain\Participants\Data;
 
 use App\Domain\Participants\Enums\CompanyType;
+use App\Domain\Participants\Enums\EntryRate;
 
 /**
  * Alles wat de aanmeldflow verzamelt, in één onveranderlijk object.
@@ -35,5 +36,7 @@ final readonly class RegistrationData
         public int $termsVersionId,
         public ?string $ip = null,
         public ?string $userAgent = null,
+        public EntryRate $rate = EntryRate::Standard,
+        public ?string $discountProofUrl = null,
     ) {}
 }

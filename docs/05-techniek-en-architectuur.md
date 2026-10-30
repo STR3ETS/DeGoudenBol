@@ -95,7 +95,7 @@ Bevriezing (`FreezeEdition`) is één transactie in het hoofddomein; alles erna 
 - Norm: OWASP ASVS niveau 2 voor portaal en backoffice; security headers (CSP, HSTS, frame-ancestors), dependency-scans, geheimen buiten de code.
 - Auditlog: append-only; `hash = sha256(prev_hash . canonical_json(payload))`; wekelijks laatste hash naar notaris/toezichthouder (besluit 22, optioneel).
 - Dagelijkse back-ups met point-in-time herstel; hersteltest vóór 1 november; externe security-quickscan vóór release 2 en 3.
-- Privacy: verwerkingsregister, privacyverklaring, verwerkersovereenkomsten (hosting, mail, Mollie, boekhouding, monitoring, CDN). Allergieën panelleden = gezondheidsgegevens: uitdrukkelijke toestemming, alleen categorieën, alleen testcoördinatie, wissen na editie. Beeldtoestemming los van actievoorwaarden en intrekbaar. Export- en anonimiseerfunctie in backoffice. Alleen functionele cookies + Matomo/Plausible; social embeds pas na toestemming.
+- Privacy: verwerkingsregister, privacyverklaring, verwerkersovereenkomsten (hosting, mail, Stripe, boekhouding, monitoring, CDN). Allergieën panelleden = gezondheidsgegevens: uitdrukkelijke toestemming, alleen categorieën, alleen testcoördinatie, wissen na editie. Beeldtoestemming los van actievoorwaarden en intrekbaar. Export- en anonimiseerfunctie in backoffice. Alleen functionele cookies + Matomo/Plausible; social embeds pas na toestemming.
 
 **Bewaartermijnen (voorstel)**: uitslagen en snapshots blijvend (openbaar archief) · scorekaarten blijvend, panelleden gepseudonimiseerd na 2 jaar · allergieën panelleden tot einde editie · cadeaubonwinnaars tot 31 maart 2027, daarna geanonimiseerd · facturen en betalingen 7 jaar.
 
@@ -103,7 +103,7 @@ Bevriezing (`FreezeEdition`) is één transactie in het hoofddomein; alles erna 
 
 | Dienst | Waarvoor | Release |
 |---|---|---|
-| Mollie | iDEAL en creditcard, betaallinks op facturen, later Academie | 1 |
+| Stripe (sinds 29 okt 2026, was Mollie) | Stripe Checkout: iDEAL, kaart, Bancontact; webhook `/webhooks/stripe` met handtekeningcontrole; later Academie | 1 |
 | Boekhoudpakket (Moneybird of Exact Online – nog te horen van Bennie) | Facturen, debiteuren, btw | 1 |
 | PDOK Locatieserver | Adres aanvullen, coördinaten, provinciebepaling (gratis) | 1 |
 | KvK-API (optioneel, betaald) | Bedrijfsgegevens bij aanmelding; handmatig blijft terugval | 1 |
@@ -155,6 +155,21 @@ EMBARGO_DEFAULT_AT="2026-12-21 12:00"
 - `php artisan design:tokens` na elke wijziging in `resources/design/tokens.json` (`--check` in CI).
 - Boost MCP-server staat in `.mcp.json`; Boost-skills in `.claude/skills`.
 
+
+### Stripe instellen (betalingen, sinds 29 oktober 2026)
+
+1. **Sleutel.** Stripe-dashboard > Ontwikkelaars > API-sleutels > "Beperkte sleutel maken" > **Aangepaste machtigingen**. Zet op **Schrijven**: Checkout Sessions. Zet op **Lezen**: PaymentIntents en Charges. De rest op Geen. De sleutel begint met `rk_live_` (of `rk_test_` in testmodus). Een gewone geheime sleutel (`sk_live_`) werkt ook, maar geeft onnodig veel rechten. Nooit "Volledige toegang".
+2. **Webhook.** Ontwikkelaars > Webhooks > Endpoint toevoegen: URL `https://<domein>/webhooks/stripe`, gebeurtenissen `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired`. Kopieer het ondertekeningsgeheim (`whsec_…`).
+3. **Betaalmethoden.** Instellingen > Betaalmethoden: iDEAL aan (en eventueel Bancontact en kaarten). Stripe Checkout toont wat daar aan staat.
+4. **`.env`** op de server, daarna `config:clear` en `optimize`:
+   ```
+   PAYMENT_DRIVER=stripe
+   STRIPE_SECRET=rk_live_…
+   STRIPE_WEBHOOK_SECRET=whsec_…
+   ```
+5. `php artisan migrate --force` (de kolom `payments.provider_id` wordt 255 tekens, Stripe-id's zijn langer dan die van Mollie).
+
+Werking: `App\Domain\Commerce\Gateways\StripePaymentGateway` maakt per betaalpoging een Checkout Session (bedrag, omschrijving, e-mail van de bakker, vervalt na de reserveringstijd met een minimum van 31 minuten) via de HTTP-client, zonder Stripe-SDK. De webhook (`StripeWebhookController`) controleert de handtekening (HMAC-SHA256, maximaal vijf minuten oud) en haalt de status daarna zelf bij Stripe op; de statuspagina na de checkout doet hetzelfde. Daarna volgt de gewone keten (`MarkOrderPaid`: bevestiging, factuur, 10%-reservering, mail). Tests: `tests/Feature/Commerce/StripePaymentTest.php`.
 ### Deploy op Plesk (eerste keer)
 
 1. Drie databases aanmaken in Plesk: hoofd (`DB_*`), testketen (`DB_TESTING_*`) en kluis (`DB_VAULT_*`). Eigen gebruikers per database hebben de voorkeur; zonder `DB_TESTING_USERNAME`/`DB_VAULT_USERNAME` gebruiken de twee extra connecties de hoofdgebruiker (`DB_USERNAME`/`DB_PASSWORD`), die dan in Plesk toegang tot alle drie de databases moet hebben. "Access denied … (using password: NO)" betekent meestal dat de config nog gecachet is: `config:clear` of opnieuw `optimize`.

@@ -255,6 +255,11 @@
         border: 0;
     }
 
+    /* Knop in de navigatie zoals op de website: crème tekst op goud (besluit Raphael 30 okt 2026). */
+    .nav .btn-pill {
+        color: var(--color-room);
+    }
+
     .btn-pill::before {
         content: '';
         position: absolute;

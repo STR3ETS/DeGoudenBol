@@ -5,6 +5,7 @@ namespace App\Domain\Ranking\Notifications;
 use App\Domain\Participants\Models\ParticipantUser;
 use App\Domain\Ranking\Models\Finalist;
 use App\Support\DutchTime;
+use App\Support\Mail\GoldenMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -32,7 +33,7 @@ class FinalInvitationNotification extends Notification implements ShouldQueue
         $finalist = $this->finalist->loadMissing(['entry.company', 'province', 'edition']);
         $edition = $finalist->edition;
 
-        $message = (new MailMessage)
+        $message = (new GoldenMail)
             ->subject("Uitnodiging voor de landelijke finale van De Gouden Bol {$edition->year}")
             ->greeting("Beste {$notifiable->name},")
             ->line("**{$finalist->entry->public_name}** is uitgenodigd voor de landelijke finale namens {$finalist->province->name}. Tot de publicatie op ".DutchTime::format($edition->main_publication_at, 'D MMMM').' is dit vertrouwelijk.');
@@ -43,7 +44,6 @@ class FinalInvitationNotification extends Notification implements ShouldQueue
 
         return $message
             ->action('Bevestig uw deelname in het portaal', route('portaal.uitslag', $finalist->entry->company))
-            ->line('Kunt u niet meedoen? Meld dat dan in het portaal; de plek gaat dan naar de volgende op de lijst. De provinciale titel blijft van u.')
-            ->salutation('Met vriendelijke groet, het team van De Gouden Bol');
+            ->line('Kunt u niet meedoen? Meld dat dan in het portaal; de plek gaat dan naar de volgende op de lijst. De provinciale titel blijft van u.');
     }
 }

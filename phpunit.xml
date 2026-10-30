@@ -41,6 +41,9 @@
         <env name="SITE_PLACEHOLDERS" value="false"/>
         <env name="PUBLIC_CACHE_ENABLED" value="false"/>
         <env name="MAIL_MAILER" value="array"/>
+        <env name="PAYMENT_DRIVER" value="fake"/>
+        <env name="STRIPE_SECRET" value=""/>
+        <env name="STRIPE_WEBHOOK_SECRET" value=""/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>

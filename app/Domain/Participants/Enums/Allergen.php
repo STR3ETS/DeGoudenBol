@@ -5,42 +5,48 @@ namespace App\Domain\Participants\Enums;
 use Filament\Support\Contracts\HasLabel;
 
 /**
- * De veertien allergenen uit de EU-verordening 1169/2011.
+ * Allergenen die een bakker voor zijn oliebol aanvinkt; het panel gebruikt ze om panelleden met een
+ * allergie uit te sluiten. Lijst van Bennie (30 okt 2026): selderij, schaaldieren, vis, weekdieren en
+ * zwaveldioxide vervallen; pinda en noten zijn één keuze; sulfiet zonder zwavel; tarwe / granen.
+ * De codes blijven stabiel: ze staan in inschrijvingen en bij panelleden opgeslagen.
  */
 enum Allergen: string implements HasLabel
 {
     case Gluten = 'gluten';
-    case Schaaldieren = 'schaaldieren';
     case Ei = 'ei';
-    case Vis = 'vis';
-    case Pinda = 'pinda';
-    case Soja = 'soja';
     case Melk = 'melk';
     case Noten = 'noten';
-    case Selderij = 'selderij';
-    case Mosterd = 'mosterd';
     case Sesam = 'sesam';
-    case Sulfiet = 'sulfiet';
+    case Soja = 'soja';
+    case Mosterd = 'mosterd';
     case Lupine = 'lupine';
-    case Weekdieren = 'weekdieren';
+    case Sulfiet = 'sulfiet';
+
+    /**
+     * Vervallen codes en waar ze naartoe gaan; null = vervalt zonder vervanging.
+     *
+     * @var array<string, string|null>
+     */
+    public const array RETIRED = [
+        'pinda' => 'noten',
+        'selderij' => null,
+        'schaaldieren' => null,
+        'vis' => null,
+        'weekdieren' => null,
+    ];
 
     public function getLabel(): string
     {
         return match ($this) {
-            self::Gluten => 'Glutenbevattende granen',
-            self::Schaaldieren => 'Schaaldieren',
+            self::Gluten => 'Tarwe / granen',
             self::Ei => 'Ei',
-            self::Vis => 'Vis',
-            self::Pinda => 'Pinda',
-            self::Soja => 'Soja',
             self::Melk => 'Melk (incl. lactose)',
-            self::Noten => 'Noten',
-            self::Selderij => 'Selderij',
-            self::Mosterd => 'Mosterd',
+            self::Noten => "Pinda's / noten",
             self::Sesam => 'Sesamzaad',
-            self::Sulfiet => 'Zwaveldioxide en sulfiet',
+            self::Soja => 'Soja',
+            self::Mosterd => 'Mosterd',
             self::Lupine => 'Lupine',
-            self::Weekdieren => 'Weekdieren',
+            self::Sulfiet => 'Sulfiet',
         };
     }
 
@@ -56,5 +62,26 @@ enum Allergen: string implements HasLabel
         }
 
         return $options;
+    }
+
+    /**
+     * Zet een opgeslagen lijst om naar de huidige codes (vervallen codes vertaald of weggelaten).
+     *
+     * @param  list<string>  $codes
+     * @return list<string>
+     */
+    public static function normalize(array $codes): array
+    {
+        $result = [];
+
+        foreach ($codes as $code) {
+            $code = array_key_exists($code, self::RETIRED) ? self::RETIRED[$code] : $code;
+
+            if ($code !== null && self::tryFrom($code) !== null && ! in_array($code, $result, true)) {
+                $result[] = $code;
+            }
+        }
+
+        return $result;
     }
 }

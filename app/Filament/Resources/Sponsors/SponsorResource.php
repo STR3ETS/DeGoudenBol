@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\Sponsors;
 
+use App\Domain\Commerce\Actions\ApproveSponsor;
 use App\Domain\Commerce\Enums\SponsorStatus;
 use App\Domain\Commerce\Models\Sponsor;
+use App\Domain\Commerce\Notifications\SponsorMail;
 use App\Domain\Platform\Enums\StaffRole;
 use App\Filament\Concerns\RestrictsToRoles;
 use App\Filament\Resources\Sponsors\Pages\CreateSponsor;
@@ -12,11 +14,14 @@ use App\Filament\Resources\Sponsors\Pages\ListSponsors;
 use App\Filament\Resources\Sponsors\RelationManagers\PlacementsRelationManager;
 use App\Filament\Resources\Sponsors\RelationManagers\SponsorLinksRelationManager;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -25,6 +30,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Notification as Mailer;
 use UnitEnum;
 
 /**
@@ -66,6 +72,14 @@ class SponsorResource extends Resource
                     FileUpload::make('logo_path')->label('Logo')->image()->disk('public')->directory('sponsors')->visibility('public')->maxSize(2048)->helperText('PNG of SVG met transparante achtergrond werkt het best.'),
                     Select::make('status')->label('Status')->options(SponsorStatus::class)->default(SponsorStatus::Active)->required(),
                 ]),
+                Section::make('Aanvraag via de website')->columns(3)
+                    ->visible(fn (?Sponsor $record) => $record?->source === 'website')
+                    ->schema([
+                        TextEntry::make('requestedProduct.name')->label('Gekozen pakket')->placeholder('–'),
+                        TextEntry::make('requestedProvince.name')->label('Provincie')->placeholder('–'),
+                        TextEntry::make('requested_at')->label('Aangevraagd')->dateTime('d-m-Y H:i')->placeholder('–'),
+                        TextEntry::make('request_note')->label('Toelichting')->placeholder('–')->columnSpanFull(),
+                    ]),
                 Section::make('Contact en facturatie')->columns(2)->schema([
                     TextInput::make('contact_name')->label('Contactpersoon')->maxLength(120),
                     TextInput::make('contact_email')->label('E-mail')->email()->maxLength(190),
@@ -82,11 +96,12 @@ class SponsorResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->withCount(['placements', 'links']))
+            ->modifyQueryUsing(fn (Builder $query) => $query->withCount(['placements', 'links'])->with('requestedProduct'))
             ->defaultSort('name')
             ->columns([
                 TextColumn::make('name')->label('Sponsor')->searchable()->sortable()->weight('bold'),
                 TextColumn::make('status')->label('Status')->badge(),
+                TextColumn::make('requestedProduct.name')->label('Pakket (website)')->placeholder('–')->toggleable(),
                 TextColumn::make('placements_count')->label('Plaatsingen'),
                 TextColumn::make('links_count')->label('Koppelingen'),
                 TextColumn::make('contact_email')->label('Contact')->placeholder('–')->toggleable(),
@@ -95,6 +110,27 @@ class SponsorResource extends Resource
                 SelectFilter::make('status')->label('Status')->options(SponsorStatus::class),
             ])
             ->recordActions([
+                Action::make('approve')
+                    ->label('Goedkeuren en publiceren')
+                    ->icon(Heroicon::OutlinedCheckBadge)
+                    ->color('success')
+                    ->visible(fn (Sponsor $record) => $record->status === SponsorStatus::Pending)
+                    ->requiresConfirmation()
+                    ->modalDescription('Controleer logo, naam en website. Daarna staat de sponsor op de site en krijgt hij een bevestiging.')
+                    ->action(function (Sponsor $record, ApproveSponsor $approve): void {
+                        $approve($record, auth()->user());
+                        Notification::make()->title("{$record->name} staat online")->success()->send();
+                    }),
+                Action::make('accessLink')
+                    ->label('Beheerlink sturen')
+                    ->icon(Heroicon::OutlinedEnvelope)
+                    ->visible(fn (Sponsor $record) => filled($record->contact_email))
+                    ->requiresConfirmation()
+                    ->modalDescription(fn (Sponsor $record) => "De sponsor krijgt op {$record->contact_email} een persoonlijke link naar de sponsoromgeving.")
+                    ->action(function (Sponsor $record): void {
+                        Mailer::route('mail', $record->contact_email)->notify(new SponsorMail(SponsorMail::ACCESS, $record));
+                        Notification::make()->title('Beheerlink verstuurd')->success()->send();
+                    }),
                 EditAction::make(),
             ]);
     }

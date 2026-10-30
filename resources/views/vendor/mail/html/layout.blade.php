@@ -1,54 +1,45 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+@props(['preheader' => null])
+<!DOCTYPE html>
+<html lang="nl">
 <head>
-<title>{{ config('app.name') }}</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
+<title>{{ config('app.name') }}</title>
 <style>
 @media only screen and (max-width: 600px) {
-.inner-body {
-width: 100% !important;
+.inner-body, .footer { width: 100% !important; }
+.content-cell, .signoff-cell, .note-cell { padding-left: 24px !important; padding-right: 24px !important; }
 }
-
-.footer {
-width: 100% !important;
-}
-}
-
 @media only screen and (max-width: 500px) {
-.button {
-width: 100% !important;
-}
+.button { width: 100% !important; }
 }
 </style>
 {!! $head ?? '' !!}
 </head>
-<body>
-
-<table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+<body style="margin:0;padding:0;background:#eee9e1;color:#23180e;font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%;">
+@if (filled($preheader))
+<div style="display:none;font-size:1px;color:#eee9e1;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">{{ $preheader }}</div>
+@endif
+<table class="wrapper" role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#eee9e1;">
 <tr>
-<td align="center">
-<table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+<td align="center" style="padding:32px 14px 50px;">
+<table class="inner-body" role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="width:100%;max-width:600px;">
+<tr><td style="padding:0 0 16px;text-align:center;font-size:11px;letter-spacing:2.1px;color:#756454;font-weight:bold;text-transform:uppercase;">{{ config('mail.brand.tagline') }}</td></tr>
 {!! $header ?? '' !!}
-
-<!-- Email Body -->
 <tr>
-<td class="body" width="100%" cellpadding="0" cellspacing="0" style="border: hidden !important;">
-<table class="inner-body" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
-<!-- Body content -->
-<tr>
-<td class="content-cell">
+<td class="content-cell" style="background:#ffffff;padding:40px 45px 18px;">
 {!! Illuminate\Mail\Markdown::parse($slot) !!}
-
 {!! $subcopy ?? '' !!}
 </td>
 </tr>
-</table>
+{!! $note ?? '' !!}
+<tr>
+<td class="signoff-cell" style="background:#ffffff;padding:26px 45px 35px;border-radius:0 0 22px 22px;">
+<div style="font-size:14px;color:#65594e;line-height:1.8;">{!! $signoff ?? '' !!}</div>
 </td>
 </tr>
-
 {!! $footer ?? '' !!}
 </table>
 </td>

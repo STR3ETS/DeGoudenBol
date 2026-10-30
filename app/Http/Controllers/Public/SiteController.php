@@ -14,7 +14,7 @@ class SiteController extends Controller
     /** Statische pagina's uit de export; sponsoring en goede doelen krijgen een dynamisch blok (tools/site-dynamic.mjs). */
     private const array PAGES = [
         'test' => 'site.pages.test',
-        'faq' => 'site.pages.faq',
+        'faq' => 'site.faq',
         'ondernemers' => 'site.pages.ondernemers',
         'sponsoring' => 'site.sponsoring',
         'finale' => 'site.pages.finale',

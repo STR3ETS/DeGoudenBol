@@ -10,6 +10,7 @@ use App\Domain\Commerce\Models\Invoice;
 use App\Domain\Commerce\Models\Order;
 use App\Domain\Commerce\Models\Sponsor;
 use App\Domain\Commerce\Services\InvoiceNumberGenerator;
+use App\Domain\Intake\Models\PickupRequest;
 use App\Domain\Participants\Enums\EntryStatus;
 use App\Domain\Participants\Events\EntryRegistered;
 use App\Domain\Participants\Models\Entry;
@@ -74,7 +75,11 @@ final class MarkOrderPaid
 
     private function createInvoice(Order $order, CarbonInterface $paidAt): Invoice
     {
-        $company = $order->orderable instanceof Entry ? $order->orderable->company : null;
+        $company = match (true) {
+            $order->orderable instanceof Entry => $order->orderable->company,
+            $order->orderable instanceof PickupRequest => $order->orderable->entry?->company,
+            default => null,
+        };
         $location = $company?->primaryLocation;
         $sponsor = $order->orderable instanceof Sponsor ? $order->orderable : null;
 

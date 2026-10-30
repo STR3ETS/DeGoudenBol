@@ -10,7 +10,8 @@ use Carbon\CarbonImmutable;
 
 /**
  * Publicatieritme (besluit 20): vaste batches op de ingestelde dagen en tijd; in de stille periode
- * schuift alles door naar de hoofdpublicatie.
+ * schuift alles door naar de hoofdpublicatie. Met `ranking_secret_until_publication` (standaard aan
+ * sinds de briefing van 29 okt) geldt dat voor de hele editie.
  */
 final class PublicationSchedule
 {
@@ -39,6 +40,12 @@ final class PublicationSchedule
         }
 
         $candidate ??= $now->addDay()->setTime($hour, $minute);
+
+        // Briefing 29 okt: de ranglijst blijft geheim tot de officiële publicatie. Persoonlijke
+        // rapporten gaan wel binnen drie dagen naar de deelnemer; die staan los van de batches.
+        if ($settings->rankingSecretUntilPublication && $edition->main_publication_at !== null && $edition->main_publication_at->greaterThan($now->utc())) {
+            return $edition->main_publication_at;
+        }
 
         if ($settings->quietPeriodFrom !== null && $edition->main_publication_at !== null) {
             $quietFrom = CarbonImmutable::parse($settings->quietPeriodFrom, DutchTime::zone())->startOfDay();

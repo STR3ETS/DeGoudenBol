@@ -3,11 +3,14 @@
     use App\Support\DutchTime;
 
     $first = $companies->first();
+    $settings = $edition?->settings;
     $vragen = [
-        ['Wat neem ik mee op de testdag?', ($edition?->settings->piecesPerEntry ?? 12).' oliebollen, gebakken op de dag zelf, in een doos zonder naam of logo. De code op je aanleverbewijs is genoeg: wij plakken hem erop.'],
-        ['Kan ik mijn aanlevermoment nog wijzigen?', 'Ja, tot de dag ervoor. Open Aanleveren en kies een ander moment. Je oude plek komt vrij voor een andere bakker.'],
-        ['Wanneer hoor ik de uitslag?', ($edition?->main_publication_at ? ucfirst(DutchTime::format($edition->main_publication_at, 'dddd D MMMM [om] HH:mm')).', tegelijk met heel Nederland. ' : 'Op de publicatiedag, tegelijk met heel Nederland. ').'Je krijgt een e-mail en ziet het hier in het portaal.'],
-        ['Ziet het panel mijn naam?', 'Nee. Het panel ziet alleen een testnummer. De koppeling tussen nummer en bakker staat in een aparte, versleutelde kluis en iedere inzage wordt vastgelegd.'],
+        ['Wat neem ik mee?', ($settings->piecesPerEntry ?? 20).' oliebollen, gebakken op de dag zelf, in een doos of zak zonder naam of logo. De deelnemercode op je aanleverbewijs is genoeg: wij plakken hem erop.'],
+        ['Kan ik mijn aanlevermoment nog wijzigen?', 'Ja, tot '.($settings->changeDeadlineHours ?? 24).' uur vooraf. Open Aanleveren en kies een ander moment of een andere vrijdag.'],
+        ['Kunnen jullie mijn oliebollen ophalen?', $settings?->pickupEnabled ? 'Ja, alleen op vrijdag, voor '.App\Support\Money::format($settings->pickupFeeCents).' voorrijkosten (excl. btw). Je kiest de vrijdag onder Aanleveren en betaalt direct.' : 'Dit jaar niet; je brengt je oliebollen zelf op een tijdslot.'],
+        ['Wanneer krijg ik mijn persoonlijke uitslag?', 'Binnen '.($settings->reportDueDays ?? 3).' dagen na de keuring staat je rapport hier, met de scores per onderdeel en de toelichting van het panel. Je krijgt er een e-mail over.'],
+        ['Wanneer is de landelijke ranking?', ($edition?->main_publication_at ? ucfirst(DutchTime::format($edition->main_publication_at, 'dddd D MMMM [om] HH:mm')).', tegelijk met heel Nederland. ' : 'Op de officiële publicatiedatum. ').'Tot die tijd blijft de ranglijst geheim.'],
+        ['Ziet het panel mijn naam?', 'Nee. Het panel ziet alleen een code, nooit je naam, logo of sponsors. De koppeling staat in een aparte, versleutelde kluis en iedere inzage wordt vastgelegd.'],
     ];
 @endphp
 <x-layouts.portal title="Mijn deelname">
@@ -103,13 +106,28 @@
                         </div>
                     </section>
                 @elseif ($edition?->main_publication_at)
+                    @if ($entry && $entry->status->occupiesPlace() && $entry->status !== EntryStatus::PendingPayment)
+                        <div class="ui-kaart">
+                            <div class="ui-kaart__kop"><span class="ui-icoonvak ui-icoonvak--goud"><x-ui.icoon naam="document" /></span><div><div class="ui-kaart__titel">Persoonlijk rapport</div><div class="ui-kaart__sub">Alleen voor jou, binnen {{ $settings->reportDueDays }} dagen na de keuring</div></div></div>
+                            <div class="ui-kaart__inhoud !pt-3 text-[0.88rem] leading-relaxed text-gedempt">
+                                @if ($journey->reportAvailable())
+                                    <p class="mb-3"><strong class="text-espresso">Je rapport staat klaar.</strong> Scores per onderdeel, eindscore en de toelichting van het panel.</p>
+                                    <a href="{{ route('portaal.rapport', $company) }}" class="ui-knop ui-knop--klein">Bekijk je rapport</a>
+                                @elseif ($entry->confidentialReport?->due_at)
+                                    <p>Het panel heeft geproefd. Je rapport volgt uiterlijk <strong class="text-espresso">{{ DutchTime::format($entry->confidentialReport->due_at, 'dddd D MMMM') }}</strong>.</p>
+                                @else
+                                    <p>Na de keuring staat hier je rapport met de scores per onderdeel. Je krijgt er een e-mail over.</p>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
                     <div class="ui-kaart">
-                        <div class="ui-kaart__kop"><span class="ui-icoonvak ui-icoonvak--espresso"><x-ui.icoon naam="ster" /></span><div><div class="ui-kaart__titel">De uitslag</div><div class="ui-kaart__sub">{{ ucfirst(DutchTime::format($edition->main_publication_at, 'dddd D MMMM [om] HH:mm')) }}</div></div></div>
+                        <div class="ui-kaart__kop"><span class="ui-icoonvak ui-icoonvak--espresso"><x-ui.icoon naam="ster" /></span><div><div class="ui-kaart__titel">Landelijke uitslag</div><div class="ui-kaart__sub">{{ ucfirst(DutchTime::format($edition->main_publication_at, 'dddd D MMMM [om] HH:mm')) }}</div></div></div>
                         <div class="ui-kaart__inhoud !pt-3">
                             <div class="flex items-center gap-4">
                                 <span class="ui-datumblok ui-datumblok--goud"><span class="ui-datumblok__dag">{{ DutchTime::format($edition->main_publication_at, 'dd') }}</span><span class="ui-datumblok__nr">{{ DutchTime::format($edition->main_publication_at, 'D') }}</span><span class="ui-datumblok__maand">{{ DutchTime::format($edition->main_publication_at, 'MMM') }}</span></span>
                                 @php $dagen = (int) now()->startOfDay()->diffInDays(DutchTime::display($edition->main_publication_at)->startOfDay(), false); @endphp
-                                <div class="text-[0.88rem] leading-relaxed text-gedempt">@if ($dagen > 1)Nog <strong class="text-espresso">{{ $dagen }} dagen</strong>. @elseif ($dagen === 1)<strong class="text-espresso">Morgen.</strong> @elseif ($dagen === 0)<strong class="text-espresso">Vandaag.</strong> @endif Je krijgt een e-mail zodra je cijfer er is. Tot die tijd is alles geheim, ook voor ons.</div>
+                                <div class="text-[0.88rem] leading-relaxed text-gedempt">@if ($dagen > 1)Nog <strong class="text-espresso">{{ $dagen }} dagen</strong>. @elseif ($dagen === 1)<strong class="text-espresso">Morgen.</strong> @elseif ($dagen === 0)<strong class="text-espresso">Vandaag.</strong> @endif De ranglijst blijft geheim tot de officiële publicatie. Je krijgt een e-mail zodra hij er is.</div>
                             </div>
                         </div>
                     </div>

@@ -65,6 +65,48 @@ Zolang een besluit open is, bouw ik volgens het advies uit de briefing en maak i
 
 Intern vóór kick-off: stack bevestigen en bepalen wat uit het pizzaplatform komt. Zolang de pizzaplatform-code er niet is, bouw ik login/2FA, portaal-layout, media-upload, Mollie/orders/facturatie, mailtemplates en CMS-blokken zelf in Laravel; die zijn later inwisselbaar.
 
+## 3a. Briefing 29 oktober 2026 (Bennie, voor Boyd · Eazyonline)
+
+Een nieuwe uitvoeringsbriefing ("Technische briefing platform & sponsoring", versie 1.0) en het officiële rapportsjabloon zijn op 30 okt verwerkt. Waar de briefing een eerder besluit of advies verandert, geldt de briefing.
+
+| Onderwerp | Was | Nu (briefing 29 okt) | Waar in de app |
+|---|---|---|---|
+| Deelnameprijs (besluit 2) | Placeholder EUR 745 | Standaard EUR 150; actieprijs EUR 75 (50%) na goedgekeurde socialmedia-actie | Pakket bij Geld > Pakketten; `discount_percentage`, `discount_hold_days` |
+| Aanleveren (besluit 5, 15) | 8 stuks, alleen tijdslot | 20 oliebollen in doos of zak; zelf brengen op tijdslot of ophaalservice op vrijdag (EUR 45 voorrijkosten) | `pieces_per_entry` = 20; Testdagen > Ophaalvrijdagen en Ophaalservice; `pickup_fee_cents`, `change_deadline_hours` |
+| Beoordelingsmodel (besluit 14) | Placeholder-verdeling | Acht onderdelen uit het rapport: smaak 25, structuur en luchtigheid 20, versheid 15, vulling en verhouding 15, uiterlijk 10, geur 5, vetopname en mondgevoel 5, totaalindruk 5 | Beoordelingsmodel versie 2 (migratie) |
+| Landelijke lijst (besluit 13) | Top 5 | Top 10 | `national_list_length` = 10 |
+| Publicatieritme (besluit 20) | Di/vr-batches met Voorlijst | Ranglijst geheim tot de hoofdpublicatie; persoonlijk rapport binnen 3 dagen na de keuring | `ranking_secret_until_publication` (aan), `report_due_days` = 3 |
+| Vertrouwelijk rapport (doc 04 §4) | Alleen onder 5,0 | Persoonlijk rapport voor iedereen, als pdf te bewaren | Uitslag > Persoonlijke rapporten; portaal `/portaal/rapport` |
+| Sponsorcatalogus (besluit 18) | Vijf producten | Basis sponsor 250, Deelnemerspartner 50 (+25), Top 10 partner 450 (+75), provinciale partner, landelijke partner en hoofdsponsor op maat | `/sponsoring`, `/sponsoring/aanmelden`, sponsoromgeving `/sponsor` |
+| Organisatie | Placeholders | Nederlands Test Instituut, Voorstraat 14, 6702 DC Wageningen, KvK 42193967, contact Betsy | `config/commerce.php` (issuer), voorwaarden en privacy |
+| Mails | Laravel-standaard | Huisstijl uit "Emailtemplate Uitslag" | `resources/views/vendor/mail`, `App\Support\Mail\GoldenMail` |
+
+**Eigen aannames bij de briefing (corrigeerbaar):**
+
+- EUR 150, EUR 75 en EUR 45 zijn **exclusief btw**, net als de sponsorprijzen. Open beslispunt; omzetten is een prijswijziging in de backoffice.
+- Publieksnaam in mails en rapport is **De Gouden Bol** (briefing §2). Het aangeleverde mail- en rapportsjabloon zeggen "De Gouden Oliebol"; omzetten kan met `MAIL_BRAND_ACCENT=Oliebol` en `APP_NAME`.
+- **Btw-nummer**: geen van de twee aangeleverde nummers wordt gebruikt; facturen tonen "[BTW-NUMMER WORDT BEVESTIGD]" tot `INVOICE_ISSUER_VAT` is gezet.
+- Kortingsactie: de bakker kiest bij het aanmelden de actieprijs, levert de link (of een schermafbeelding) aan in het portaal, en betaalt pas na goedkeuring. De plek blijft 7 dagen vast. Afgewezen: opnieuw aanleveren of de standaardprijs betalen.
+- Ophaalservice: één ophaalaanvraag per inschrijving; wijzigen tot 24 uur vooraf; terugbetalen bij annuleren gaat via de boekhouding. Na betaling van de ophaalservice kan de bakker niet zelf terug naar zelf brengen.
+- Sponsoren hebben geen account maar een persoonlijke beheerlink (30 dagen geldig, opnieuw aan te vragen op `/sponsoring/beheer`).
+- Vaste sponsorpakketten worden na betaling eerst gecontroleerd door de organisatie ("gecontroleerd zichtbaar"); pas daarna staan ze online. Zichtbaarheid loopt tot 31 december van het editiejaar.
+- Top 10 partner is altijd een reservering zonder betaling; de koppeling met een deelnemer en de betaling volgen na de officiële uitslag. Top 10-vermeldingen ("Bakt met") verschijnen nooit vóór de hoofdpublicatie.
+- Een korting of ophaalservice telt mee voor de 10%-reservering (de regels hebben `counts_for_charity`); de kortingsregel is negatief, zodat de grondslag het werkelijk betaalde bedrag is.
+
+**Open beslispunten uit de briefing (§14), nog niet beslist:**
+
+| Beslispunt | Werkaanname |
+|---|---|
+| Juiste btw-nummer en juridische factuurentiteit | Nederlands Test Instituut, btw-nummer volgt |
+| EUR 150 en EUR 45 inclusief of exclusief btw | Exclusief |
+| Precieze voorwaarden kortingsactie, bewijs en moment van goedkeuring | Link of schermafbeelding; handmatige goedkeuring; 7 dagen plek vast |
+| Ophaalvrijdagen, capaciteit, routeplanning, wijzigingstermijnen | Vrijdagen en capaciteit in de backoffice; 24 uur; CSV-export voor een externe routeplanner |
+| Aanleverperiode "1 november t/m 4 januari" botst met 21 december | De app gebruikt de datums van de editie (eerste en laatste testdag) |
+| Publicatie landelijke ranglijst 21 december 2026 12:00 definitief? | Ja, als datum in de editie; de aftelling op site en portaal leest die datum |
+| Grondslag 10% goede doelen | Ongewijzigd: besluit 8 (ontvangen bedragen excl. btw) |
+
+**Inhoud die nog botst met de briefing.** De pagina's uit de site-export (home, test, provincies, pers) spreken nog van een "Voorlijst" vanaf 1 november met tussenstanden. Met de geheime ranglijst tonen de provinciepagina's tot 21 december geen cijfers. De FAQ en de deelnamevoorwaarden zijn aangepast; de overige teksten moet Bennie in de CMS-export bijwerken, of de instelling "Ranglijst geheim tot de hoofdpublicatie" uitzetten.
+
 ## 4. Aanvullende eigen aannames (niet in de briefing; corrigeerbaar)
 
 | Onderwerp | Aanname |
@@ -80,16 +122,16 @@ Intern vóór kick-off: stack bevestigen en bepalen wat uit het pizzaplatform ko
 | Panel-API | Sanctum-tokens per panellid per sessie; korte levensduur |
 | Backoffice-navigatie | Op werk in plaats van op de tien domeinen: Bakkers, Testdagen, Uitslag, Campagne, Geld, met Instellingen in de voet van de sidebar; menunamen als taakwoorden; dashboard met seizoensbalk en "Jouw werk vandaag" per rol. Akkoord Raphael 25 sep 2026 na de UX-review (docs/02 §7). |
 | Dark mode | Niet voor site/portaal/backoffice in 2026 |
-| Knoptekst | Espresso op goud (contrast) i.p.v. room op goud uit het concept |
+| Knoptekst | Espresso op goud (contrast) i.p.v. room op goud uit het concept. Uitzondering (besluit Raphael 30 okt 2026): de aanmeldknop in de navigatie heeft crème tekst, gelijk aan de website. Let op: crème op goud haalt het WCAG-contrast voor kleine tekst niet |
 | Aanspreekvorm | "u/uw" richting bakkers (zoals concepten); neutraal richting consument |
 | Rolverbod | Tot release 2 globaal per gebruiker (panellid ≠ intake/publicatie); editie-scoping volgt zodra de panelpool per editie bestaat |
 | Tijdopslag | UTC in de database, `Europe/Amsterdam` bij weergave (`App\Support\DutchTime`, `FilamentTimezone`) |
 | Filament | Versie 5.8 met ingebouwde TOTP-MFA (verplicht voor alle medewerkers), geen aparte passkey-koppeling in 2026 |
-| Pakketprijs | Tot besluit 2: één basispakket van EUR 745 excl. btw (laagste tarief uit het plan) als gemarkeerde placeholder; aanpasbaar in de backoffice |
-| Betalingen | Lokaal een nep-checkout (`PAYMENT_DRIVER=fake`); acceptatie en productie Mollie met webhook. Bankoverschrijving kan Financiën handmatig als betaald markeren |
+| Pakketprijs | Briefing 29 okt: EUR 150 excl. btw, actieprijs EUR 75 na goedgekeurde kortingsactie (zie §3a); aanpasbaar in de backoffice |
+| Betalingen | **Besluit Raphael 29 okt 2026: Stripe in plaats van Mollie.** Lokaal een nep-checkout (`PAYMENT_DRIVER=fake`); acceptatie en productie Stripe Checkout (`PAYMENT_DRIVER=stripe`) met webhook `/webhooks/stripe`; de Mollie-koppeling blijft als alternatief in de code. Bankoverschrijving kan Financiën handmatig als betaald markeren |
 | Deelnemersaccounts | Eigen tabel en guard (`participant`), nooit toegang tot de backoffice; e-mailadres is de sleutel, één account kan meerdere bedrijven hebben |
 | Reservering | Een onbetaalde aanmelding houdt 60 minuten een plek vast (`RESERVATION_MINUTES`); daarna vervalt de plek automatisch |
-| Factuur | Doorlopend per jaar (`2026-0001`); afzendergegevens staan als placeholders in `config/commerce.php` tot Bennie ze aanlevert |
+| Factuur | Doorlopend per jaar (`2026-0001`); afzender Nederlands Test Instituut (briefing 29 okt), btw-nummer volgt |
 | Publiek vóór publicatie | Bevestigde deelnemers staan met naam, plaats en goedgekeurde tekst op de site als "Deelnemer 2026", zonder cijfer |
 
 ## 5. Ontbrekende input (blokkerend voor specifieke onderdelen)

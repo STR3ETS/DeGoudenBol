@@ -7,9 +7,9 @@ use App\Domain\Edition\Models\Edition;
 use Illuminate\Database\Seeder;
 
 /**
- * Deelnamemodel B (advies briefing): één basispakket voor iedereen.
- * AANNAME: prijs en inhoud volgen uit besluit 2; tot die tijd staat hier het laagste tarief
- * uit het Deelnemers- & Sponsorplan (EUR 745 excl. btw) als duidelijk gemarkeerde placeholder.
+ * Deelname 2026 volgens de briefing van 29 okt (§3): standaardprijs EUR 150. De actieprijs (50% korting
+ * na goedgekeurde socialmedia-actie) is een editie-instelling. AANNAME: EUR 150 is excl. btw, zoals de
+ * sponsorprijzen; open beslispunt in docs/07.
  */
 class PackageSeeder extends Seeder
 {
@@ -25,8 +25,8 @@ class PackageSeeder extends Seeder
             ['edition_id' => $edition->getKey(), 'code' => 'deelname-2026-basis'],
             [
                 'name' => 'Deelname De Gouden Bol 2026',
-                'description' => 'Blinde beoordeling door het panel, vertrouwelijk rapport met sterke punten en ontwikkelkansen, publicatie op de Voorlijst vanaf 5,0, deelnemersbadge en socialmediakit. [PRIJS EN PAKKETINHOUD VOLGEN UIT BESLUIT 2]',
-                'price_cents' => 74500,
+                'description' => Package::BRIEFING_DESCRIPTION,
+                'price_cents' => Package::BRIEFING_PRICE_CENTS,
                 'vat_rate' => 21.00,
                 'stock_per_province' => null,
                 'is_base' => true,

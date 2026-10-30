@@ -19,7 +19,7 @@ class DashboardController extends Controller
         $edition = Edition::current();
 
         $companies = $user->companies()
-            ->with(['profile', 'entries' => fn ($query) => $query->where('edition_id', $edition?->getKey())->with(['province', 'order.invoice', 'order.latestPayment', 'deliverySlot', 'publicationItems.batch'])])
+            ->with(['profile', 'entries' => fn ($query) => $query->where('edition_id', $edition?->getKey())->with(['province', 'order.invoice', 'order.latestPayment', 'deliverySlot', 'publicationItems.batch', 'confidentialReport', 'pickupRequest.day'])])
             ->get();
 
         $journeys = $companies->mapWithKeys(fn (Company $company) => [

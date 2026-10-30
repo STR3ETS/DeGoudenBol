@@ -6,10 +6,12 @@ use App\Domain\Commerce\Models\Order;
 use App\Domain\Edition\Models\Edition;
 use App\Domain\Marketing\Models\Recognition;
 use App\Domain\Participants\Enums\CompanyType;
+use App\Domain\Participants\Enums\CompanyUserRole;
 use App\Domain\Vouchers\Models\VoucherCampaign;
 use App\Support\Models\DomainModel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -93,6 +95,16 @@ class Company extends DomainModel
             ->using(CompanyUser::class)
             ->withPivot('role')
             ->withTimestamps();
+    }
+
+    /**
+     * Eigenaren van het bedrijf: zij krijgen de statusmails.
+     *
+     * @return Collection<int, ParticipantUser>
+     */
+    public function owners(): Collection
+    {
+        return $this->users()->wherePivot('role', CompanyUserRole::Owner->value)->get();
     }
 
     public function entries(): HasMany

@@ -2,13 +2,14 @@
     'dark' => false,
     'size' => 44,
     'naam' => true,
-    'tagline' => 'Oliebollenkeuring',
+    'tagline' => 'Oliebollen Test',
 ])
+{{-- Hetzelfde merkteken als de website (site.partials.header): oliebol in een gouden ring. --}}
 <span {{ $attributes->merge(['class' => 'inline-flex items-center gap-3']) }}>
     <svg viewBox="0 0 48 48" width="{{ $size }}" height="{{ $size }}" fill="none" aria-hidden="true" focusable="false">
-        <circle cx="24" cy="24" r="23" class="fill-goud"/>
-        <circle cx="24" cy="24" r="16" class="{{ $dark ? 'fill-espresso' : 'fill-room' }}"/>
-        <polygon points="24,11 26.5,19 35,19 28.5,23.5 31,32 24,27.5 17,32 19.5,23.5 13,19 21.5,19" class="fill-goud"/>
+        <circle cx="24" cy="24" r="23" fill="#C8860A"/>
+        <circle cx="24" cy="24" r="19.6" fill="{{ $dark ? '#1C0F03' : '#FAF5EA' }}"/>
+        <image href="{{ asset('site/images/5097bdefb5478dc6e6537a40211dbf6432a82738.png') }}" x="7" y="7" width="34" height="34"/>
     </svg>
     @if ($naam)
         <span>

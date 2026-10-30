@@ -12,6 +12,7 @@ use App\Domain\Participants\Actions\RegisterEntry;
 use App\Domain\Participants\Data\RegistrationData;
 use App\Domain\Participants\Enums\Allergen;
 use App\Domain\Participants\Enums\CompanyType;
+use App\Domain\Participants\Enums\EntryRate;
 use App\Domain\Participants\Exceptions\ProvinceFullException;
 use App\Domain\Participants\Models\Entry;
 use App\Domain\Participants\Services\ProvinceCapacity;
@@ -80,8 +81,12 @@ class RegistrationWizard extends Component
 
     public string $productNotes = '';
 
-    // Stap 4: pakket
+    // Stap 4: pakket en tarief (standaard of kortingsactie)
     public ?int $packageId = null;
+
+    public string $rate = 'standard';
+
+    public string $discountProofUrl = '';
 
     // Stap 5: voorwaarden
     public bool $acceptTerms = false;
@@ -161,6 +166,24 @@ class RegistrationWizard extends Component
     public function selectedProvince(): ?Province
     {
         return $this->provinces->firstWhere('id', $this->provinceId);
+    }
+
+    public function discountEnabled(): bool
+    {
+        return (bool) $this->edition?->settings->discountEnabled();
+    }
+
+    public function wantsDiscount(): bool
+    {
+        return $this->rate === 'discount' && $this->discountEnabled();
+    }
+
+    /**
+     * Actieprijs van het gekozen pakket in centen, excl. btw.
+     */
+    public function discountedPriceCents(): ?int
+    {
+        return $this->selectedPackage && $this->edition ? $this->edition->settings->discountedCents($this->selectedPackage->price_cents) : null;
     }
 
     /**
@@ -297,6 +320,8 @@ class RegistrationWizard extends Component
                 termsVersionId: $this->terms->getKey(),
                 ip: request()->ip(),
                 userAgent: request()->userAgent(),
+                rate: $this->wantsDiscount() ? EntryRate::Discount : EntryRate::Standard,
+                discountProofUrl: $this->wantsDiscount() && $this->discountProofUrl !== '' ? trim($this->discountProofUrl) : null,
             ));
         } catch (ProvinceFullException $exception) {
             $this->step = 2;
@@ -305,11 +330,16 @@ class RegistrationWizard extends Component
             return null;
         }
 
+        // Kortingsactie: eerst het bewijs laten keuren, daarna pas betalen.
+        if ($entry->wantsDiscount()) {
+            return $this->redirect(route('aanmelden.status', $entry->order));
+        }
+
         $payment = $gateway->create(
             $entry->order,
             "De Gouden Bol {$edition->year} – deelname {$entry->public_name}",
             route('aanmelden.status', $entry->order),
-            config('commerce.payment_driver') === 'mollie' ? route('webhooks.mollie') : null,
+            config('commerce.payment_driver') === 'mollie' ? route('webhooks.mollie') : null, // Stripe: webhook staat in het dashboard
         );
 
         return $this->redirect($payment->checkout_url);
@@ -353,6 +383,8 @@ class RegistrationWizard extends Component
             ],
             4 => [
                 'packageId' => ['required', 'integer', Rule::in($this->packages->pluck('id')->all())],
+                'rate' => ['required', Rule::in($this->discountEnabled() ? ['standard', 'discount'] : ['standard'])],
+                'discountProofUrl' => ['nullable', 'url', 'max:500'],
             ],
             5 => [
                 'acceptTerms' => ['accepted'],
@@ -415,6 +447,8 @@ class RegistrationWizard extends Component
             'allergens' => 'allergenen',
             'productNotes' => 'toelichting',
             'packageId' => 'pakket',
+            'rate' => 'tarief',
+            'discountProofUrl' => 'link naar uw post',
             'acceptTerms' => 'deelnamevoorwaarden',
             'acceptPrivacy' => 'privacyverklaring',
         ];

@@ -51,7 +51,7 @@ class PortalAccountTest extends TestCase
         $this->actingAs($user, 'participant')
             ->get(route('portaal.facturen.toon', $invoice))
             ->assertOk()
-            ->assertSee('€ 901,45')
+            ->assertSee('€ 181,50')
             ->assertSee('Bakkerij Testers');
 
         $stranger = ParticipantUser::factory()->create();

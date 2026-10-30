@@ -3,6 +3,7 @@
 namespace App\Domain\Intake\Actions;
 
 use App\Domain\Intake\Data\IntakeData;
+use App\Domain\Intake\Events\EntryReceived;
 use App\Domain\Participants\Enums\EntryStatus;
 use App\Domain\Participants\Models\Entry;
 use App\Domain\Platform\Services\AuditLogger;
@@ -35,7 +36,7 @@ final class ReceiveSample
         $receivedAt = $data->receivedAt ?? now();
         $windowMinutes = $entry->edition->settings->freshnessWindowMinutes;
 
-        return DB::connection('testing')->transaction(function () use ($entry, $data, $receiver, $round, $receivedAt, $windowMinutes): Sample {
+        $sample = DB::connection('testing')->transaction(function () use ($entry, $data, $receiver, $round, $receivedAt, $windowMinutes): Sample {
             $sample = Sample::query()->create([
                 'edition_id' => $entry->edition_id,
                 'round' => $round,
@@ -66,6 +67,13 @@ final class ReceiveSample
 
             return $sample->load('intake');
         });
+
+        // Bericht aan de bakker ("ontvangen, keuring gestart"); het event noemt alleen de inschrijving.
+        if ($round === SampleRound::Provincial) {
+            EntryReceived::dispatch($entry);
+        }
+
+        return $sample;
     }
 
     /**

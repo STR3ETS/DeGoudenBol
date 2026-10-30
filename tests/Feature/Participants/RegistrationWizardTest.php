@@ -152,7 +152,7 @@ class RegistrationWizardTest extends TestCase
             ->call('next')
             ->assertSet('step', 5)
             ->assertSee('Bakkerij Testers')
-            ->assertSee('€ 901,45')
+            ->assertSee('€ 181,50')
             ->call('submit')
             ->assertHasErrors(['acceptTerms', 'acceptPrivacy'])
             ->set('acceptTerms', true)

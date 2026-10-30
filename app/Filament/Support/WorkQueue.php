@@ -3,12 +3,19 @@
 namespace App\Filament\Support;
 
 use App\Domain\Commerce\Enums\InvoiceStatus;
+use App\Domain\Commerce\Enums\OfferStatus;
 use App\Domain\Commerce\Enums\OrderStatus;
+use App\Domain\Commerce\Enums\SponsorStatus;
 use App\Domain\Commerce\Models\Invoice;
 use App\Domain\Commerce\Models\Order;
+use App\Domain\Commerce\Models\Sponsor;
+use App\Domain\Commerce\Models\SponsorOffer;
 use App\Domain\Edition\Enums\TermsType;
 use App\Domain\Edition\Models\Edition;
 use App\Domain\Edition\Models\TermsVersion;
+use App\Domain\Intake\Enums\PickupStatus;
+use App\Domain\Intake\Models\PickupRequest;
+use App\Domain\Participants\Enums\DiscountStatus;
 use App\Domain\Participants\Enums\EntryStatus;
 use App\Domain\Participants\Enums\ModerationStatus;
 use App\Domain\Participants\Enums\ObjectionStatus;
@@ -16,9 +23,11 @@ use App\Domain\Participants\Models\DeliverySlot;
 use App\Domain\Participants\Models\Entry;
 use App\Domain\Participants\Models\Objection;
 use App\Domain\Participants\Models\Profile;
+use App\Domain\Platform\Enums\StaffRole;
 use App\Domain\Ranking\Enums\BatchStatus;
 use App\Domain\Ranking\Enums\CorrectionCaseStatus;
 use App\Domain\Ranking\Enums\FinalistStatus;
+use App\Domain\Ranking\Models\ConfidentialReport;
 use App\Domain\Ranking\Models\CorrectionCase;
 use App\Domain\Ranking\Models\Finalist;
 use App\Domain\Ranking\Models\PublicationBatch;
@@ -36,15 +45,19 @@ use App\Filament\Pages\Setup;
 use App\Filament\Pages\TestDay;
 use App\Filament\Resources\Charities\CharityResource;
 use App\Filament\Resources\Companies\CompanyResource;
+use App\Filament\Resources\ConfidentialReports\ConfidentialReportResource;
 use App\Filament\Resources\CorrectionCases\CorrectionCaseResource;
 use App\Filament\Resources\Entries\EntryResource;
 use App\Filament\Resources\Finalists\FinalistResource;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\Objections\ObjectionResource;
 use App\Filament\Resources\Orders\OrderResource;
+use App\Filament\Resources\PickupRequests\PickupRequestResource;
 use App\Filament\Resources\Profiles\ProfileResource;
 use App\Filament\Resources\PublicationBatches\PublicationBatchResource;
 use App\Filament\Resources\Samples\SampleResource;
+use App\Filament\Resources\SponsorOffers\SponsorOfferResource;
+use App\Filament\Resources\Sponsors\SponsorResource;
 use App\Filament\Resources\TermsVersions\TermsVersionResource;
 use App\Filament\Resources\TestSessions\TestSessionResource;
 use App\Filament\Resources\VoucherCampaigns\VoucherCampaignResource;
@@ -110,6 +123,10 @@ final class WorkQueue
             ...$this->objections(),
             ...$this->correctionCases(),
             ...$this->finalists(),
+            ...$this->discounts(),
+            ...$this->reports(),
+            ...$this->pickups(),
+            ...$this->sponsors(),
             ...$this->profiles(),
             ...$this->voucherWinners(),
             ...$this->openOrders(),
@@ -204,6 +221,121 @@ final class WorkQueue
             'tone' => 'fout',
             'icon' => 'heroicon-o-document-check',
         ]];
+    }
+
+    /**
+     * Kortingsactie: bewijs ingediend; de bakker kan pas betalen na een beslissing.
+     *
+     * @return list<WorkItem>
+     */
+    private function discounts(): array
+    {
+        if (! EntryResource::canViewAny() || ! $this->user->hasAnyRole([StaffRole::Admin->value, StaffRole::Finance->value, StaffRole::Communication->value])) {
+            return [];
+        }
+
+        $count = Entry::query()->where('edition_id', $this->edition->getKey())->where('status', EntryStatus::PendingPayment)
+            ->where('discount_status', DiscountStatus::Submitted)->where('reservation_expires_at', '>', now())->count();
+
+        return $count === 0 ? [] : [[
+            'title' => 'Kortingen keuren',
+            'text' => 'Bekijk de socialmedia-post en keur de korting goed of af. Tot die tijd kan de bakker niet betalen.',
+            'count' => $count,
+            'url' => EntryResource::getUrl('index', ['tab' => 'korting']),
+            'action' => 'Keuren',
+            'tone' => 'waarschuwing',
+            'icon' => 'heroicon-o-receipt-percent',
+        ]];
+    }
+
+    /**
+     * Persoonlijke rapporten: binnen de termijn na de keuring vrijgeven (briefing 29 okt §7).
+     *
+     * @return list<WorkItem>
+     */
+    private function reports(): array
+    {
+        if (! ConfidentialReportResource::canViewAny()) {
+            return [];
+        }
+
+        $open = ConfidentialReport::query()->open()->whereHas('entry', fn (Builder $query) => $query->where('edition_id', $this->edition->getKey())->whereNotNull('linked_at'));
+        $late = (clone $open)->where('due_at', '<', now())->count();
+        $soon = (clone $open)->where('due_at', '>=', now())->where('due_at', '<', $this->now->addDay()->endOfDay()->utc())->count();
+
+        if ($late === 0 && $soon === 0) {
+            return [];
+        }
+
+        return [[
+            'title' => $late > 0 ? 'Rapporten te laat' : 'Rapporten vrijgeven',
+            'text' => $late > 0
+                ? "{$late} persoonlijke ".($late === 1 ? 'rapport is' : 'rapporten zijn').' over de termijn. Rond af en geef vrij.'.($soon > 0 ? " Daarna nog {$soon} vóór morgen." : '')
+                : "{$soon} persoonlijke ".($soon === 1 ? 'rapport moet' : 'rapporten moeten').' uiterlijk morgen in het portaal staan.',
+            'count' => $late + $soon,
+            'url' => ConfidentialReportResource::getUrl('index'),
+            'action' => 'Afronden',
+            'tone' => $late > 0 ? 'fout' : 'waarschuwing',
+            'icon' => 'heroicon-o-document-text',
+        ]];
+    }
+
+    /**
+     * Ophaalservice: betaalde aanvragen voor de komende vrijdag die nog geen chauffeur hebben.
+     *
+     * @return list<WorkItem>
+     */
+    private function pickups(): array
+    {
+        if (! PickupRequestResource::canViewAny()) {
+            return [];
+        }
+
+        $count = PickupRequest::query()->where('edition_id', $this->edition->getKey())->where('status', PickupStatus::Paid)
+            ->whereHas('day', fn (Builder $query) => $query->where('date', '<=', $this->now->addDays(7)->toDateString()))->count();
+
+        return $count === 0 ? [] : [[
+            'title' => 'Ophaalroute plannen',
+            'text' => 'Betaalde ophaaladressen voor de komende vrijdag zonder chauffeur. Plan ze in en exporteer de route.',
+            'count' => $count,
+            'url' => PickupRequestResource::getUrl('index'),
+            'action' => 'Inplannen',
+            'tone' => 'waarschuwing',
+            'icon' => 'heroicon-o-truck',
+        ]];
+    }
+
+    /**
+     * Sponsoring: betaalde aanmeldingen die gecontroleerd moeten worden, maatwerkaanvragen en acties.
+     *
+     * @return list<WorkItem>
+     */
+    private function sponsors(): array
+    {
+        $items = [];
+
+        if (SponsorResource::canViewAny()) {
+            $pending = Sponsor::query()->where('status', SponsorStatus::Pending)->whereHas('orders', fn (Builder $query) => $query->where('status', OrderStatus::Paid))->count();
+            $requests = Sponsor::query()->where('status', SponsorStatus::Request)->count();
+
+            if ($pending > 0) {
+                $items[] = ['title' => 'Sponsoren controleren', 'text' => 'Betaald via de website. Controleer logo en gegevens en zet de vermelding online.', 'count' => $pending, 'url' => SponsorResource::getUrl('index', ['filters' => ['status' => ['value' => SponsorStatus::Pending->value]]]), 'action' => 'Controleren', 'tone' => 'waarschuwing', 'icon' => 'heroicon-o-sparkles'];
+            }
+
+            if ($requests > 0) {
+                $items[] = ['title' => 'Sponsoraanvragen opvolgen', 'text' => 'Maatwerk of Top 10-reservering. Neem contact op en leg de afspraak vast.', 'count' => $requests, 'url' => SponsorResource::getUrl('index', ['filters' => ['status' => ['value' => SponsorStatus::Request->value]]]), 'action' => 'Opvolgen', 'tone' => 'info', 'icon' => 'heroicon-o-chat-bubble-left-right'];
+            }
+        }
+
+        if (SponsorOfferResource::canViewAny()) {
+            $offers = SponsorOffer::query()->where('status', OfferStatus::Submitted)->count();
+
+            if ($offers > 0) {
+                $items[] = ['title' => 'Sponsoracties beoordelen', 'text' => 'Pas na goedkeuring zichtbaar op de site en in het portaal.', 'count' => $offers, 'url' => SponsorOfferResource::getUrl('index'), 'action' => 'Beoordelen', 'tone' => 'info', 'icon' => 'heroicon-o-gift'];
+            }
+        }
+
+        return $items;
     }
 
     /**

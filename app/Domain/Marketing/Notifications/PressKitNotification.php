@@ -5,6 +5,7 @@ namespace App\Domain\Marketing\Notifications;
 use App\Domain\Marketing\Models\MediaContact;
 use App\Domain\Marketing\Models\PressRelease;
 use App\Support\DutchTime;
+use App\Support\Mail\GoldenMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -33,7 +34,7 @@ class PressKitNotification extends Notification implements ShouldQueue
         $release = $this->release->loadMissing('province');
         $embargo = $release->isEmbargoed() ? DutchTime::format($release->embargo_until, 'dddd D MMMM YYYY, HH:mm').' uur' : null;
 
-        $mail = (new MailMessage)
+        $mail = (new GoldenMail)
             ->subject(($embargo ? 'Onder embargo: ' : 'Persbericht: ').$release->title)
             ->greeting("Beste {$this->contact->name},");
 
@@ -45,7 +46,6 @@ class PressKitNotification extends Notification implements ShouldQueue
             ->line("Hierbij het persbericht van De Gouden Bol over {$release->scopeLabel()}: *{$release->title}*.")
             ->action('Open de perskit', $this->url)
             ->line('De link is persoonlijk en tijdelijk geldig. Beeld en badges komen op de perskitpagina beschikbaar zodra het embargo is vervallen.')
-            ->line('Vragen: '.config('press.contact_email').'.')
-            ->salutation('Met vriendelijke groet, De Gouden Bol');
+            ->line('Vragen: '.config('press.contact_email').'.');
     }
 }

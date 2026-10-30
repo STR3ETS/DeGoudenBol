@@ -5,8 +5,10 @@
     $cta = config('site.nav_cta');
     $ctaUrl = SiteLinks::url($cta);
 @endphp
+{{-- Zelfde opbouw als de websiteheader (site.partials.header): logo links over de volle breedte,
+     menu in het midden, knop rechts; onder 1024 px een menuknop. --}}
 <header class="nav" data-nav>
-    <div class="site-container flex flex-wrap items-center justify-between gap-x-6 gap-y-2 !px-0">
+    <div class="flex flex-wrap items-center justify-between gap-x-8 gap-y-2">
         <a href="{{ route('home') }}" class="no-underline" aria-label="De Gouden Bol, naar de homepage">
             <x-ui.logo />
         </a>
@@ -22,14 +24,18 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
 
-        <nav id="hoofdmenu" class="nav__menu w-full lg:w-auto" data-nav-menu aria-label="Hoofdmenu">
+        <nav id="hoofdmenu" class="nav__menu order-last w-full lg:order-none lg:w-auto" data-nav-menu aria-label="Hoofdmenu">
             @foreach ($links as $link)
                 <a href="{{ $link['url'] }}" class="nav__link" @if ($link['current']) aria-current="page" @endif>{{ $link['label'] }}</a>
             @endforeach
 
             @if ($ctaUrl)
-                <x-ui.button :href="$ctaUrl" size="sm" class="mt-2 lg:mt-0 lg:ml-2">{{ $cta['label'] }}</x-ui.button>
+                <x-ui.button :href="$ctaUrl" size="sm" class="mt-2 lg:hidden">{{ $cta['label'] }}</x-ui.button>
             @endif
         </nav>
+
+        @if ($ctaUrl)
+            <x-ui.button :href="$ctaUrl" size="sm" class="hidden lg:inline-flex">{{ $cta['label'] }}</x-ui.button>
+        @endif
     </div>
 </header>

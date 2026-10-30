@@ -54,9 +54,9 @@ class RegisterEntryTest extends TestCase
 
         $order = $entry->order;
         $this->assertSame(OrderStatus::Pending, $order->status);
-        $this->assertSame(74500, $order->subtotal_cents);
-        $this->assertSame(15645, $order->vat_cents);
-        $this->assertSame(90145, $order->total_cents);
+        $this->assertSame(15000, $order->subtotal_cents);
+        $this->assertSame(3150, $order->vat_cents);
+        $this->assertSame(18150, $order->total_cents);
         $this->assertMatchesRegularExpression('/^DGB26-\d{6}$/', $order->number);
         $this->assertStringNotContainsString('plaats', strtolower($order->lines->first()->description));
         $this->assertTrue($order->lines->first()->counts_for_charity);

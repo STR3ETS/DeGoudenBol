@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\DB;
 final class CreatePlacement
 {
     /**
-     * @param  array{province_id?: int|string|null, entry_id?: int|string|null, label?: string|null, location?: string|null, starts_at: mixed, ends_at: mixed, is_exclusive?: bool}  $data
+     * @param  array{province_id?: int|string|null, entry_id?: int|string|null, label?: string|null, location?: string|null, starts_at: mixed, ends_at: mixed, is_exclusive?: bool, notify?: bool}  $data
      */
     public function __invoke(Sponsor $sponsor, Product $product, array $data): Placement
     {
@@ -119,7 +119,9 @@ final class CreatePlacement
                     ['placement_id' => $placement->getKey(), 'requested_at' => now()],
                 );
 
-                if ($link->wasRecentlyCreated) {
+                // Via de website pas na betaling vragen (ConfirmSponsorOrder), zodat een deelnemer nooit een
+                // verzoek krijgt van een sponsor die niet afrekent.
+                if ($link->wasRecentlyCreated && ($data['notify'] ?? true)) {
                     $entry->company->users
                         ->filter(fn ($user) => $user->pivot->role === CompanyUserRole::Owner)
                         ->each->notify(new SponsorLinkRequestedNotification($link));

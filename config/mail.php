@@ -120,4 +120,28 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Huisstijl van de mails
+    |--------------------------------------------------------------------------
+    |
+    | Alle mails volgen het template "Emailtemplate Uitslag" (aangeleverd 30 okt
+    | 2026): crème achtergrond, espresso kop met gouden ster, witte inhoud en
+    | een gouden knop. Componenten in resources/views/vendor/mail/html.
+    |
+    */
+
+    'markdown' => [
+        'theme' => 'degoudenbol',
+        'paths' => [resource_path('views/vendor/mail')],
+    ],
+
+    'brand' => [
+        'name' => env('MAIL_BRAND_NAME', 'De Gouden'),
+        'accent' => env('MAIL_BRAND_ACCENT', 'Bol'),
+        'subtitle' => 'Onafhankelijke productbeoordeling',
+        'tagline' => 'De beste oliebol verdient een podium',
+        'team' => env('MAIL_BRAND_TEAM', 'Team De Gouden Bol'),
+    ],
+
 ];

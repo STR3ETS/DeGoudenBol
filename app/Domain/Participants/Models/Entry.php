@@ -6,11 +6,16 @@ use App\Domain\Commerce\Models\Order;
 use App\Domain\Commerce\Models\Package;
 use App\Domain\Edition\Models\Edition;
 use App\Domain\Edition\Models\Province;
+use App\Domain\Intake\Models\PickupRequest;
 use App\Domain\Marketing\Models\Recognition;
+use App\Domain\Participants\Enums\DeliveryMethod;
+use App\Domain\Participants\Enums\DiscountStatus;
+use App\Domain\Participants\Enums\EntryRate;
 use App\Domain\Participants\Enums\EntryStatus;
 use App\Domain\Ranking\Models\ConfidentialReport;
 use App\Domain\Ranking\Models\Finalist;
 use App\Domain\Ranking\Models\PublicationItem;
+use App\Models\User;
 use App\Support\Models\DomainModel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Inschrijving van een bedrijf voor één editie. Eén per bedrijf per editie.
@@ -32,6 +38,14 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
     'company_id',
     'province_id',
     'package_id',
+    'rate',
+    'discount_status',
+    'discount_proof_url',
+    'discount_proof_path',
+    'discount_submitted_at',
+    'discount_reviewed_at',
+    'discount_reviewed_by',
+    'discount_note',
     'terms_acceptance_id',
     'status',
     'public_name',
@@ -43,6 +57,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
     'confirmed_at',
     'withdrawn_at',
     'delivery_slot_id',
+    'delivery_method',
     'scheduled_at',
     'delivery_code',
     'linked_at',
@@ -53,12 +68,24 @@ class Entry extends DomainModel
     use HasFactory, HasUlids;
 
     /**
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'rate' => 'standard',
+    ];
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
             'status' => EntryStatus::class,
+            'rate' => EntryRate::class,
+            'discount_status' => DiscountStatus::class,
+            'discount_submitted_at' => 'immutable_datetime',
+            'discount_reviewed_at' => 'immutable_datetime',
+            'delivery_method' => DeliveryMethod::class,
             'allergens' => 'array',
             'reservation_expires_at' => 'immutable_datetime',
             'registered_at' => 'immutable_datetime',
@@ -141,6 +168,64 @@ class Entry extends DomainModel
     public function finalist(): HasOne
     {
         return $this->hasOne(Finalist::class)->latestOfMany();
+    }
+
+    public function pickupRequest(): HasOne
+    {
+        return $this->hasOne(PickupRequest::class);
+    }
+
+    public function discountReviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'discount_reviewed_by');
+    }
+
+    /**
+     * Product en variant zoals op het rapport, uit de editie-instelling (bijvoorbeeld krenten_rozijnen).
+     */
+    public function productLabel(): string
+    {
+        $variant = $this->edition?->settings->productVariant;
+
+        return match ($variant) {
+            null, '' => 'Oliebol',
+            'krenten_rozijnen' => 'Oliebol met krenten en rozijnen',
+            'naturel' => 'Oliebol naturel',
+            default => 'Oliebol ('.str_replace('_', ' ', $variant).')',
+        };
+    }
+
+    public function wantsDiscount(): bool
+    {
+        return $this->rate === EntryRate::Discount;
+    }
+
+    /**
+     * Mag de deelnemer nu afrekenen? Niet zolang een kortingsaanvraag nog beslist moet worden.
+     */
+    public function canPay(): bool
+    {
+        if (! $this->isPendingPayment() || $this->isReservationExpired()) {
+            return false;
+        }
+
+        return ! ($this->wantsDiscount() && $this->discount_status?->blocksPayment());
+    }
+
+    /**
+     * Kan de deelnemer (opnieuw) bewijs voor de kortingsactie aanleveren?
+     */
+    public function canSubmitDiscountProof(): bool
+    {
+        return $this->isPendingPayment()
+            && ! $this->isReservationExpired()
+            && $this->wantsDiscount()
+            && in_array($this->discount_status, [DiscountStatus::AwaitingProof, DiscountStatus::Submitted, DiscountStatus::Rejected], true);
+    }
+
+    public function discountProofUrl(): ?string
+    {
+        return $this->discount_proof_path ? Storage::disk('local')->temporaryUrl($this->discount_proof_path, now()->addMinutes(30)) : null;
     }
 
     /**

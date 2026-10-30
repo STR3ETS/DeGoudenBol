@@ -102,7 +102,7 @@ const beforeCta = (html, include) => {
 }
 
 // ---------- Sponsoring en goede doelen: stand van zaken uit de database ----------
-for (const [slug, include] of [['sponsoring', 'site.partials.sponsoren-lijst'], ['goede-doelen', 'site.partials.goede-doelen-overzicht'], ['finale', 'site.partials.finale-stand']]) {
+for (const [slug, include] of [['faq', 'site.partials.faq-deelname'], ['sponsoring', 'site.partials.sponsoren-lijst'], ['goede-doelen', 'site.partials.goede-doelen-overzicht'], ['finale', 'site.partials.finale-stand']]) {
     const { props, body, structured } = page(slug);
     writeFileSync(join(views, slug + '.blade.php'), wrap(props, beforeCta(safe(body), include), safe(structured)));
 }

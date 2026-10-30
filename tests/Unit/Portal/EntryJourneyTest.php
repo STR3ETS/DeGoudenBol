@@ -32,7 +32,7 @@ class EntryJourneyTest extends TestCase
 
         $this->assertSame(['klaar', 'nu', 'later', 'later'], array_column($journey->steps(), 'staat'));
         $this->assertSame(1, $journey->stepsDone());
-        $this->assertSame('Kies een moment', $journey->nextAction()['knop']);
+        $this->assertSame('Kies hoe', $journey->nextAction()['knop']);
         $this->assertSame('succes', $journey->statusLine()['toon']);
         $this->assertStringContainsString('1 november en 29 november', $journey->steps()[1]['tekst']);
     }
@@ -55,7 +55,8 @@ class EntryJourneyTest extends TestCase
 
         $this->assertSame(['klaar', 'klaar', 'klaar', 'klaar'], array_column($journey->steps(), 'staat'));
         $this->assertSame(4, $journey->stepsDone());
-        $this->assertSame('Bekijk je uitslag', $journey->steps()[3]['knop']);
+        $this->assertSame('Bekijk je uitslag', $journey->nextAction()['knop']);
+        $this->assertSame('Persoonlijke uitslag en landelijke ranking', $journey->steps()[3]['titel']);
         $this->assertSame('Gefeliciteerd', $journey->nextAction()['eyebrow']);
     }
 

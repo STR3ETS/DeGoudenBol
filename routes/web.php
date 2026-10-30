@@ -14,7 +14,10 @@ use App\Http\Controllers\Portal\LoginController;
 use App\Http\Controllers\Portal\MagicLinkController;
 use App\Http\Controllers\Portal\MarketingController;
 use App\Http\Controllers\Portal\PasswordController;
+use App\Http\Controllers\Portal\PickupController;
 use App\Http\Controllers\Portal\PlanningController;
+use App\Http\Controllers\Portal\RegistrationController;
+use App\Http\Controllers\Portal\ReportController;
 use App\Http\Controllers\Portal\ResultController;
 use App\Http\Controllers\Portal\ScanController;
 use App\Http\Controllers\Portal\SponsorLinkController;
@@ -33,11 +36,15 @@ use App\Http\Controllers\Public\RecognitionController;
 use App\Http\Controllers\Public\RegistrationStatusController;
 use App\Http\Controllers\Public\SiteController;
 use App\Http\Controllers\Public\SitemapController;
+use App\Http\Controllers\Public\SponsorPortalController;
+use App\Http\Controllers\Public\SponsorRegistrationController;
 use App\Http\Controllers\Public\VoucherController;
 use App\Http\Controllers\RedesignController;
 use App\Http\Controllers\Staff\LabelController;
 use App\Http\Controllers\StyleguideController;
 use App\Http\Controllers\Webhooks\MollieWebhookController;
+use App\Http\Controllers\Webhooks\StripeWebhookController;
+use App\Http\Middleware\EnsureSponsorSession;
 use App\Livewire\Portal\ProfileEditor;
 use App\Livewire\Public\RegistrationWizard;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -107,10 +114,33 @@ Route::get('/redesign-dashboard-klant', [RedesignController::class, 'klant'])->n
 Route::get('/aanmelden', RegistrationWizard::class)->name('aanmelden');
 Route::get('/aanmelden/status/{order}', [RegistrationStatusController::class, 'show'])->name('aanmelden.status');
 Route::post('/aanmelden/status/{order}/opnieuw', [RegistrationStatusController::class, 'retry'])->name('aanmelden.opnieuw');
+Route::post('/aanmelden/status/{order}/standaardprijs', [RegistrationStatusController::class, 'payStandard'])->name('aanmelden.standaardprijs');
+
+// Sponsor worden (briefing 29 okt §8) en de sponsoromgeving via een persoonlijke beheerlink (§12)
+Route::get('/sponsoring/aanmelden', [SponsorRegistrationController::class, 'create'])->name('sponsoring.aanmelden');
+Route::post('/sponsoring/aanmelden', [SponsorRegistrationController::class, 'store'])->middleware('throttle:10,1')->name('sponsoring.aanmelden.verwerken');
+Route::get('/sponsoring/status/{order}', [SponsorRegistrationController::class, 'status'])->name('sponsoring.status');
+Route::get('/sponsoring/bedankt/{sponsor}', [SponsorRegistrationController::class, 'thanks'])->name('sponsoring.bedankt');
+Route::get('/sponsoring/beheer', [SponsorPortalController::class, 'requestLink'])->name('sponsoring.beheer');
+Route::post('/sponsoring/beheer', [SponsorPortalController::class, 'sendLink'])->middleware('throttle:5,1')->name('sponsoring.beheer.versturen');
+Route::get('/sponsor/toegang/{sponsor}', [SponsorPortalController::class, 'access'])->middleware('signed')->name('sponsor.toegang');
+Route::prefix('sponsor')->name('sponsor.')->middleware(EnsureSponsorSession::class)->group(function (): void {
+    Route::get('/', [SponsorPortalController::class, 'dashboard'])->name('dashboard');
+    Route::post('/gegevens', [SponsorPortalController::class, 'updateProfile'])->name('gegevens');
+    Route::post('/vermelding', [SponsorPortalController::class, 'addLink'])->middleware('throttle:10,1')->name('vermelding');
+    Route::post('/betalen/{order}', [SponsorPortalController::class, 'pay'])->name('betalen');
+    Route::get('/factuur/{invoice}', [SponsorPortalController::class, 'invoice'])->name('factuur');
+    Route::post('/actie', [SponsorPortalController::class, 'storeOffer'])->middleware('throttle:10,1')->name('actie');
+    Route::post('/goed-doel', [SponsorPortalController::class, 'nominateCharity'])->middleware('throttle:10,1')->name('goed-doel');
+    Route::post('/uitloggen', [SponsorPortalController::class, 'logout'])->name('uitloggen');
+});
 
 // Betalingen
 Route::get('/betaling/test/{payment}', [FakeCheckoutController::class, 'show'])->name('betaling.fake');
 Route::post('/betaling/test/{payment}', [FakeCheckoutController::class, 'settle'])->name('betaling.fake.afronden');
+Route::post('/webhooks/stripe', StripeWebhookController::class)
+    ->name('webhooks.stripe')
+    ->withoutMiddleware(PreventRequestForgery::class);
 Route::post('/webhooks/mollie', MollieWebhookController::class)
     ->name('webhooks.mollie')
     ->withoutMiddleware(PreventRequestForgery::class);
@@ -161,6 +191,15 @@ Route::prefix('portaal')->name('portaal.')->group(function (): void {
         Route::get('/planning/{bedrijf?}', [PlanningController::class, 'index'])->name('planning');
         Route::post('/planning/{bedrijf}', [PlanningController::class, 'store'])->name('planning.kiezen');
         Route::get('/planning/{bedrijf}/aanleverbewijs', [PlanningController::class, 'proof'])->name('planning.bewijs');
+        Route::post('/ophalen/{bedrijf}', [PickupController::class, 'store'])->middleware('throttle:10,1')->name('ophalen');
+        Route::post('/ophalen/{bedrijf}/betalen', [PickupController::class, 'pay'])->name('ophalen.betalen');
+        Route::get('/ophalen/terug/{order}', [PickupController::class, 'return'])->name('ophalen.terug');
+
+        Route::get('/aanmelding/{bedrijf?}', [RegistrationController::class, 'show'])->name('aanmelding');
+        Route::post('/aanmelding/{bedrijf}/korting', [RegistrationController::class, 'discountProof'])->middleware('throttle:10,1')->name('aanmelding.korting');
+
+        Route::get('/rapport/{bedrijf?}', [ReportController::class, 'show'])->name('rapport');
+        Route::get('/oorkonde/{bedrijf?}', [ReportController::class, 'certificate'])->name('oorkonde');
 
         Route::get('/uitslag/{bedrijf?}', [ResultController::class, 'show'])->name('uitslag');
         Route::post('/uitslag/{bedrijf}/bezwaar', [ResultController::class, 'objection'])->middleware('throttle:5,1')->name('bezwaar');

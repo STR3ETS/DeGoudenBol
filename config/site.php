@@ -20,38 +20,42 @@ return [
 
     'placeholders' => (bool) env('SITE_PLACEHOLDERS', false),
 
+    // Google Tag Manager op de publiekssite (niet in portaal of backoffice); laadt alleen in productie.
+    'gtm_id' => env('GTM_ID', 'GTM-TV5Z4R84'),
+
+    // Zelfde menu en voet als de website (site.partials.header en footer), zodat pagina's in de oude
+    // layout (aanmelden, betaalstatus, cadeaubonnen, erkenning, archief) er hetzelfde uitzien.
     'nav' => [
-        ['label' => 'Voorlijst', 'route' => 'provincies.index', 'fallback' => '#voorlijst'],
-        ['label' => 'Alle bakkers', 'route' => 'bakkers.index'],
-        ['label' => 'Hoe werkt het', 'route' => 'hoe-werkt-de-test', 'fallback' => '#hoe-werkt'],
-        ['label' => 'Het panel', 'route' => 'panel', 'fallback' => '#panel'],
+        ['label' => 'De test', 'route' => 'hoe-werkt-de-test'],
+        ['label' => 'Provincies', 'route' => 'provincies.index'],
         ['label' => 'Finale', 'route' => 'finale'],
-        ['label' => 'Nieuws', 'route' => 'nieuws.index'],
+        ['label' => 'Ondernemers', 'route' => 'ondernemers'],
+        ['label' => 'Sponsoring', 'route' => 'sponsoren'],
     ],
 
-    'nav_cta' => ['label' => 'Aanmelden als bakker', 'route' => 'aanmelden', 'fallback' => '#aanmelden'],
+    'nav_cta' => ['label' => 'Aanmelden als bakker', 'route' => 'deelnemen'],
 
     'footer' => [
-        'Ranglijst' => [
-            ['label' => 'Per provincie', 'route' => 'provincies.index', 'fallback' => '#voorlijst'],
+        'De test' => [
+            ['label' => 'De test', 'route' => 'hoe-werkt-de-test'],
+            ['label' => 'Provincies', 'route' => 'provincies.index'],
             ['label' => 'Landelijke finale', 'route' => 'finale'],
-            ['label' => 'Archief', 'route' => 'edities.index'],
-            ['label' => 'Winnaars cadeaubonnen', 'route' => 'winnaars'],
+            ['label' => 'Deelnemers', 'route' => 'bakkers.index'],
+            ['label' => 'Over De Gouden Bol', 'route' => 'over'],
         ],
-        'Deelnemers' => [
-            ['label' => 'Aanmelden', 'route' => 'aanmelden', 'fallback' => '#aanmelden'],
-            ['label' => 'Hoe werkt de test', 'route' => 'hoe-werkt-de-test', 'fallback' => '#hoe-werkt'],
-            ['label' => 'Erkenning controleren', 'route' => 'erkenning.zoek'],
+        'Meedoen' => [
+            ['label' => 'Aanmelden 2026', 'route' => 'deelnemen'],
+            ['label' => 'Voor ondernemers', 'route' => 'ondernemers'],
+            ['label' => 'Sponsoring', 'route' => 'sponsoren'],
+            ['label' => 'De Bakkers Academie', 'route' => 'bakkers-academie'],
+            ['label' => 'Cadeaubonnen', 'route' => 'cadeaubonnen'],
         ],
-        'Over' => [
-            ['label' => 'Het panel', 'route' => 'panel', 'fallback' => '#panel'],
+        'Meer' => [
             ['label' => 'Goede doelen', 'route' => 'goede-doelen'],
-            ['label' => 'Sponsoren', 'route' => 'sponsoren'],
-            ['label' => 'Pers & media', 'route' => 'pers'],
-            ['label' => 'Privacy', 'route' => 'privacy'],
+            ['label' => 'Nieuws & pers', 'route' => 'pers'],
+            ['label' => 'Veelgestelde vragen', 'route' => 'faq'],
             ['label' => 'Voorwaarden', 'route' => 'voorwaarden'],
-            ['label' => 'Actievoorwaarden', 'route' => 'actievoorwaarden'],
+            ['label' => 'Privacyverklaring', 'route' => 'privacy'],
         ],
     ],
-
 ];

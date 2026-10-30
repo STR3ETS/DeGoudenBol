@@ -44,8 +44,8 @@ class PortalPlanningTest extends TestCase
         $this->actingAs($this->owner, 'participant')
             ->get(route('portaal.planning'))
             ->assertOk()
-            ->assertSee('Kies hieronder een tijdslot')
-            ->assertSee('4 plekken vrij')
+            ->assertSee('Zelf brengen')
+            ->assertSee('4 vrij')
             ->assertSee('Vol');
 
         $this->actingAs($this->owner, 'participant')

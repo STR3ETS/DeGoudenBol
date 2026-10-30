@@ -36,7 +36,7 @@ Zijn plek staat een uur gereserveerd (instelling). Betaalt hij niet, dan vervalt
 
 ## Een bakker heeft per bankoverschrijving betaald. Hoe verwerk ik dat?
 
-Ga naar Geld > Orders, open de order en kies "Markeer als betaald". Het systeem bevestigt de inschrijving, maakt de factuur en mailt de bakker, precies alsof hij via Mollie had betaald. Doe dit alleen als het geld echt binnen is.
+Ga naar Geld > Orders, open de order en kies "Markeer als betaald". Het systeem bevestigt de inschrijving, maakt de factuur en mailt de bakker, precies alsof hij via Stripe had betaald. Doe dit alleen als het geld echt binnen is.
 
 ## Hoe meld ik zelf een bakker aan, bijvoorbeeld telefonisch?
 
@@ -57,3 +57,19 @@ Op het overzicht bij "Plekken per provincie": bezet van beschikbaar, oranje bij 
 ## Wat ziet de bakker op de website na het aanmelden?
 
 Een bakker staat pas op de site nadat zijn betaling binnen is, als "deelnemer" met de badge Deelnemer De Gouden Bol 2026. Zijn profieltekst en foto verschijnen pas nadat Communicatie ze heeft goedgekeurd bij Bakkers > Profielteksten keuren. Cijfers staan er pas na publicatie.
+
+## Wat kost deelname?
+
+De standaardprijs staat bij Geld > Pakketten en prijzen (EUR 150 excl. btw volgens de briefing van 29 oktober). Met de kortingsactie betaalt een bakker de helft; het percentage staat bij Instellingen > Editie onder "Prijzen, korting en ophaalservice". Of de bedragen inclusief of exclusief btw zijn, wordt nog bevestigd.
+
+## Hoe werkt de kortingsactie?
+
+Bij het aanmelden kiest de bakker de standaardprijs of de actieprijs. Bij de actieprijs maakt hij een filmpje, deelt het op social media en tagt De Gouden Bol, en zet de link (of een schermafbeelding) in het portaal. Zijn plek blijft zeven dagen gereserveerd en hij kan nog niet betalen. Na jouw goedkeuring krijgt hij een mail met de betaallink voor de actieprijs.
+
+## Hoe keur ik een kortingsaanvraag?
+
+Bakkers > Inschrijvingen, tab "Korting te keuren". Klik op de status in de kolom Korting om de post te openen. Kies "Korting goedkeuren" als het filmpje gedeeld is en De Gouden Bol getagd is; de order krijgt dan een kortingsregel en de bakker krijgt de betaallink. Kies "Afwijzen" met een korte reden; de bakker kan opnieuw aanleveren of de standaardprijs betalen.
+
+## Een bakker wil toch de standaardprijs betalen. Kan dat?
+
+Ja. Op zijn statuspagina en in het portaal staat "Toch direct betalen tegen de standaardprijs". Hij rekent dan meteen af en de kortingsaanvraag vervalt.

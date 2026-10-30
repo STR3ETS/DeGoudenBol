@@ -125,7 +125,7 @@ class EditionForm
                     TextInput::make('settings.capacity_per_province')->label('Plekken per provincie')->numeric()->minValue(1)->required(),
                     TextInput::make('settings.provincial_list_length')->label('Lengte provinciale Top-lijst')->numeric()->minValue(1)->required(),
                     TextInput::make('settings.national_list_length')->label('Lengte landelijke lijst')->numeric()->minValue(1)->required()
-                        ->helperText('Top 5 (dossier) of Top 10 (plan).'),
+                        ->helperText('Top 10 volgens de briefing van 29 okt (dossier: Top 5).'),
                     TextInput::make('settings.max_finalists')->label('Maximum finalisten')->numeric()->minValue(1)->required(),
                 ]),
             Section::make('Test- en rekenregels')
@@ -164,6 +164,8 @@ class EditionForm
                     TimePicker::make('settings.publication_time')->label('Publicatietijd')->seconds(false)->required(),
                     DatePicker::make('settings.quiet_period_from')->label('Stille periode vanaf')
                         ->helperText('Resultaten vanaf deze dag pas zichtbaar bij de hoofdpublicatie.'),
+                    Toggle::make('settings.ranking_secret_until_publication')->label('Ranglijst geheim tot de hoofdpublicatie')->inline(false)
+                        ->helperText('Briefing 29 okt: alle uitslagen gaan pas op de publicatiedatum openbaar. Persoonlijke rapporten staan los daarvan.'),
                     Toggle::make('settings.show_panel_after_edition')->label('Panelleden pas na de editie tonen')->inline(false),
                     Select::make('settings.public_subscores_scope')
                         ->label('Deelscores openbaar voor')
@@ -185,6 +187,20 @@ class EditionForm
                     TextInput::make('settings.pieces_per_entry')->label('Stuks per inzending')->numeric()->minValue(1)->required(),
                     TextInput::make('settings.product_variant')->label('Productvariant')->required()
                         ->helperText('Bijvoorbeeld krenten_rozijnen of naturel.'),
+                ]),
+            Section::make('Prijzen, korting en ophaalservice')
+                ->description('Briefing 29 okt. De deelnameprijs zelf staat bij Geld > Pakketten en prijzen.')
+                ->columns(3)
+                ->schema([
+                    TextInput::make('settings.discount_percentage')->label('Korting kortingsactie')->numeric()->minValue(0)->maxValue(99)->suffix('%')->required()
+                        ->helperText('Filmpje maken, delen en De Gouden Bol taggen. 0 zet de actie uit.'),
+                    TextInput::make('settings.discount_hold_days')->label('Plek vasthouden tijdens kortingscontrole')->numeric()->minValue(1)->suffix('dagen')->required(),
+                    TextInput::make('settings.report_due_days')->label('Persoonlijk rapport binnen')->numeric()->minValue(1)->suffix('dagen na keuring')->required(),
+                    Toggle::make('settings.pickup_enabled')->label('Ophaalservice aanbieden')->inline(false),
+                    TextInput::make('settings.pickup_fee_cents')->label('Voorrijkosten ophaalservice (centen, excl. btw)')->numeric()->minValue(0)->required()
+                        ->helperText('4500 = EUR 45,00.'),
+                    TextInput::make('settings.change_deadline_hours')->label('Wijzigen tot')->numeric()->minValue(0)->suffix('uur vooraf')->required()
+                        ->helperText('Geldt voor het aanlevermoment en de ophaalvrijdag.'),
                 ]),
             Section::make('Cadeaubonnen')
                 ->columns(3)

@@ -2,6 +2,7 @@
 
 namespace App\Domain\Commerce\Services;
 
+use App\Domain\Commerce\Enums\ProductCode;
 use App\Domain\Commerce\Models\Placement;
 use App\Domain\Commerce\Models\Sponsor;
 use App\Domain\Commerce\Models\SponsorLink;
@@ -65,8 +66,11 @@ final class SponsorPlacements
             ->whereNotNull('confirmed_by_company_at')
             ->whereNull('declined_at')
             ->whereHas('placement', fn ($query) => $query->live())
-            ->with('sponsor')
+            ->with(['sponsor', 'placement.product', 'edition'])
             ->get()
+            // Top 10-vermeldingen pas na de officiële publicatie: nooit een rangschikking suggereren.
+            ->reject(fn (SponsorLink $link) => $link->placement?->product?->code === ProductCode::NationalTop
+                && ! ($link->edition?->main_publication_at?->isPast() ?? false))
             ->map(fn (SponsorLink $link) => $link->sponsor)
             ->filter(fn (?Sponsor $sponsor) => $sponsor?->status->value === 'active')
             ->values();

@@ -15,6 +15,13 @@ return [
     */
 
     // Mailgun via de API: MAIL_MAILER=mailgun; EU-domein → MAILGUN_ENDPOINT=api.eu.mailgun.net.
+    // Betalingen via Stripe Checkout (PAYMENT_DRIVER=stripe). STRIPE_SECRET is de geheime of beperkte sleutel
+    // (sk_live_ / rk_live_), STRIPE_WEBHOOK_SECRET het ondertekeningsgeheim van het webhook-endpoint (whsec_).
+    'stripe' => [
+        'secret' => env('STRIPE_SECRET'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+    ],
+
     'mailgun' => [
         'domain' => env('MAILGUN_DOMAIN'),
         'secret' => env('MAILGUN_SECRET'),

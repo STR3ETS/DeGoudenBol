@@ -157,6 +157,49 @@
                         @endforeach
                     </div>
                     @error('packageId') <p class="field-error">{{ $message }}</p> @enderror
+
+                    @if ($this->discountEnabled() && $this->selectedPackage)
+                        <fieldset class="mt-8">
+                            <legend class="kop-3 mb-2 text-[1.2rem]">Tarief</legend>
+                            <p class="body-text mb-5 text-[0.9rem]">Deel uw deelname op social media en betaal {{ $edition->settings->discountPercentage }}% minder. De korting geldt pas nadat wij uw post hebben gezien.</p>
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <label class="card card--hover block cursor-pointer !p-5 {{ $rate === 'standard' ? 'ring-2 ring-goud' : '' }}">
+                                    <span class="flex items-start gap-3">
+                                        <input type="radio" wire:model.live="rate" value="standard" class="mt-1 h-4 w-4 accent-goud">
+                                        <span>
+                                            <span class="block font-semibold">Standaardprijs</span>
+                                            <span class="cijfer block text-[1.4rem] text-goud-tekst">{{ $this->selectedPackage->formattedPrice() }}</span>
+                                            <span class="block text-[0.78rem] text-gedempt">excl. btw · direct betalen</span>
+                                        </span>
+                                    </span>
+                                </label>
+                                <label class="card card--hover block cursor-pointer !p-5 {{ $rate === 'discount' ? 'ring-2 ring-goud' : '' }}">
+                                    <span class="flex items-start gap-3">
+                                        <input type="radio" wire:model.live="rate" value="discount" class="mt-1 h-4 w-4 accent-goud">
+                                        <span>
+                                            <span class="block font-semibold">Actieprijs</span>
+                                            <span class="cijfer block text-[1.4rem] text-goud-tekst">{{ App\Support\Money::format($this->discountedPriceCents()) }}</span>
+                                            <span class="block text-[0.78rem] text-gedempt">excl. btw · betalen na goedkeuring</span>
+                                        </span>
+                                    </span>
+                                </label>
+                            </div>
+                            @error('rate') <p class="field-error">{{ $message }}</p> @enderror
+
+                            @if ($rate === 'discount')
+                                <div class="mt-5 rounded-veld bg-goud-licht p-5 text-[0.88rem]">
+                                    <p class="mb-3 font-semibold">Zo werkt de kortingsactie</p>
+                                    <ol class="mb-4 list-decimal space-y-1 pl-5">
+                                        <li>Maak een kort filmpje over uw deelname aan De Gouden Bol.</li>
+                                        <li>Deel het op social media en tag De Gouden Bol.</li>
+                                        <li>Zet de link naar uw post hieronder, of later in het portaal.</li>
+                                        <li>Wij keuren de post goed. Daarna betaalt u de actieprijs.</li>
+                                    </ol>
+                                    <x-ui.field name="discountProofUrl" label="Link naar uw post (optioneel)" wire:model.blur="discountProofUrl" type="url" placeholder="https://www.instagram.com/p/…" help="Nog niet gepost? Dan levert u de link straks aan in het portaal. Uw plek blijft {{ $edition->settings->discountHoldDays }} dagen gereserveerd." />
+                                </div>
+                            @endif
+                        </fieldset>
+                    @endif
                 @endif
 
                 {{-- Stap 5: overzicht en voorwaarden --}}
@@ -176,6 +219,10 @@
                                 <span class="text-gedempt">({{ $this->selectedPackage->formattedPriceInclVat() }} incl. {{ rtrim(rtrim(number_format($this->selectedPackage->vat_rate, 2, ',', '.'), '0'), ',') }}% btw)</span>
                             @endif
                         </dd>
+                        @if ($this->wantsDiscount())
+                            <dt class="text-gedempt">Tarief</dt>
+                            <dd>Actieprijs {{ App\Support\Money::format($this->discountedPriceCents()) }} excl. btw, na goedkeuring van uw post. U betaalt nu nog niets.</dd>
+                        @endif
                     </dl>
 
                     <div class="flex flex-col gap-3">
@@ -215,14 +262,24 @@
                             <x-ui.button wire:click="next" type="button">Volgende</x-ui.button>
                         @else
                             <x-ui.button wire:click="submit" type="button" wire:loading.attr="disabled">
-                                Naar betaling · {{ $this->selectedPackage ? $this->selectedPackage->formattedPriceInclVat() : '' }}
+                                @if ($this->wantsDiscount())
+                                    Aanmelden met kortingsactie
+                                @else
+                                    Naar betaling · {{ $this->selectedPackage ? $this->selectedPackage->formattedPriceInclVat() : '' }}
+                                @endif
                             </x-ui.button>
                         @endif
                     </div>
                 </div>
             </x-ui.card>
 
-            <p class="mt-4 text-center text-[0.75rem] text-gedempt">Uw plek wordt {{ config('commerce.reservation_minutes') }} minuten vastgehouden tot de betaling is afgerond.</p>
+            <p class="mt-4 text-center text-[0.75rem] text-gedempt">
+                @if ($this->wantsDiscount())
+                    Uw plek wordt {{ $edition->settings->discountHoldDays }} dagen vastgehouden terwijl wij uw post controleren.
+                @else
+                    Uw plek wordt {{ config('commerce.reservation_minutes') }} minuten vastgehouden tot de betaling is afgerond.
+                @endif
+            </p>
         </div>
     @endif
 </div>

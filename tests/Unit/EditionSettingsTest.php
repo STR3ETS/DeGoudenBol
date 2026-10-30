@@ -17,7 +17,12 @@ class EditionSettingsTest extends TestCase
 
         $this->assertSame(50, $settings->capacityPerProvince);
         $this->assertSame(10, $settings->provincialListLength);
-        $this->assertSame(5, $settings->nationalListLength);
+        $this->assertSame(10, $settings->nationalListLength);
+        $this->assertSame(20, $settings->piecesPerEntry);
+        $this->assertTrue($settings->rankingSecretUntilPublication);
+        $this->assertSame(3, $settings->reportDueDays);
+        $this->assertSame(50, $settings->discountPercentage);
+        $this->assertSame(4500, $settings->pickupFeeCents);
         $this->assertSame(5.0, $settings->publishThreshold);
         $this->assertSame(6, $settings->minValidCards);
         $this->assertSame(8, $settings->maxSamplesPerSession);

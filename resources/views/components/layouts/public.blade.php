@@ -5,6 +5,7 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
+    @include('site.partials.gtm-head')
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script>document.documentElement.classList.add('js');</script>
@@ -19,6 +20,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="flex min-h-screen flex-col">
+    @include('site.partials.gtm-body')
     <a href="#inhoud" class="skip-link">Direct naar de inhoud</a>
 
     <x-ui.nav />

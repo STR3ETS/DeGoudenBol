@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Entries\Pages;
 
 use App\Domain\Edition\Models\Edition;
+use App\Domain\Participants\Enums\DiscountStatus;
 use App\Domain\Participants\Enums\EntryStatus;
 use App\Domain\Participants\Models\Entry;
 use App\Filament\Resources\Entries\EntryResource;
@@ -22,6 +23,16 @@ class ManageEntries extends ManageRecords
     public function getTabs(): array
     {
         $tabs = ['alle' => Tab::make('Alle')];
+
+        // Kortingsactie: bewijs ingediend, wacht op een administrator (briefing 29 okt §3).
+        $tabs['korting'] = Tab::make('Korting te keuren')
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('status', EntryStatus::PendingPayment)->where('discount_status', DiscountStatus::Submitted))
+            ->badge(function (): ?int {
+                $count = Entry::query()->where('status', EntryStatus::PendingPayment)->where('discount_status', DiscountStatus::Submitted)->where('reservation_expires_at', '>', now())->count();
+
+                return $count > 0 ? $count : null;
+            })
+            ->badgeColor('warning');
 
         foreach ([
             'betaling' => ['Wacht op betaling', [EntryStatus::PendingPayment]],

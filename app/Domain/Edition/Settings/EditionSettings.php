@@ -20,11 +20,17 @@ final readonly class EditionSettings
     /**
      * @param  list<string>  $publicationDays
      * @param  list<string>  $tieBreakOrder  Criteriumcodes in beslisvolgorde bij gelijke stand.
+     * @param  bool  $rankingSecretUntilPublication  Briefing 29 okt: de ranglijst blijft geheim tot de hoofdpublicatie; alle batches schuiven door naar dat moment.
+     * @param  int  $reportDueDays  Persoonlijk rapport uiterlijk zoveel dagen na de keuring in het portaal.
+     * @param  int  $discountPercentage  Kortingsactie (filmpje delen en De Gouden Bol taggen); 0 zet de actie uit.
+     * @param  int  $discountHoldDays  Zo lang houdt een aanmelding met kortingsaanvraag de plek vast.
+     * @param  int  $pickupFeeCents  Ophaalservice op vrijdag, excl. btw.
+     * @param  int  $changeDeadlineHours  Aanlevermoment of ophaalvrijdag wijzigen kan tot zoveel uur vooraf.
      */
     public function __construct(
         public int $capacityPerProvince = 50,
         public int $provincialListLength = 10,
-        public int $nationalListLength = 5,
+        public int $nationalListLength = 10,
         public int $maxFinalists = 12,
         public float $publishThreshold = 5.0,
         public int $minValidCards = 6,
@@ -42,13 +48,33 @@ final readonly class EditionSettings
         public FinalistFallback $finalistFallback = FinalistFallback::NextInLine,
         public LogisticsMode $logisticsMode = LogisticsMode::Delivery,
         public ParticipationModel $participationModel = ParticipationModel::B,
-        public int $piecesPerEntry = 8,
+        public int $piecesPerEntry = 20,
         public string $productVariant = 'krenten_rozijnen',
         public bool $showPanelAfterEdition = true,
         public string $publicSubscoresScope = 'top10_final',
         public int $charityPercentage = 10,
         public CharityBasis $charityBasis = CharityBasis::Received,
+        public bool $rankingSecretUntilPublication = true,
+        public int $reportDueDays = 3,
+        public int $discountPercentage = 50,
+        public int $discountHoldDays = 7,
+        public bool $pickupEnabled = true,
+        public int $pickupFeeCents = 4500,
+        public int $changeDeadlineHours = 24,
     ) {}
+
+    public function discountEnabled(): bool
+    {
+        return $this->discountPercentage > 0 && $this->discountPercentage < 100;
+    }
+
+    /**
+     * Prijs na korting, in centen; afgerond op hele centen.
+     */
+    public function discountedCents(int $priceCents): int
+    {
+        return (int) round($priceCents * (100 - $this->discountPercentage) / 100);
+    }
 
     /**
      * @param  array<string, mixed>  $data  Snake_case sleutels zoals opgeslagen in de database.

@@ -80,12 +80,12 @@ trait BuildsTestChain
         return [
             'smaak' => $smaak,
             'structuur_luchtigheid' => 16,
+            'versheid' => 12,
             'vulling_verhouding' => 12,
-            'versheid' => 8,
-            'korst_kleur' => 8,
-            'bakgraad_vetopname' => 8,
+            'uiterlijk' => 8,
             'geur' => 4,
-            'uiterlijk_presentatie' => 4,
+            'vetopname_mondgevoel' => 4,
+            'totaalindruk' => 4,
         ];
     }
 }

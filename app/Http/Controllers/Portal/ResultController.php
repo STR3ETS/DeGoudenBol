@@ -14,6 +14,7 @@ use App\Domain\Platform\Services\AuditLogger;
 use App\Domain\Ranking\Actions\RespondToFinalInvitation;
 use App\Domain\Ranking\Models\RankingSnapshot;
 use App\Http\Controllers\Controller;
+use App\Support\Portal\PersonalReport;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -40,7 +41,7 @@ class ResultController extends Controller
             'item' => $item,
             'position' => $position,
             'finalist' => $entry?->finalist,
-            'report' => $entry?->confidentialReport?->isPublished() ? $entry->confidentialReport : null,
+            'report' => $entry ? PersonalReport::for($entry) : null,
             'objections' => $entry?->objections()->orderByDesc('submitted_at')->get() ?? collect(),
             'objectionDeadline' => $entry?->published_at?->addWeekdays(Objection::WINDOW_WORKING_DAYS),
         ]);
@@ -105,7 +106,7 @@ class ResultController extends Controller
         $company = $access->resolve($request->user('participant'), $bedrijf, $roles);
         $edition = Edition::current();
         $entry = $edition
-            ? $company->entries()->where('edition_id', $edition->getKey())->with(['province', 'publicationItems.batch', 'confidentialReport', 'finalist'])->first()
+            ? $company->entries()->where('edition_id', $edition->getKey())->with(['province', 'publicationItems.batch', 'confidentialReport', 'finalist', 'company.primaryLocation', 'edition'])->first()
             : null;
 
         return [$company, $entry, $edition];

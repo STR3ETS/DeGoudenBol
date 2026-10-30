@@ -31,6 +31,11 @@ class Package extends DomainModel
 {
     use HasFactory;
 
+    /** Standaard deelnameprijs uit de briefing van 29 okt (§3), excl. btw. */
+    public const int BRIEFING_PRICE_CENTS = 15000;
+
+    public const string BRIEFING_DESCRIPTION = 'Blinde beoordeling door het onafhankelijke panel, persoonlijk keuringsrapport binnen drie dagen na de keuring, vermelding als deelnemer, deelnemersbadge en socialmediakit. Met de kortingsactie betaalt u de helft.';
+
     /**
      * @return array<string, string>
      */

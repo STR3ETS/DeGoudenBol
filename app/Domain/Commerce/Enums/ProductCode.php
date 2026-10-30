@@ -13,6 +13,8 @@ enum ProductCode: string implements HasLabel
     case ParticipantLink = 'participant_link';
     case NationalTop = 'national_top';
     case ProvincePartner = 'province_partner';
+    case NationalPartner = 'national_partner';
+    case MainSponsor = 'main_sponsor';
     case Custom = 'custom';
 
     public function getLabel(): string
@@ -22,6 +24,8 @@ enum ProductCode: string implements HasLabel
             self::ParticipantLink => 'Bij deelnemer ("Bakt met")',
             self::NationalTop => 'Landelijke toppositie',
             self::ProvincePartner => 'Provinciepartner (exclusief)',
+            self::NationalPartner => 'Landelijke partner',
+            self::MainSponsor => 'Hoofdsponsor',
             self::Custom => 'Maatwerk (partner, hoofdsponsor, finale, goede doelen)',
         };
     }
@@ -56,8 +60,25 @@ enum ProductCode: string implements HasLabel
             self::ParticipantLink => "entry:{$entryId}",
             self::NationalTop => 'national_top',
             self::ProvincePartner => "province:{$provinceId}",
+            self::NationalPartner, self::MainSponsor => 'national',
             self::Custom => $custom === 'province' ? "province:{$provinceId}" : ($custom ?? 'national'),
         };
+    }
+
+    /**
+     * Pakketten op de sponsorpagina (briefing 29 okt §8). Het algemene maatwerkproduct blijft voor de backoffice.
+     */
+    public function onWebsite(): bool
+    {
+        return $this !== self::Custom;
+    }
+
+    /**
+     * Vaste pakketten reken je direct af; maatwerk is een aanvraag zonder prijs of betaalverplichting.
+     */
+    public function isCustomPriced(): bool
+    {
+        return in_array($this, [self::ProvincePartner, self::NationalPartner, self::MainSponsor, self::Custom], true);
     }
 
     /**

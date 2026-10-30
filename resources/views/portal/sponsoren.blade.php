@@ -32,4 +32,21 @@
             @endforeach
         </div>
     @endif
+
+    @if ($offers->isNotEmpty())
+        <h2 class="kop-3 mt-12 mb-2">Aanbiedingen van sponsoren</h2>
+        <p class="body-text mb-6 max-w-[640px] text-[0.9rem]">Door de redactie goedgekeurd. Interesse? Neem contact op met de sponsor; De Gouden Bol is geen partij in de aanbieding.</p>
+        <div class="grid gap-4 md:grid-cols-2">
+            @foreach ($offers as $offer)
+                <x-ui.card>
+                    <x-ui.eyebrow>{{ $offer->type->getLabel() }} · {{ $offer->sponsor->name }}</x-ui.eyebrow>
+                    <h3 class="kop-3 text-[1.15rem]">{{ $offer->title }}</h3>
+                    <p class="mt-2 text-[0.9rem] whitespace-pre-line text-gedempt">{{ $offer->description }}</p>
+                    @if ($offer->sponsor->url)
+                        <a href="{{ $offer->sponsor->url }}" class="mt-3 inline-block text-[0.85rem] font-bold text-goud-tekst underline" target="_blank" rel="noopener sponsored">Naar {{ $offer->sponsor->name }}</a>
+                    @endif
+                </x-ui.card>
+            @endforeach
+        </div>
+    @endif
 </x-layouts.portal>

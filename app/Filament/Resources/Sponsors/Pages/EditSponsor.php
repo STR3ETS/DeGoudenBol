@@ -26,7 +26,7 @@ class EditSponsor extends EditRecord
                 ->icon(Heroicon::OutlinedDocumentCurrencyEuro)
                 ->color('primary')
                 ->requiresConfirmation()
-                ->modalDescription('Maakt één order voor alle gereserveerde plaatsingen die nog niet gefactureerd zijn. Na betaling (Mollie of handmatig bij Orders) worden de plaatsingen actief en wordt 10% gereserveerd voor het goede doel.')
+                ->modalDescription('Maakt één order voor alle gereserveerde plaatsingen die nog niet gefactureerd zijn. Na betaling (Stripe of handmatig bij Orders) worden de plaatsingen actief en wordt 10% gereserveerd voor het goede doel.')
                 ->visible(fn () => (auth()->user()?->hasAnyRole([StaffRole::Finance->value, StaffRole::Admin->value]) ?? false) && $this->sponsor()->placements()->where('status', PlacementStatus::Draft)->whereNull('order_line_id')->exists())
                 ->action(function (CreateSponsorOrder $create): void {
                     try {

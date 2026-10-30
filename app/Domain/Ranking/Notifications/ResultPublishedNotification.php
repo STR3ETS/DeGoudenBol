@@ -5,6 +5,7 @@ namespace App\Domain\Ranking\Notifications;
 use App\Domain\Participants\Models\ParticipantUser;
 use App\Domain\Ranking\Models\PublicationItem;
 use App\Domain\Ranking\Models\RankingPosition;
+use App\Support\Mail\GoldenMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -37,7 +38,7 @@ class ResultPublishedNotification extends Notification implements ShouldQueue
         $total = number_format($this->item->total(), 1, ',', '.');
 
         if ($this->item->isFinal()) {
-            $message = (new MailMessage)
+            $message = (new GoldenMail)
                 ->subject("De uitslag van de landelijke finale {$year} staat online")
                 ->greeting("Beste {$notifiable->name},")
                 ->line("Het finalepanel heeft de oliebollen van **{$entry->public_name}** blind beoordeeld met een **{$total}**.");
@@ -47,22 +48,22 @@ class ResultPublishedNotification extends Notification implements ShouldQueue
             }
 
             return $message
-                ->action('Bekijk de landelijke uitslag', route('finale'))
-                ->salutation('Met vriendelijke groet, het team van De Gouden Bol');
+                ->action('Bekijk de landelijke uitslag', route('finale'));
         }
 
-        $message = (new MailMessage)
-            ->subject("Je resultaat van De Gouden Bol {$year} staat online")
+        $message = (new GoldenMail)
+            ->subject("De uitslag van De Gouden Bol {$year} is bekend: {$entry->public_name}")
+            ->hero('De uitslag is', 'bekend.')
+            ->recipient($notifiable->email)
             ->greeting("Beste {$notifiable->name},")
-            ->line("Het panel heeft de oliebollen van **{$entry->public_name}** blind beoordeeld. Het cijfer is **{$total}** en staat vanaf nu op de Voorlijst van {$this->item->province->name}.");
+            ->line("De ranglijst van {$this->item->province->name} is gepubliceerd. **{$entry->public_name}** staat erop met een **{$total}**.");
 
         if ($this->position !== null) {
-            $message->line("Op dit moment staat {$entry->public_name} op **plaats {$this->position->position}** in {$this->item->province->name}. De lijst kan nog bewegen tot de bevriezing.");
+            $message->line("{$entry->public_name} staat op **plaats {$this->position->position}** in {$this->item->province->name}.");
         }
 
         return $message
-            ->line('Je mag je vanaf nu "Officieel getest" noemen. In het portaal vind je je positie en, zodra de redactie klaar is, het vertrouwelijke rapport met sterke punten en ontwikkelkansen.')
-            ->action('Bekijk je uitslag in het portaal', route('portaal.uitslag', $entry->company))
-            ->salutation('Met vriendelijke groet, het team van De Gouden Bol');
+            ->line('U mag zich vanaf nu "Officieel getest" noemen. Uw badges staan klaar in het portaal; uw persoonlijke rapport blijft daar ook beschikbaar.')
+            ->action('Bekijk uw uitslag in het portaal', route('portaal.uitslag', $entry->company));
     }
 }

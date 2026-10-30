@@ -5,22 +5,33 @@ namespace App\Filament\Support;
 use App\Domain\Charities\Models\CharityPayout;
 use App\Domain\Charities\Models\CharityReservation;
 use App\Domain\Commerce\Enums\OrderStatus;
+use App\Domain\Commerce\Enums\SponsorStatus;
 use App\Domain\Commerce\Models\Order;
 use App\Domain\Commerce\Models\Sponsor;
+use App\Domain\Commerce\Models\SponsorLink;
 use App\Domain\Edition\Models\Edition;
+use App\Domain\Intake\Enums\PickupStatus;
+use App\Domain\Intake\Models\PickupRequest;
+use App\Domain\Participants\Enums\DiscountStatus;
+use App\Domain\Participants\Enums\EntryRate;
 use App\Domain\Participants\Enums\EntryStatus;
 use App\Domain\Participants\Enums\ModerationStatus;
 use App\Domain\Participants\Models\Entry;
 use App\Domain\Participants\Models\Profile;
 use App\Domain\Participants\Services\ProvinceCapacity;
+use App\Domain\Ranking\Enums\ReportStatus;
+use App\Domain\Ranking\Models\ConfidentialReport;
 use App\Filament\Resources\Companies\CompanyResource;
+use App\Filament\Resources\ConfidentialReports\ConfidentialReportResource;
 use App\Filament\Resources\Editions\EditionResource;
 use App\Filament\Resources\Entries\EntryResource;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\NewsPosts\NewsPostResource;
 use App\Filament\Resources\Orders\OrderResource;
 use App\Filament\Resources\ParticipantUsers\ParticipantUserResource;
+use App\Filament\Resources\PickupRequests\PickupRequestResource;
 use App\Filament\Resources\Profiles\ProfileResource;
+use App\Filament\Resources\Sponsors\SponsorResource;
 use App\Models\User;
 use App\Support\DutchTime;
 use App\Support\Money;
@@ -139,6 +150,64 @@ final class DashboardData
     }
 
     /**
+     * Kerncijfers uit de briefing van 29 okt (§12): kortingen, ophaalservice en route, keuringen,
+     * rapporten, sponsoring en openstaande taken. Elke tegel linkt naar de lijst erachter.
+     *
+     * @return list<array{label: string, value: string, hint: string, url: string|null, tone: string}>
+     */
+    public function operations(): array
+    {
+        if ($this->edition === null) {
+            return [];
+        }
+
+        $editionId = $this->edition->getKey();
+        $entries = Entry::query()->where('edition_id', $editionId);
+        $tiles = [];
+
+        if (EntryResource::canViewAny()) {
+            $toReview = (clone $entries)->where('status', EntryStatus::PendingPayment)->where('discount_status', DiscountStatus::Submitted)->where('reservation_expires_at', '>', now())->count();
+            $discounted = (clone $entries)->confirmed()->where('rate', EntryRate::Discount->value)->count();
+            $tiles[] = ['label' => 'Kortingen', 'value' => (string) $discounted, 'hint' => $toReview > 0 ? "{$toReview} te keuren" : 'niets te keuren', 'url' => EntryResource::getUrl('index', ['tab' => 'korting']), 'tone' => $toReview > 0 ? 'waarschuwing' : 'info'];
+
+            $received = (clone $entries)->whereIn('status', [EntryStatus::Received, EntryStatus::Numbered])->count();
+            $testing = (clone $entries)->whereIn('status', [EntryStatus::Scored, EntryStatus::Reviewed])->count();
+            $tested = (clone $entries)->whereIn('status', [EntryStatus::Linked, EntryStatus::Published, EntryStatus::Confidential])->count();
+            $tiles[] = ['label' => 'Keuringen', 'value' => (string) $tested, 'hint' => "afgerond · {$received} ontvangen · {$testing} in keuring", 'url' => EntryResource::getUrl('index', ['tab' => 'in-test']), 'tone' => 'info'];
+        }
+
+        if (PickupRequestResource::canViewAny()) {
+            $pickups = PickupRequest::query()->where('edition_id', $editionId);
+            $active = (clone $pickups)->whereIn('status', [PickupStatus::Paid, PickupStatus::Scheduled, PickupStatus::EnRoute, PickupStatus::PickedUp])->count();
+            $unplanned = (clone $pickups)->where('status', PickupStatus::Paid)->count();
+            $tiles[] = ['label' => 'Ophaalaanvragen', 'value' => (string) $active, 'hint' => $unplanned > 0 ? "{$unplanned} nog in te plannen in een route" : 'alles staat in een route', 'url' => PickupRequestResource::getUrl('index'), 'tone' => $unplanned > 0 ? 'waarschuwing' : 'succes'];
+        }
+
+        if (ConfidentialReportResource::canViewAny()) {
+            $reports = ConfidentialReport::query()->whereHas('entry', fn ($query) => $query->where('edition_id', $editionId)->whereNotNull('linked_at'));
+            $open = (clone $reports)->open()->count();
+            $late = (clone $reports)->open()->where('due_at', '<', now())->count();
+            $published = (clone $reports)->where('status', ReportStatus::Published->value)->count();
+            $tiles[] = ['label' => 'Rapporten', 'value' => (string) $published, 'hint' => 'vrijgegeven · '.$open.' open'.($late > 0 ? ", {$late} te laat" : ''), 'url' => ConfidentialReportResource::getUrl('index'), 'tone' => $late > 0 ? 'fout' : ($open > 0 ? 'waarschuwing' : 'succes')];
+        }
+
+        if (SponsorResource::canViewAny()) {
+            $revenue = (int) Order::query()->where('edition_id', $editionId)->where('orderable_type', Sponsor::class)->where('status', OrderStatus::Paid)->sum('subtotal_cents');
+            $links = SponsorLink::query()->where('edition_id', $editionId);
+            $confirmedLinks = (clone $links)->whereNotNull('confirmed_by_company_at')->whereNull('declined_at')->count();
+            $waitingLinks = (clone $links)->whereNull('confirmed_by_company_at')->whereNull('declined_at')->count();
+            $requests = Sponsor::query()->whereIn('status', [SponsorStatus::Request, SponsorStatus::Pending])->count();
+            $tiles[] = ['label' => 'Sponsoromzet', 'value' => Money::format($revenue), 'hint' => 'excl. btw'.($requests > 0 ? " · {$requests} aanvragen" : ''), 'url' => SponsorResource::getUrl('index'), 'tone' => $requests > 0 ? 'waarschuwing' : 'succes'];
+            $tiles[] = ['label' => 'Sponsorkoppelingen', 'value' => (string) $confirmedLinks, 'hint' => "bevestigd · {$waitingLinks} wacht op deelnemer", 'url' => SponsorResource::getUrl('index'), 'tone' => 'info'];
+        }
+
+        $tasks = $this->work()->count();
+        $tiles[] = ['label' => 'Openstaande taken', 'value' => (string) $tasks, 'hint' => $tasks === 0 ? 'er wacht niets' : 'zie Jouw werk vandaag', 'url' => null, 'tone' => $tasks > 0 ? 'goud' : 'info'];
+
+        return $tiles;
+    }
+
+    /**
      * Financiën per inkomstenstroom (deelname, sponsoring) en de stand van de 10%-reservering.
      *
      * @return array{streams: list<array{label: string, paid_cents: int, open_cents: int, open_count: int, url: string}>, paid_cents: int, charity_percentage: int, charity_reserved_cents: int, charity_paid_cents: int, charity_open_cents: int, charity_pot_cents: int}|null
@@ -152,7 +221,7 @@ final class DashboardData
         $orders = Order::query()->where('edition_id', $this->edition->getKey());
         $streams = [];
 
-        foreach ([['Deelname', Entry::class], ['Sponsoring', Sponsor::class]] as [$label, $type]) {
+        foreach ([['Deelname', Entry::class], ['Ophaalservice', PickupRequest::class], ['Sponsoring', Sponsor::class]] as [$label, $type]) {
             $paid = (int) (clone $orders)->where('orderable_type', $type)->where('status', OrderStatus::Paid)->sum('subtotal_cents');
             $open = (clone $orders)->where('orderable_type', $type)->where('status', OrderStatus::Pending);
 

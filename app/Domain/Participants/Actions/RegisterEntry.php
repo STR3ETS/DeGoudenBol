@@ -8,8 +8,11 @@ use App\Domain\Edition\Models\Edition;
 use App\Domain\Edition\Models\Province;
 use App\Domain\Participants\Data\RegistrationData;
 use App\Domain\Participants\Enums\CompanyUserRole;
+use App\Domain\Participants\Enums\DiscountStatus;
+use App\Domain\Participants\Enums\EntryRate;
 use App\Domain\Participants\Enums\EntryStatus;
 use App\Domain\Participants\Enums\ModerationStatus;
+use App\Domain\Participants\Events\DiscountRequested;
 use App\Domain\Participants\Models\Company;
 use App\Domain\Participants\Models\Entry;
 use App\Domain\Participants\Models\ParticipantUser;
@@ -34,9 +37,14 @@ final class RegisterEntry
     {
         $province = Province::query()->findOrFail($data->provinceId);
         $package = Package::query()->where('edition_id', $edition->getKey())->active()->findOrFail($data->packageId);
-        $reservationMinutes = (int) config('commerce.reservation_minutes', 60);
+        $wantsDiscount = $data->rate === EntryRate::Discount && $edition->settings->discountEnabled();
 
-        return $this->capacity->reserve($edition, $province, function () use ($edition, $province, $package, $data, $reservationMinutes): Entry {
+        // Met kortingsaanvraag blijft de plek langer vast: eerst bewijs en controle, dan pas betalen.
+        $reservationMinutes = $wantsDiscount
+            ? $edition->settings->discountHoldDays * 24 * 60
+            : (int) config('commerce.reservation_minutes', 60);
+
+        return $this->capacity->reserve($edition, $province, function () use ($edition, $province, $package, $data, $reservationMinutes, $wantsDiscount): Entry {
             $user = ParticipantUser::query()->firstOrCreate(
                 ['email' => Str::lower($data->email)],
                 ['name' => $data->contactName, 'phone' => $data->phone],
@@ -85,6 +93,10 @@ final class RegisterEntry
                 'company_id' => $company->getKey(),
                 'province_id' => $province->getKey(),
                 'package_id' => $package->getKey(),
+                'rate' => $wantsDiscount ? EntryRate::Discount : EntryRate::Standard,
+                'discount_status' => $wantsDiscount ? (filled($data->discountProofUrl) ? DiscountStatus::Submitted : DiscountStatus::AwaitingProof) : null,
+                'discount_proof_url' => $wantsDiscount ? $data->discountProofUrl : null,
+                'discount_submitted_at' => $wantsDiscount && filled($data->discountProofUrl) ? now() : null,
                 'terms_acceptance_id' => $acceptance->getKey(),
                 'status' => EntryStatus::PendingPayment,
                 'public_name' => $data->publicName,
@@ -101,7 +113,12 @@ final class RegisterEntry
                 'edition' => $edition->year,
                 'province' => $province->slug,
                 'package' => $package->code,
+                'rate' => $wantsDiscount ? EntryRate::Discount->value : EntryRate::Standard->value,
             ], null);
+
+            if ($wantsDiscount) {
+                DiscountRequested::dispatch($entry);
+            }
 
             return $entry->load(['company', 'province', 'package', 'order']);
         });

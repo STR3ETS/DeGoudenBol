@@ -56,4 +56,4 @@ Controleer of de tijd op je telefoon automatisch wordt gezet; een afwijkende klo
 
 ## Wanneer moet ik Eazyonline bellen?
 
-Bij alles wat op de server gebeurt: mails die bij niemand aankomen, betalingen die niet doorkomen van Mollie, een pagina met een foutmelding, of iets dat na een kwartier nog niet op de site staat. Stuur de link van de pagina, het tijdstip en een schermafbeelding mee.
+Bij alles wat op de server gebeurt: mails die bij niemand aankomen, betalingen die niet doorkomen van Stripe, een pagina met een foutmelding, of iets dat na een kwartier nog niet op de site staat. Stuur de link van de pagina, het tijdstip en een schermafbeelding mee.

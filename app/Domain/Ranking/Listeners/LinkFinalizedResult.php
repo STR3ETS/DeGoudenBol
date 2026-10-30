@@ -23,6 +23,7 @@ use App\Domain\Testing\Models\Result;
 use App\Domain\Testing\Models\Sample;
 use App\Domain\Testing\Models\Scorecard;
 use App\Domain\Vault\Services\VaultService;
+use App\Support\DutchTime;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -81,9 +82,13 @@ final class LinkFinalizedResult
         /** @var Edition $edition */
         $edition = $entry->edition;
         $visibility = $this->visibility($edition, $result);
-        $notes = Scorecard::query()->where('sample_id', $sample->getKey())->where('is_valid', true)->get(['strengths', 'opportunities']);
+        $notes = Scorecard::query()->where('sample_id', $sample->getKey())->where('is_valid', true)->get(['strengths', 'opportunities', 'submitted_at']);
 
-        DB::transaction(function () use ($entry, $edition, $result, $visibility, $notes): void {
+        // Briefing 29 okt §7: het persoonlijke rapport staat uiterlijk een vast aantal dagen na de keuring klaar.
+        $testedAt = DutchTime::display($notes->max('submitted_at') ?? now());
+        $dueAt = $testedAt->addDays($edition->settings->reportDueDays)->endOfDay()->utc();
+
+        DB::transaction(function () use ($entry, $edition, $result, $visibility, $notes, $testedAt, $dueAt): void {
             $batch = $this->schedule->openBatch($edition);
 
             PublicationItem::query()->updateOrCreate(
@@ -104,6 +109,8 @@ final class LinkFinalizedResult
                 [
                     'strengths' => $this->lines($notes->pluck('strengths')),
                     'opportunities' => $this->lines($notes->pluck('opportunities')),
+                    'tested_on' => $testedAt->toDateString(),
+                    'due_at' => $dueAt,
                     'status' => ReportStatus::Draft,
                 ],
             );

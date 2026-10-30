@@ -3,6 +3,7 @@
 namespace App\Domain\Platform\Listeners;
 
 use App\Domain\Commerce\Events\OrderPaid;
+use App\Domain\Participants\Events\DiscountProofSubmitted;
 use App\Domain\Participants\Events\ObjectionSubmitted;
 use App\Domain\Participants\Events\ProfileSubmitted;
 use App\Domain\Platform\Enums\StaffRole;
@@ -14,6 +15,7 @@ use App\Domain\Ranking\Events\BatchSubmitted;
 use App\Domain\Ranking\Events\CorrectionCaseOpened;
 use App\Domain\Ranking\Models\PublicationBatch;
 use App\Filament\Resources\CorrectionCases\CorrectionCaseResource;
+use App\Filament\Resources\Entries\EntryResource;
 use App\Filament\Resources\Objections\ObjectionResource;
 use App\Filament\Resources\Orders\OrderResource;
 use App\Filament\Resources\Profiles\ProfileResource;
@@ -144,7 +146,7 @@ final class NotifyStaff
     {
         $order = $event->order;
         $orderable = $order->orderable;
-        $name = $orderable?->public_name ?? $orderable?->name ?? 'order';
+        $name = $orderable?->public_name ?? $orderable?->name ?? ($orderable?->company_name ? 'ophaalservice '.$orderable->company_name : 'order');
 
         $this->notifier->notify(
             [StaffRole::Finance],
@@ -154,6 +156,21 @@ final class NotifyStaff
             null,
             'heroicon-o-banknotes',
             'success',
+        );
+    }
+
+    public function onDiscountProofSubmitted(DiscountProofSubmitted $event): void
+    {
+        $entry = $event->entry;
+
+        $this->notifier->notify(
+            [StaffRole::Finance, StaffRole::Communication],
+            "Kortingsactie te keuren: {$entry->public_name}",
+            'Bekijk de socialmedia-post en keur de korting goed of af. Tot die tijd kan de bakker niet betalen.',
+            EntryResource::getUrl('index', ['tab' => 'korting']),
+            null,
+            'heroicon-o-receipt-percent',
+            'warning',
         );
     }
 

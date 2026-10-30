@@ -65,7 +65,12 @@ class PublicationFlowTest extends TestCase
     {
         $schedule = app(PublicationSchedule::class);
 
+        // Standaard (briefing 29 okt): de ranglijst blijft geheim; alles schuift door naar de hoofdpublicatie.
         CarbonImmutable::setTestNow(DutchTime::toUtc('2026-11-04 15:00')); // woensdag
+        $this->assertSame('2026-12-21 12:00', DutchTime::display($schedule->nextSlot($this->edition))->format('Y-m-d H:i'));
+
+        // Met tussentijdse publicatie gelden het ritme en de stille periode.
+        $this->edition->forceFill(['settings' => $this->edition->settings->with(['ranking_secret_until_publication' => false])])->save();
         $this->assertSame('2026-11-06 12:00', DutchTime::display($schedule->nextSlot($this->edition))->format('Y-m-d H:i'));
 
         CarbonImmutable::setTestNow(DutchTime::toUtc('2026-11-06 12:00')); // vrijdag om 12:00 → volgende dinsdag
@@ -169,7 +174,7 @@ class PublicationFlowTest extends TestCase
             ->get(route('portaal.uitslag'))
             ->assertOk()
             ->assertSee('8,0')
-            ->assertSee('plaats 1');
+            ->assertSee('Plaats 1');
     }
 
     #[Test]
@@ -207,7 +212,7 @@ class PublicationFlowTest extends TestCase
         foreach ($this->chainPanelists as $panelist) {
             $assignment = $this->chainSession->assignments()->where('panelist_id', $panelist->getKey())->firstOrFail();
             $scores = $smaak < 10
-                ? ['smaak' => $smaak, 'structuur_luchtigheid' => 6, 'vulling_verhouding' => 5, 'versheid' => 4, 'korst_kleur' => 4, 'bakgraad_vetopname' => 4, 'geur' => 2, 'uiterlijk_presentatie' => 2]
+                ? ['smaak' => $smaak, 'structuur_luchtigheid' => 6, 'versheid' => 4, 'vulling_verhouding' => 5, 'uiterlijk' => 4, 'geur' => 2, 'vetopname_mondgevoel' => 4, 'totaalindruk' => 2]
                 : $this->fullScores($smaak);
             app(SubmitScorecard::class)($panelist, new ScorecardSubmission((string) Str::uuid(), $assignment->getKey(), $scores, 'Krokant', 'Meer vulling', CarbonImmutable::now()));
         }

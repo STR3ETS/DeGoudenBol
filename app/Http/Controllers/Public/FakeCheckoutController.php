@@ -12,7 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 /**
- * Nep-checkout voor lokale ontwikkeling (PAYMENT_DRIVER=fake). Bestaat niet met Mollie.
+ * Nep-checkout voor lokale ontwikkeling (PAYMENT_DRIVER=fake). Bestaat niet met Stripe of Mollie.
  */
 class FakeCheckoutController extends Controller
 {

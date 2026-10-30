@@ -10,6 +10,7 @@ use App\Domain\Edition\Models\Province;
 use App\Domain\Edition\Models\TermsVersion;
 use App\Domain\Participants\Data\RegistrationData;
 use App\Domain\Participants\Enums\CompanyType;
+use App\Domain\Participants\Enums\EntryRate;
 use Database\Seeders\Edition2026Seeder;
 use Database\Seeders\PackageSeeder;
 use Database\Seeders\ProvinceSeeder;
@@ -71,6 +72,8 @@ trait BuildsRegistrations
             termsVersionId: $this->terms->getKey(),
             ip: '127.0.0.1',
             userAgent: 'PHPUnit',
+            rate: $overrides['rate'] ?? EntryRate::Standard,
+            discountProofUrl: $overrides['discountProofUrl'] ?? null,
         );
     }
 }

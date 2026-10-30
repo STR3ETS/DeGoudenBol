@@ -4,14 +4,17 @@ namespace App\Domain\Commerce\Models;
 
 use App\Domain\Charities\Models\Charity;
 use App\Domain\Commerce\Enums\SponsorStatus;
+use App\Domain\Edition\Models\Province;
 use App\Support\Models\DomainModel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
 /**
@@ -19,10 +22,13 @@ use Illuminate\Support\Str;
  *
  * @property SponsorStatus $status
  */
-#[Fillable(['name', 'slug', 'url', 'logo_path', 'contact_name', 'contact_email', 'contact_phone', 'kvk_number', 'billing_address', 'notes', 'status'])]
+#[Fillable(['name', 'slug', 'url', 'logo_path', 'contact_name', 'contact_email', 'contact_phone', 'kvk_number', 'billing_address', 'notes', 'status', 'source', 'requested_product_id', 'requested_province_id', 'request_note', 'requested_at', 'approved_at'])]
 class Sponsor extends DomainModel
 {
     use HasUlids;
+
+    /** Zo lang werkt de beheerlink die een sponsor per mail krijgt. */
+    public const int ACCESS_LINK_DAYS = 30;
 
     /**
      * @return array<string, string>
@@ -32,7 +38,37 @@ class Sponsor extends DomainModel
         return [
             'billing_address' => 'array',
             'status' => SponsorStatus::class,
+            'requested_at' => 'immutable_datetime',
+            'approved_at' => 'immutable_datetime',
         ];
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'ulid';
+    }
+
+    public function requestedProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'requested_product_id');
+    }
+
+    public function requestedProvince(): BelongsTo
+    {
+        return $this->belongsTo(Province::class, 'requested_province_id');
+    }
+
+    public function offers(): HasMany
+    {
+        return $this->hasMany(SponsorOffer::class);
+    }
+
+    /**
+     * Persoonlijke beheerlink naar de sponsoromgeving (pakket, facturen, koppelingen, acties).
+     */
+    public function accessUrl(): string
+    {
+        return URL::temporarySignedRoute('sponsor.toegang', now()->addDays(self::ACCESS_LINK_DAYS), ['sponsor' => $this]);
     }
 
     /**
@@ -94,7 +130,7 @@ class Sponsor extends DomainModel
 
     public function nomination(): MorphOne
     {
-        return $this->morphOne(Charity::class, 'nominatedBy');
+        return $this->morphOne(Charity::class, 'nominated_by');
     }
 
     public function logoUrl(): ?string

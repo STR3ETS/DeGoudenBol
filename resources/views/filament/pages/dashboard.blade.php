@@ -120,6 +120,17 @@
             </div>
         @endif
 
+        {{-- Operatie (briefing 29 okt §12): kortingen, ophaalservice, keuringen, rapporten, sponsoring, taken --}}
+        @php $operations = $data->operations(); @endphp
+        @if ($operations !== [])
+            <div class="ui-app__blok grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                @foreach ($operations as $tile)
+                    @php $tag = $tile['url'] ? 'a' : 'div'; @endphp
+                    <{{ $tag }} @if ($tile['url']) {{ \Filament\Support\generate_href_html($tile['url']) }} @endif class="ui-tegel ui-tegel--mini ui-tegel--{{ $tileTone($tile['tone']) }}"><div class="ui-label">{{ $tile['label'] }}</div><div class="ui-tegel__cijfer">{{ $tile['value'] }}</div><div class="ui-tegel__voet">{{ $tile['hint'] }}</div></{{ $tag }}>
+                @endforeach
+            </div>
+        @endif
+
         <div class="ui-app__blok grid gap-6 xl:grid-cols-[3fr_2fr]">
             {{-- Seizoen in negen stappen --}}
             <div class="ui-kaart dgb-card">

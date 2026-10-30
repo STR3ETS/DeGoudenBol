@@ -1,15 +1,11 @@
+@props(['heroTitle' => null, 'heroAccent' => null, 'preheader' => null, 'recipient' => null, 'signoff' => null])
 <x-mail::layout>
-    {{-- Header --}}
     <x-slot:header>
-        <x-mail::header :url="config('app.url')">
-            {{ config('app.name') }}
-        </x-mail::header>
+        <x-mail::header :url="config('app.url')" :title="$heroTitle" :accent="$heroAccent" />
     </x-slot:header>
 
-    {{-- Body --}}
     {{ $slot }}
 
-    {{-- Subcopy --}}
     @isset($subcopy)
         <x-slot:subcopy>
             <x-mail::subcopy>
@@ -18,10 +14,19 @@
         </x-slot:subcopy>
     @endisset
 
-    {{-- Footer --}}
+    @isset($note)
+        <x-slot:note>
+            {{ $note }}
+        </x-slot:note>
+    @endisset
+
+    <x-slot:signoff>
+        {{ filled($signoff) ? $signoff : 'Met vriendelijke groet, '.config('mail.brand.team') }}
+    </x-slot:signoff>
+
     <x-slot:footer>
-        <x-mail::footer>
-            © {{ date('Y') }} {{ config('app.name') }}. @lang('All rights reserved.')
+        <x-mail::footer :recipient="$recipient">
+            U ontvangt deze e-mail naar aanleiding van uw deelname aan of betrokkenheid bij {{ config('app.name') }}.
         </x-mail::footer>
     </x-slot:footer>
 </x-mail::layout>

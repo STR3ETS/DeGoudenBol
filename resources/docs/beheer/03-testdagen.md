@@ -49,3 +49,31 @@ Minimaal zes geldige scorekaarten per monster (instelling). Minder kaarten betek
 ## Wat doe ik als een bakker op de testdag zonder aanleverbewijs komt?
 
 Zoek de inschrijving op via het zoekveld (naam of KvK) en gebruik de aanlevercode die daar staat. Heeft de bakker geen aanlevermoment gekozen, overleg dan met Testcoördinatie of er ruimte is; kies in dat geval alsnog een slot bij Aanleverslots en neem daarna in ontvangst.
+
+## Hoeveel oliebollen levert een bakker aan?
+
+Twintig, in een doos of zak zonder naam of logo, met de deelnemercode erop of het aanleverbewijs erbij. Het aantal is de instelling "Stuks per inzending" bij Instellingen > Editie; FAQ, portaal, mails en aanleverbewijs lezen die instelling.
+
+## Hoe werkt de ophaalservice?
+
+Een bakker kan in het portaal kiezen voor laten ophalen in plaats van zelf brengen. Dat kan alleen op vrijdagen die bij Testdagen > Ophaalvrijdagen open staan en nog plek hebben. Hij vult adres, contactpersoon, telefoon en instructies in en betaalt de voorrijkosten (EUR 45 excl. btw) direct. Pas na betaling is de ophaalservice actief; hij krijgt dan een bevestiging met zijn deelnemercode.
+
+## Hoe zet ik een ophaalvrijdag open?
+
+Testdagen > Ophaalvrijdagen > Vrijdag toevoegen. Kies de datum (alleen vrijdagen worden geaccepteerd) en het maximum aantal adressen. Met "Open voor aanvragen" uit kun je een vrijdag tijdelijk sluiten zonder bestaande aanvragen te raken.
+
+## Hoe plan ik de ophaalroute?
+
+Open Testdagen > Ophaalservice en filter op de vrijdag. Selecteer de adressen en kies "Inplannen bij chauffeur", of plan per regel met chauffeur en volgorde. De bakker krijgt dan één mail dat het ophaalmoment is ingepland. Met "Route-export (CSV)" download je de adressen in volgorde voor een externe routeplanner; elk adres heeft ook een link naar Google Maps.
+
+## Welke statussen heeft een ophaalaanvraag?
+
+Aangevraagd (nog niet betaald), betaald, ingepland, onderweg, opgehaald en ontvangen. De knoppen in de lijst zetten de volgende stap. Zodra Ontvangst de oliebollen registreert, gaat de aanvraag vanzelf op ontvangen en krijgt de bakker de mail dat de keuring is gestart.
+
+## Een bakker wil een andere vrijdag of toch zelf brengen. Wat nu?
+
+Een andere vrijdag kiest hij zelf in het portaal, tot 24 uur vooraf (instelling "Wijzigen tot"). Zolang hij nog niet betaald heeft, vervalt de ophaalaanvraag vanzelf als hij een tijdslot kiest. Heeft hij de ophaalservice al betaald en wil hij toch zelf brengen, annuleer dan de aanvraag bij Testdagen > Ophaalservice; terugbetalen gaat via de boekhouding.
+
+## Krijgen bakkers een herinnering voor het aanleveren?
+
+Ja. Elke dag om 10:00 krijgt iedere bakker die de volgende dag een aanlevermoment heeft één herinnering met tijd, adres en deelnemercode.
