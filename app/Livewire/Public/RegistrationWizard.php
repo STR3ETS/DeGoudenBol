@@ -17,6 +17,7 @@ use App\Domain\Participants\Enums\EntryRate;
 use App\Domain\Participants\Exceptions\ProvinceFullException;
 use App\Domain\Participants\Models\Entry;
 use App\Domain\Participants\Services\ProvinceCapacity;
+use App\Http\Controllers\Public\RegistrationStatusController;
 use App\Support\Pdok\PdokLocatieserver;
 use App\Support\Turnstile;
 use Illuminate\Contracts\View\View;
@@ -28,6 +29,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
+use Throwable;
+use TypeError;
 
 /**
  * Meerstaps aanmelding: bedrijf -> adres -> publicatie -> pakket -> voorwaarden en betaling.
@@ -99,11 +102,74 @@ class RegistrationWizard extends Component
     // Turnstile-token uit de browser (alleen als de sleutels zijn ingesteld)
     public ?string $turnstileToken = null;
 
+    /** Sessiesleutel voor het concept: na een reload hoeft de bakker niet alles opnieuw in te vullen. */
+    public const string DRAFT_KEY = 'aanmelden.concept';
+
+    /**
+     * Velden die in het concept bewaard worden. Akkoord op voorwaarden en privacy en het Turnstile-token
+     * bewust niet: die geeft de bakker bij iedere poging opnieuw.
+     */
+    private const array DRAFT_FIELDS = [
+        'step', 'companyName', 'companyType', 'kvkNumber', 'contactName', 'email', 'phone', 'website',
+        'postcode', 'houseNumber', 'street', 'city', 'provinceId', 'lat', 'lng',
+        'publicName', 'tagline', 'allergens', 'productNotes',
+        'packageId', 'rate', 'discountProofUrl', 'plainAddon',
+    ];
+
+    private bool $draftCleared = false;
+
     public function mount(): void
     {
-        if ($this->packages->count() === 1) {
+        $this->restoreDraft();
+
+        if ($this->packageId === null && $this->packages->count() === 1) {
             $this->packageId = $this->packages->first()->getKey();
         }
+    }
+
+    /**
+     * Livewire-hook aan het eind van ieder verzoek: het concept bijwerken in de sessie.
+     */
+    public function dehydrate(): void
+    {
+        if ($this->draftCleared) {
+            return;
+        }
+
+        session()->put(self::DRAFT_KEY, collect(self::DRAFT_FIELDS)->mapWithKeys(fn (string $field) => [$field => $this->{$field}])->all());
+    }
+
+    private function restoreDraft(): void
+    {
+        $draft = session()->get(self::DRAFT_KEY);
+
+        if (! is_array($draft)) {
+            return;
+        }
+
+        foreach (self::DRAFT_FIELDS as $field) {
+            if (! array_key_exists($field, $draft)) {
+                continue;
+            }
+
+            try {
+                $this->{$field} = $draft[$field];
+            } catch (TypeError) {
+                // Een oud concept met een ander type laten we vallen; de standaardwaarde blijft staan.
+            }
+        }
+
+        $this->step = max(1, min($this->step, self::STEPS));
+
+        if ($this->packageId !== null && ! $this->packages->contains('id', $this->packageId)) {
+            $this->packageId = null;
+        }
+    }
+
+    private function forgetDraft(): void
+    {
+        session()->forget(self::DRAFT_KEY);
+        $this->draftCleared = true;
     }
 
     #[Computed]
@@ -379,17 +445,29 @@ class RegistrationWizard extends Component
             return null;
         }
 
+        // De aanmelding staat; vanaf hier hoort een reload niet meer naar het ingevulde formulier te leiden.
+        $this->forgetDraft();
+
         // Kortingsactie: eerst het bewijs laten keuren, daarna pas betalen.
         if ($entry->wantsDiscount()) {
             return $this->redirect(route('aanmelden.status', $entry->order));
         }
 
-        $payment = $gateway->create(
-            $entry->order,
-            "De Gouden Bol {$edition->year} – deelname {$entry->public_name}",
-            route('aanmelden.status', $entry->order),
-            config('commerce.payment_driver') === 'mollie' ? route('webhooks.mollie') : null, // Stripe: webhook staat in het dashboard
-        );
+        // De aanmelding staat; lukt het aanmaken van de betaling niet, dan naar de statuspagina met een melding
+        // (daar kan de bakker opnieuw betalen) in plaats van een serverfout. De fout gaat naar de log.
+        try {
+            $payment = $gateway->create(
+                $entry->order,
+                "De Gouden Bol {$edition->year} – deelname {$entry->public_name}",
+                route('aanmelden.status', $entry->order),
+                config('commerce.payment_driver') === 'mollie' ? route('webhooks.mollie') : null, // Stripe: webhook staat in het dashboard
+            );
+        } catch (Throwable $exception) {
+            report($exception);
+            session()->flash('betaalfout', RegistrationStatusController::PAYMENT_UNAVAILABLE);
+
+            return $this->redirect(route('aanmelden.status', $entry->order));
+        }
 
         return $this->redirect($payment->checkout_url);
     }

@@ -17,6 +17,10 @@
         <div class="mx-auto max-w-[640px]">
             <x-ui.eyebrow>Aanmelding {{ $order->number }}</x-ui.eyebrow>
 
+            @if (session('betaalfout') && ! $paid)
+                <div class="mb-6 rounded-veld bg-status-waarschuwing-bg p-4 text-[0.9rem] text-status-waarschuwing" role="alert">{{ session('betaalfout') }}</div>
+            @endif
+
             @if ($paid)
                 <x-ui.chip status="succes" :dot="true" class="mb-4">Betaling ontvangen</x-ui.chip>
                 <h1 class="kop-pagina mb-5">Welkom bij <em>De Gouden Bol {{ $order->edition->year }}</em></h1>

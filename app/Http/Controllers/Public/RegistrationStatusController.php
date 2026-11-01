@@ -11,12 +11,15 @@ use App\Domain\Participants\Models\Entry;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Throwable;
 
 /**
  * Pagina waar de deelnemer na de checkout terugkomt, of na de aanmelding met kortingsactie.
  */
 class RegistrationStatusController extends Controller
 {
+    public const string PAYMENT_UNAVAILABLE = 'Het betaalsysteem is op dit moment niet bereikbaar. Uw aanmelding is opgeslagen en uw plek blijft gereserveerd. Probeer het over een paar minuten opnieuw; lukt het dan nog niet, mail ons.';
+
     public function show(Order $order, PaymentGateway $gateway, MarkOrderPaid $markPaid): View
     {
         abort_unless($order->orderable instanceof Entry, 404);
@@ -24,7 +27,11 @@ class RegistrationStatusController extends Controller
         $payment = $order->latestPayment;
 
         if ($payment !== null && ! $order->isPaid() && ! $payment->status->isFinal() && $payment->provider === $gateway->name()) {
-            $payment = $gateway->refresh($payment);
+            try {
+                $payment = $gateway->refresh($payment);
+            } catch (Throwable $exception) {
+                report($exception);
+            }
         }
 
         if ($payment?->isPaid() && ! $order->isPaid()) {
@@ -51,7 +58,7 @@ class RegistrationStatusController extends Controller
             return redirect()->route('aanmelden.status', $order);
         }
 
-        return redirect()->away($this->checkout($order, $gateway));
+        return $this->toCheckout($order, $gateway);
     }
 
     /**
@@ -68,7 +75,22 @@ class RegistrationStatusController extends Controller
 
         $applyRate($entry, EntryRate::Standard);
 
-        return redirect()->away($this->checkout($order->refresh(), $gateway));
+        return $this->toCheckout($order->refresh(), $gateway);
+    }
+
+    /**
+     * Naar de betaalpagina; lukt het aanmaken niet (bijvoorbeeld Stripe onbereikbaar of verkeerd ingesteld),
+     * dan terug naar de status met een melding in plaats van een serverfout. De fout gaat naar de log.
+     */
+    private function toCheckout(Order $order, PaymentGateway $gateway): RedirectResponse
+    {
+        try {
+            return redirect()->away($this->checkout($order, $gateway));
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return redirect()->route('aanmelden.status', $order)->with('betaalfout', self::PAYMENT_UNAVAILABLE);
+        }
     }
 
     private function checkout(Order $order, PaymentGateway $gateway): string

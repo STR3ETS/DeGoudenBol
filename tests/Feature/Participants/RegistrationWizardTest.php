@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Participants;
 
+use App\Domain\Commerce\Contracts\PaymentGateway;
 use App\Domain\Edition\Enums\EditionStatus;
 use App\Domain\Edition\Models\Province;
 use App\Domain\Participants\Enums\EntryStatus;
@@ -14,7 +15,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
+use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
+use RuntimeException;
 use Tests\Support\BuildsRegistrations;
 use Tests\TestCase;
 
@@ -170,6 +173,59 @@ class RegistrationWizardTest extends TestCase
         $payment = $entry->order->latestPayment;
         $this->assertNotNull($payment);
         $component->assertRedirect(route('betaling.fake', $payment));
+    }
+
+    #[Test]
+    public function a_failing_payment_provider_keeps_the_registration_and_offers_a_retry_instead_of_a_server_error(): void
+    {
+        $this->mock(PaymentGateway::class, fn (MockInterface $mock) => $mock->shouldReceive('create')->andThrow(new RuntimeException('Stripe weigert de sleutel'))->shouldReceive('name')->andReturn('stripe'));
+
+        $component = $this->completeStepOne(Livewire::test(RegistrationWizard::class))
+            ->set('postcode', '6811 AB')
+            ->set('houseNumber', '12')
+            ->set('acceptTerms', true)
+            ->set('acceptPrivacy', true)
+            ->call('submit')
+            ->assertHasNoErrors();
+
+        $entry = Entry::query()->firstOrFail();
+        $component->assertRedirect(route('aanmelden.status', $entry->order));
+        $this->assertSame(EntryStatus::PendingPayment, $entry->status);
+        $this->assertNull($entry->order->latestPayment);
+
+        $this->get(route('aanmelden.status', $entry->order))->assertOk()->assertSee('Het betaalsysteem is op dit moment niet bereikbaar')->assertSee('Betalen');
+
+        $this->post(route('aanmelden.opnieuw', $entry->order))
+            ->assertRedirect(route('aanmelden.status', $entry->order))
+            ->assertSessionHas('betaalfout');
+    }
+
+    #[Test]
+    public function a_reload_keeps_what_the_baker_filled_in_until_the_registration_is_sent(): void
+    {
+        $this->completeStepOne(Livewire::test(RegistrationWizard::class))
+            ->call('next')
+            ->assertSet('step', 2)
+            ->set('postcode', '6811 AB')
+            ->set('houseNumber', '12')
+            ->set('acceptTerms', true);
+
+        // Reload: een nieuwe component in dezelfde sessie.
+        Livewire::test(RegistrationWizard::class)
+            ->assertSet('step', 2)
+            ->assertSet('companyName', 'Bakkerij Testers')
+            ->assertSet('email', 'tessa@example.test')
+            ->assertSet('city', 'Arnhem')
+            ->assertSet('acceptTerms', false)
+            ->set('acceptTerms', true)
+            ->set('acceptPrivacy', true)
+            ->call('submit')
+            ->assertHasNoErrors();
+
+        $this->assertNotNull(Entry::query()->first());
+        $this->assertFalse(session()->has(RegistrationWizard::DRAFT_KEY));
+
+        Livewire::test(RegistrationWizard::class)->assertSet('step', 1)->assertSet('companyName', '');
     }
 
     private function completeStepOne(Testable $component, string $kvk = '12345678'): Testable
