@@ -46,13 +46,14 @@ final class RegisterEntry
             default => EntryRate::Standard,
         };
         $plainAddon = $data->plainAddon && $edition->settings->plainAddonEnabled();
+        $pickup = $data->pickup && $edition->settings->pickupEnabled;
 
         // Met kortingsaanvraag blijft de plek langer vast: eerst bewijs en controle, dan pas betalen.
         $reservationMinutes = $wantsDiscount
             ? $edition->settings->discountHoldDays * 24 * 60
             : (int) config('commerce.reservation_minutes', 60);
 
-        return $this->capacity->reserve($edition, $province, function () use ($edition, $province, $package, $data, $reservationMinutes, $wantsDiscount, $rate, $plainAddon): Entry {
+        return $this->capacity->reserve($edition, $province, function () use ($edition, $province, $package, $data, $reservationMinutes, $wantsDiscount, $rate, $plainAddon, $pickup): Entry {
             $user = ParticipantUser::query()->firstOrCreate(
                 ['email' => Str::lower($data->email)],
                 ['name' => $data->contactName, 'phone' => $data->phone],
@@ -103,6 +104,7 @@ final class RegisterEntry
                 'package_id' => $package->getKey(),
                 'rate' => $rate,
                 'plain_addon' => $plainAddon,
+                'pickup_prepaid' => $pickup,
                 'discount_status' => $wantsDiscount ? (filled($data->discountProofUrl) ? DiscountStatus::Submitted : DiscountStatus::AwaitingProof) : null,
                 'discount_proof_url' => $wantsDiscount ? $data->discountProofUrl : null,
                 'discount_submitted_at' => $wantsDiscount && filled($data->discountProofUrl) ? now() : null,
@@ -124,6 +126,7 @@ final class RegisterEntry
                 'package' => $package->code,
                 'rate' => $rate->value,
                 'plain_addon' => $plainAddon,
+                'pickup_prepaid' => $pickup,
             ], null);
 
             if ($wantsDiscount) {

@@ -83,6 +83,8 @@ Een nieuwe uitvoeringsbriefing ("Technische briefing platform & sponsoring", ver
 
 | Openingsactie (Bennie, 30 okt) | Keuze standaardprijs EUR 150 of kortingsactie EUR 75 | Tijdelijk één prijs: EUR 75 in plaats van EUR 150, direct betalen, geen socialmediabewijs. Optie: voor EUR 50 extra ook de naturel oliebol laten testen (introductieprijs). Bedragen excl. btw | Editie > Prijzen, korting en ophaalservice: `opening_offer_cents` (7500) en `plain_addon_cents` (5000); 0 zet ze uit, dan komen standaardprijs en kortingsactie terug. Tarief "Openingsactie", kolom `entries.plain_addon`, orderregels `opening_offer` (negatief) en `plain_addon` |
 
+| Ophalen bij aanmelden (Bennie, 1 nov) | Ophaalservice alleen in het portaal te kiezen en te betalen | In stap 4 heet het pakket "Deelname bij zelf aanleveren" en is er een aparte keuze "Indien ophalen: voorrijkosten + EUR 45"; die komen op de aanmeldorder. In het portaal kiest de bakker daarna alleen de vrijdag, zonder tweede betaling. Bennie vroeg ook het KvK-veld weg te halen; dat blijft staan (besluit Raphael 1 nov): optioneel, maar een ingevuld KvK-nummer dat al is aangemeld wordt geweigerd, tegen dubbele aanmeldingen | Kolom `entries.pickup_prepaid`, orderregel `pickup_fee`; `RequestPickup` activeert de aanvraag dan direct |
+
 **Open bij de naturel-test:** de extra test is verkocht en staat zichtbaar bij de inschrijving, in het portaal en bij ontvangst. De testketen zelf (aantal stuks, eigen testnummer, scorekaarten, rapport en of de naturel een eigen ranglijst krijgt) is nog niet ingericht. Bennie moet dit vóór de eerste naturel-levering beslissen.
 
 **Eigen aannames bij de briefing (corrigeerbaar):**

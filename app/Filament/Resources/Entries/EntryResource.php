@@ -107,6 +107,7 @@ class EntryResource extends Resource
                 ]),
                 Section::make('Aanlevering')->columns(3)->schema([
                     TextEntry::make('delivery_method')->label('Methode')->badge()->placeholder('Nog niet gekozen'),
+                    IconEntry::make('pickup_prepaid')->label('Ophalen betaald bij aanmelding')->boolean(),
                     TextEntry::make('delivery_code')->label('Deelnemercode')->placeholder('–'),
                     TextEntry::make('deliverySlot.starts_at')->label('Tijdslot')->dateTime('d-m-Y H:i')->placeholder('–'),
                     TextEntry::make('pickupRequest.day.date')->label('Ophaalvrijdag')->date('d-m-Y')->placeholder('–'),
@@ -134,6 +135,7 @@ class EntryResource extends Resource
                 TextColumn::make('order.status')->label('Betaling')->badge()->placeholder('–'),
                 TextColumn::make('order.invoice.number')->label('Factuur')->placeholder('–')->toggleable(),
                 TextColumn::make('delivery_method')->label('Aanlevering')->badge()->placeholder('–')->toggleable(),
+                IconColumn::make('pickup_prepaid')->label('Ophalen')->boolean()->tooltip('Voorrijkosten betaald bij de aanmelding')->toggleable(),
                 TextColumn::make('registered_at')->label('Aangemeld')->dateTime('d-m-Y H:i')->sortable(),
                 TextColumn::make('edition.year')->label('Editie')->toggleable(isToggledHiddenByDefault: true),
             ])

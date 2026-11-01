@@ -75,6 +75,7 @@ trait BuildsRegistrations
             rate: $overrides['rate'] ?? EntryRate::Standard,
             discountProofUrl: $overrides['discountProofUrl'] ?? null,
             plainAddon: $overrides['plainAddon'] ?? false,
+            pickup: $overrides['pickup'] ?? false,
         );
     }
 }

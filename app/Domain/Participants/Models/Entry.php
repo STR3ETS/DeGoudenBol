@@ -40,6 +40,7 @@ use Illuminate\Support\Facades\Storage;
     'package_id',
     'rate',
     'plain_addon',
+    'pickup_prepaid',
     'discount_status',
     'discount_proof_url',
     'discount_proof_path',
@@ -74,6 +75,7 @@ class Entry extends DomainModel
     protected $attributes = [
         'rate' => 'standard',
         'plain_addon' => false,
+        'pickup_prepaid' => false,
     ];
 
     /**
@@ -85,6 +87,7 @@ class Entry extends DomainModel
             'status' => EntryStatus::class,
             'rate' => EntryRate::class,
             'plain_addon' => 'boolean',
+            'pickup_prepaid' => 'boolean',
             'discount_status' => DiscountStatus::class,
             'discount_submitted_at' => 'immutable_datetime',
             'discount_reviewed_at' => 'immutable_datetime',

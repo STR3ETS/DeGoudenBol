@@ -94,6 +94,8 @@ class RegistrationWizard extends Component
 
     public bool $plainAddon = false;
 
+    public bool $pickup = false;
+
     // Stap 5: voorwaarden
     public bool $acceptTerms = false;
 
@@ -113,7 +115,7 @@ class RegistrationWizard extends Component
         'step', 'companyName', 'companyType', 'kvkNumber', 'contactName', 'email', 'phone', 'website',
         'postcode', 'houseNumber', 'street', 'city', 'provinceId', 'lat', 'lng',
         'publicName', 'tagline', 'allergens', 'productNotes',
-        'packageId', 'rate', 'discountProofUrl', 'plainAddon',
+        'packageId', 'rate', 'discountProofUrl', 'plainAddon', 'pickup',
     ];
 
     private bool $draftCleared = false;
@@ -247,6 +249,11 @@ class RegistrationWizard extends Component
         return (bool) $this->edition?->settings->openingOfferEnabled();
     }
 
+    public function pickupEnabled(): bool
+    {
+        return (bool) $this->edition?->settings->pickupEnabled;
+    }
+
     public function plainAddonEnabled(): bool
     {
         return (bool) $this->edition?->settings->plainAddonEnabled();
@@ -284,7 +291,7 @@ class RegistrationWizard extends Component
             return null;
         }
 
-        return CreateOrderForEntry::totals($this->selectedPackage, $this->edition->settings, $this->edition->year, $this->chosenRate(), $this->plainAddon && $this->plainAddonEnabled());
+        return CreateOrderForEntry::totals($this->selectedPackage, $this->edition->settings, $this->edition->year, $this->chosenRate(), $this->plainAddon && $this->plainAddonEnabled(), $this->pickup && $this->pickupEnabled());
     }
 
     public function wantsDiscount(): bool
@@ -337,7 +344,8 @@ class RegistrationWizard extends Component
     {
         $this->lookupFailed = false;
 
-        if ($this->postcode === '' || $this->houseNumber === '') {
+        // Pas zoeken bij een volledige postcode en een huisnummer, anders verschijnt tijdens het typen al "niet gevonden".
+        if (! preg_match('/^\d{4}\s?[A-Za-z]{2}$/', trim($this->postcode)) || ! preg_match('/^\d+/', trim($this->houseNumber))) {
             return;
         }
 
@@ -437,6 +445,7 @@ class RegistrationWizard extends Component
                 rate: $this->chosenRate(),
                 discountProofUrl: $this->wantsDiscount() && $this->discountProofUrl !== '' ? trim($this->discountProofUrl) : null,
                 plainAddon: $this->plainAddon && $this->plainAddonEnabled(),
+                pickup: $this->pickup && $this->pickupEnabled(),
             ));
         } catch (ProvinceFullException $exception) {
             $this->step = 2;
@@ -513,6 +522,7 @@ class RegistrationWizard extends Component
                 'rate' => ['required', Rule::in($this->discountEnabled() ? ['standard', 'discount'] : ['standard'])],
                 'discountProofUrl' => ['nullable', 'url', 'max:500'],
                 'plainAddon' => ['boolean'],
+                'pickup' => ['boolean'],
             ],
             5 => [
                 'acceptTerms' => ['accepted'],

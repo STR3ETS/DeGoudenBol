@@ -33,6 +33,14 @@ final class ConfirmPickupOnOrderPaid
             return;
         }
 
+        $this->activate($request);
+    }
+
+    /**
+     * Zet de ophaalservice aan; ook gebruikt als de voorrijkosten al bij de aanmelding zijn betaald.
+     */
+    public function activate(PickupRequest $request): void
+    {
         DB::transaction(function () use ($request): void {
             $request = PickupRequest::query()->lockForUpdate()->findOrFail($request->getKey());
 

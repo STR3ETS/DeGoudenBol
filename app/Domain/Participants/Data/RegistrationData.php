@@ -39,5 +39,6 @@ final readonly class RegistrationData
         public EntryRate $rate = EntryRate::Standard,
         public ?string $discountProofUrl = null,
         public bool $plainAddon = false,
+        public bool $pickup = false,
     ) {}
 }

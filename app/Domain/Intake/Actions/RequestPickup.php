@@ -7,6 +7,7 @@ use App\Domain\Commerce\Models\Order;
 use App\Domain\Commerce\Models\OrderLine;
 use App\Domain\Intake\Enums\PickupStatus;
 use App\Domain\Intake\Exceptions\SlotFullException;
+use App\Domain\Intake\Listeners\ConfirmPickupOnOrderPaid;
 use App\Domain\Intake\Models\PickupDay;
 use App\Domain\Intake\Models\PickupRequest;
 use App\Domain\Participants\Enums\EntryStatus;
@@ -20,11 +21,15 @@ use InvalidArgumentException;
 /**
  * Ophaalservice aanvragen of de vrijdag wijzigen (briefing 29 okt §5). Alleen op open vrijdagen met
  * capaciteit en binnen de wijzigingstermijn. Een nieuwe aanvraag krijgt een order voor de
- * voorrijkosten; de ophaalservice is pas actief na betaling.
+ * voorrijkosten; de ophaalservice is pas actief na betaling. Zijn de voorrijkosten al bij de aanmelding
+ * betaald, dan is er geen tweede order en is de aanvraag direct actief.
  */
 final class RequestPickup
 {
-    public function __construct(private readonly AuditLogger $audit) {}
+    public function __construct(
+        private readonly AuditLogger $audit,
+        private readonly ConfirmPickupOnOrderPaid $confirm,
+    ) {}
 
     /**
      * @param  array{company_name: string, contact_name: string, phone: string, street: string, house_number: string, postcode: string, city: string, instructions?: string|null}  $data
@@ -69,7 +74,7 @@ final class RequestPickup
             throw new InvalidArgumentException('Uw aanlevermoment is al geweest; kies geen ophaalservice meer.');
         }
 
-        return DB::transaction(function () use ($entry, $day, $data, $user, $existing, $settings): PickupRequest {
+        $request = DB::transaction(function () use ($entry, $day, $data, $user, $existing, $settings): PickupRequest {
             $locked = PickupDay::query()->lockForUpdate()->findOrFail($day->getKey());
 
             $taken = $locked->requests()
@@ -118,6 +123,12 @@ final class RequestPickup
                 'route_order' => null,
             ])->save();
 
+            if ($entry->pickup_prepaid) {
+                $this->audit->record('pickup.requested', $request, ['day' => $locked->date->toDateString(), 'prepaid' => true]);
+
+                return $request->refresh();
+            }
+
             $order = Order::query()->create([
                 'edition_id' => $entry->edition_id,
                 'orderable_type' => $request->getMorphClass(),
@@ -153,6 +164,12 @@ final class RequestPickup
 
             return $request->refresh();
         });
+
+        if ($entry->pickup_prepaid && $request->status === PickupStatus::Requested && $request->order_id === null) {
+            $this->confirm->activate($request);
+        }
+
+        return $request->refresh();
     }
 
     private function description(PickupDay $day): string

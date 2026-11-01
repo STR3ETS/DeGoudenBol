@@ -14,14 +14,17 @@ use App\Support\Money;
 use Carbon\CarbonInterface;
 
 /**
- * Maakt de order voor een inschrijving: de pakketregel, bij de openingsactie een kortingsregel en
- * eventueel de extra test van de naturel oliebol. De omschrijving noemt de inhoud, nooit een positie.
+ * Maakt de order voor een inschrijving: de pakketregel, bij de openingsactie een kortingsregel,
+ * eventueel de extra test van de naturel oliebol en de voorrijkosten van de ophaalservice. De
+ * omschrijving noemt de inhoud, nooit een positie.
  */
 final class CreateOrderForEntry
 {
     public const string OPENING_OFFER_LINE_TYPE = 'opening_offer';
 
     public const string PLAIN_ADDON_LINE_TYPE = 'plain_addon';
+
+    public const string PICKUP_LINE_TYPE = 'pickup_fee';
 
     public function __invoke(Entry $entry, Package $package, ParticipantUser $buyer, ?CarbonInterface $expiresAt = null): Order
     {
@@ -39,7 +42,7 @@ final class CreateOrderForEntry
             'expires_at' => $expiresAt,
         ]);
 
-        foreach (self::lines($package, $entry->edition->settings, $entry->edition->year, $entry->rate, $entry->plain_addon) as $line) {
+        foreach (self::lines($package, $entry->edition->settings, $entry->edition->year, $entry->rate, $entry->plain_addon, $entry->pickup_prepaid) as $line) {
             $order->lines()->create([
                 ...$line,
                 'lineable_id' => $line['lineable_type'] === $package->getMorphClass() ? $package->getKey() : $entry->getKey(),
@@ -56,18 +59,18 @@ final class CreateOrderForEntry
      *
      * @return list<array{lineable_type: string, description: string, quantity: int, unit_price_cents: int, vat_rate: float, counts_for_charity: bool, sort: int, subtotal_cents: int, vat_cents: int, total_cents: int}>
      */
-    public static function lines(Package $package, EditionSettings $settings, int $year, EntryRate $rate, bool $plainAddon): array
+    public static function lines(Package $package, EditionSettings $settings, int $year, EntryRate $rate, bool $plainAddon, bool $pickup = false): array
     {
         $vatRate = (float) $package->vat_rate;
-        $line = fn (string $type, string $description, int $cents, int $sort): array => [
+        $line = fn (string $type, string $description, int $cents, int $sort, ?float $vat = null): array => [
             'lineable_type' => $type,
             'description' => $description,
             'quantity' => 1,
             'unit_price_cents' => $cents,
-            'vat_rate' => $vatRate,
+            'vat_rate' => $vat ?? $vatRate,
             'counts_for_charity' => true,
             'sort' => $sort,
-            ...OrderLine::amounts(1, $cents, $vatRate),
+            ...OrderLine::amounts(1, $cents, $vat ?? $vatRate),
         ];
 
         $lines = [$line($package->getMorphClass(), "{$package->name} – De Gouden Bol {$year}", $package->price_cents, 1)];
@@ -85,15 +88,20 @@ final class CreateOrderForEntry
             $lines[] = $line(self::PLAIN_ADDON_LINE_TYPE, 'Extra test naturel oliebol (introductieprijs)', $settings->plainAddonCents, 3);
         }
 
+        // Zelfde btw als de ophaalservice die in het portaal wordt afgerekend.
+        if ($pickup && $settings->pickupEnabled) {
+            $lines[] = $line(self::PICKUP_LINE_TYPE, 'Ophaalservice op vrijdag (voorrijkosten); de vrijdag kiest u in het portaal', $settings->pickupFeeCents, 4, (float) config('commerce.default_vat_rate', 21.0));
+        }
+
         return $lines;
     }
 
     /**
      * @return array{subtotal_cents: int, total_cents: int}
      */
-    public static function totals(Package $package, EditionSettings $settings, int $year, EntryRate $rate, bool $plainAddon): array
+    public static function totals(Package $package, EditionSettings $settings, int $year, EntryRate $rate, bool $plainAddon, bool $pickup = false): array
     {
-        $lines = collect(self::lines($package, $settings, $year, $rate, $plainAddon));
+        $lines = collect(self::lines($package, $settings, $year, $rate, $plainAddon, $pickup));
 
         return ['subtotal_cents' => (int) $lines->sum('subtotal_cents'), 'total_cents' => (int) $lines->sum('total_cents')];
     }

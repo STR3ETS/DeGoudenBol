@@ -95,6 +95,38 @@ class PickupServiceTest extends TestCase
     }
 
     #[Test]
+    public function pickup_paid_at_registration_only_needs_a_friday_in_the_portal(): void
+    {
+        Notification::fake();
+
+        $entry = app(RegisterEntry::class)($this->edition, $this->registrationData(['email' => 'ophalen@example.test', 'pickup' => true]))->fresh(['order.lines']);
+
+        $this->assertTrue($entry->pickup_prepaid);
+        $this->assertSame(['pickup_fee'], $entry->order->lines->pluck('lineable_type')->slice(1)->values()->all());
+        $this->assertSame(18150 + 5445, $entry->order->total_cents); // EUR 150 + EUR 45, beide + 21% btw
+
+        app(MarkOrderPaid::class)($entry->order);
+        $owner = $entry->company->users()->wherePivot('role', CompanyUserRole::Owner->value)->firstOrFail();
+
+        $this->actingAs($owner, 'participant')
+            ->get(route('portaal.planning', $entry->company))
+            ->assertOk()
+            ->assertSee('voorrijkosten betaald bij de aanmelding')
+            ->assertSee('Vrijdag vastleggen');
+
+        $this->actingAs($owner, 'participant')
+            ->post(route('portaal.ophalen', $entry->company), $this->pickupForm())
+            ->assertRedirect(route('portaal.planning', $entry->company));
+
+        $pickup = $entry->pickupRequest()->firstOrFail();
+        $this->assertSame(PickupStatus::Paid, $pickup->status);
+        $this->assertNull($pickup->order_id);
+        $this->assertSame(EntryStatus::Scheduled, $entry->fresh()->status);
+        $this->assertSame(DeliveryMethod::Pickup, $entry->fresh()->delivery_method);
+        Notification::assertSentToTimes($owner, PickupConfirmedNotification::class, 1);
+    }
+
+    #[Test]
     public function only_open_fridays_with_room_can_be_booked(): void
     {
         $thursday = PickupDay::query()->create(['edition_id' => $this->edition->getKey(), 'date' => $this->friday->date->subDay()->toDateString(), 'capacity' => 5]);

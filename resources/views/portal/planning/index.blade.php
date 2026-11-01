@@ -10,6 +10,8 @@
     $pickupOpen = $pickup && $pickup->status === PickupStatus::Requested;
     $pickupChangeable = $pickup && $pickup->status->isChangeable() && ! $pickup->day->changeDeadline($deadlineHours)->isPast();
     $fee = $settings ? Money::format($settings->pickupFeeCents) : null;
+    // Voorrijkosten al bij de aanmelding betaald: hier alleen nog de vrijdag kiezen.
+    $pickupPrepaid = (bool) $entry?->pickup_prepaid;
 @endphp
 <x-layouts.portal title="Aanleveren">
     <header class="ui-app__kop">
@@ -119,12 +121,12 @@
                 {{-- Laten ophalen --}}
                 @if ($settings?->pickupEnabled)
                     <section class="ui-kaart">
-                        <div class="ui-kaart__kop"><span class="ui-icoonvak ui-icoonvak--goud"><x-ui.icoon naam="vlag" /></span><div><div class="ui-kaart__titel">Laten ophalen</div><div class="ui-kaart__sub">Alleen op vrijdag · {{ $fee }} voorrijkosten excl. btw</div></div></div>
+                        <div class="ui-kaart__kop"><span class="ui-icoonvak ui-icoonvak--goud"><x-ui.icoon naam="vlag" /></span><div><div class="ui-kaart__titel">Laten ophalen</div><div class="ui-kaart__sub">Alleen op vrijdag · {{ $pickupPrepaid ? 'voorrijkosten betaald bij de aanmelding' : $fee.' voorrijkosten excl. btw' }}</div></div></div>
                         <div class="ui-kaart__inhoud !pt-2">
                             @if ($pickupDays->isEmpty())
                                 <p class="text-[0.9rem] text-gedempt">Er zijn op dit moment geen vrijdagen te boeken. Kies een tijdslot om zelf te brengen, of kijk later nog eens.</p>
                             @else
-                                <p class="mb-4 text-[0.88rem] text-gedempt">Een teamlid van De Gouden Bol haalt je oliebollen op. Na de betaling is het ophaalmoment vast; je krijgt een bevestiging en later de route.</p>
+                                <p class="mb-4 text-[0.88rem] text-gedempt">Een teamlid van De Gouden Bol haalt je oliebollen op. {{ $pickupPrepaid ? 'De voorrijkosten heb je bij de aanmelding al betaald. Kies de vrijdag en het adres; daarna ligt het ophaalmoment vast' : 'Na de betaling is het ophaalmoment vast' }}; je krijgt een bevestiging en later de route.</p>
                                 <form method="post" action="{{ route('portaal.ophalen', $company) }}" class="grid gap-4">
                                     @csrf
                                     <div class="ui-veld">
@@ -148,8 +150,8 @@
                                         <div class="ui-veld sm:col-span-2"><label class="ui-label" for="instructions">Instructies voor de chauffeur <span class="ui-label__optioneel">optioneel</span></label><textarea id="instructions" name="instructions" rows="3" class="ui-invoer" placeholder="Bijvoorbeeld: achterom, bel aan bij de bakkerij">{{ old('instructions', $pickupDefaults['instructions']) }}</textarea></div>
                                     </div>
                                     <div class="flex flex-wrap items-center gap-3">
-                                        <button type="submit" class="ui-knop">{{ $pickupPaid ? 'Vrijdag wijzigen' : ($pickupOpen ? 'Opslaan en betalen' : 'Aanvragen en betalen') }} <x-ui.icoon naam="pijl-rechts" dikte="2.4" /></button>
-                                        @unless ($pickupPaid)<span class="text-[0.8rem] text-gedempt">{{ $fee }} excl. btw, betalen via iDEAL of kaart.</span>@endunless
+                                        <button type="submit" class="ui-knop">{{ $pickupPaid ? 'Vrijdag wijzigen' : ($pickupPrepaid ? 'Vrijdag vastleggen' : ($pickupOpen ? 'Opslaan en betalen' : 'Aanvragen en betalen')) }} <x-ui.icoon naam="pijl-rechts" dikte="2.4" /></button>
+                                        @unless ($pickupPaid || $pickupPrepaid)<span class="text-[0.8rem] text-gedempt">{{ $fee }} excl. btw, betalen via iDEAL of kaart.</span>@endunless
                                     </div>
                                 </form>
                             @endif

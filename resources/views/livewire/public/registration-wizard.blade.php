@@ -76,8 +76,8 @@
                     <h2 class="kop-3 mb-2">Adres en provincie</h2>
                     <p class="body-text mb-7 text-[0.9rem]">Vul postcode en huisnummer in; straat, plaats en provincie worden automatisch aangevuld.</p>
                     <div class="grid gap-4 sm:grid-cols-2">
-                        <x-ui.field name="postcode" label="Postcode" wire:model.blur="postcode" :required="true" placeholder="1234 AB" autocomplete="postal-code" />
-                        <x-ui.field name="houseNumber" label="Huisnummer" wire:model.blur="houseNumber" :required="true" placeholder="12a" />
+                        <x-ui.field name="postcode" label="Postcode" wire:model.live.debounce.500ms="postcode" :required="true" placeholder="1234 AB" autocomplete="postal-code" />
+                        <x-ui.field name="houseNumber" label="Huisnummer" wire:model.live.debounce.500ms="houseNumber" :required="true" placeholder="12a" />
                         <x-ui.field name="street" label="Straat" wire:model.blur="street" :required="true" autocomplete="address-line1" />
                         <x-ui.field name="city" label="Plaats" wire:model.blur="city" :required="true" autocomplete="address-level2" />
                     </div>
@@ -143,6 +143,7 @@
                                         <input type="radio" wire:model.live="packageId" value="{{ $package->getKey() }}" class="mt-1 h-4 w-4 accent-goud">
                                         <div>
                                             <div class="font-kop text-[1.25rem] font-semibold">{{ $package->name }}</div>
+                                            <div class="mt-0.5 text-[0.8rem] font-semibold text-goud-tekst">Deelname bij zelf aanleveren</div>
                                             @if ($package->description)
                                                 <p class="body-text mt-1 text-[0.85rem]">{{ $this->packageDescription($package) }}</p>
                                             @endif
@@ -164,6 +165,24 @@
                         @endforeach
                     </div>
                     @error('packageId') <p class="field-error">{{ $message }}</p> @enderror
+
+                    @if ($this->pickupEnabled())
+                        <label class="card card--hover mt-4 block cursor-pointer !p-6 {{ $pickup ? 'ring-2 ring-goud' : '' }}">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex items-start gap-3">
+                                    <input type="checkbox" wire:model.live="pickup" class="mt-1 h-4 w-4 accent-goud">
+                                    <div>
+                                        <div class="font-kop text-[1.25rem] font-semibold">Indien ophalen: voorrijkosten</div>
+                                        <p class="body-text mt-1 text-[0.85rem]">Een teamlid van De Gouden Bol haalt uw oliebollen op, alleen op vrijdag. De vrijdag en het ophaaladres kiest u na de aanmelding in het portaal.</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="cijfer whitespace-nowrap text-[1.6rem] text-goud-tekst">+ {{ App\Support\Money::format($edition->settings->pickupFeeCents) }}</div>
+                                    <div class="text-[0.72rem] text-gedempt">excl. btw</div>
+                                </div>
+                            </div>
+                        </label>
+                    @endif
 
                     @if ($this->plainAddonEnabled())
                         <label class="card card--hover mt-4 block cursor-pointer !p-6 {{ $plainAddon ? 'ring-2 ring-goud' : '' }}">
@@ -242,6 +261,7 @@
                             @if ($this->selectedPackage && ($totals = $this->orderTotals()))
                                 {{ $this->selectedPackage->name }}@if ($this->openingOfferEnabled()) · openingsactie @endif
                                 @if ($plainAddon && $this->plainAddonEnabled()) + extra test naturel oliebol @endif
+                                @if ($pickup && $this->pickupEnabled()) + ophalen (voorrijkosten) @else · zelf aanleveren @endif
                                 · {{ App\Support\Money::format($totals['subtotal_cents']) }} excl. btw
                                 <span class="text-gedempt">({{ App\Support\Money::format($totals['total_cents']) }} incl. {{ rtrim(rtrim(number_format($this->selectedPackage->vat_rate, 2, ',', '.'), '0'), ',') }}% btw)</span>
                             @endif

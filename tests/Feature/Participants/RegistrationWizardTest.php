@@ -96,8 +96,11 @@ class RegistrationWizardTest extends TestCase
 
         Livewire::test(RegistrationWizard::class)
             ->set('step', 2)
-            ->set('postcode', '6811ab')
             ->set('houseNumber', '12')
+            ->set('postcode', '681')
+            ->assertSet('lookupFailed', false)
+            ->assertSet('street', '')
+            ->set('postcode', '6811ab')
             ->assertSet('street', 'Bakkersstraat')
             ->assertSet('city', 'Arnhem')
             ->assertSet('postcode', '6811 AB')
