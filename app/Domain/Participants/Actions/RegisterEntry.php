@@ -79,6 +79,7 @@ final class RegisterEntry
                 'lat' => $data->lat,
                 'lng' => $data->lng,
                 'is_primary' => true,
+                'hide_address' => $data->homeAddress,
             ]);
 
             $company->profile()->create([

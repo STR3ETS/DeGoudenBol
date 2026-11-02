@@ -75,6 +75,8 @@ class RegistrationWizard extends Component
 
     public bool $lookupFailed = false;
 
+    public bool $homeAddress = false;
+
     // Stap 3: publicatie
     public string $publicName = '';
 
@@ -113,7 +115,7 @@ class RegistrationWizard extends Component
      */
     private const array DRAFT_FIELDS = [
         'step', 'companyName', 'companyType', 'kvkNumber', 'contactName', 'email', 'phone', 'website',
-        'postcode', 'houseNumber', 'street', 'city', 'provinceId', 'lat', 'lng',
+        'postcode', 'houseNumber', 'street', 'city', 'provinceId', 'lat', 'lng', 'homeAddress',
         'publicName', 'tagline', 'allergens', 'productNotes',
         'packageId', 'rate', 'discountProofUrl', 'plainAddon', 'pickup',
     ];
@@ -434,6 +436,7 @@ class RegistrationWizard extends Component
                 provinceId: (int) $this->provinceId,
                 lat: $this->lat,
                 lng: $this->lng,
+                homeAddress: $this->homeAddress,
                 publicName: trim($this->publicName) ?: trim($this->companyName),
                 tagline: $this->tagline !== '' ? trim($this->tagline) : null,
                 allergens: array_values($this->allergens),
@@ -509,6 +512,7 @@ class RegistrationWizard extends Component
                 'street' => ['required', 'string', 'max:120'],
                 'city' => ['required', 'string', 'max:120'],
                 'provinceId' => ['required', 'integer', Rule::exists('provinces', 'id')],
+                'homeAddress' => ['boolean'],
             ],
             3 => [
                 'publicName' => ['required', 'string', 'min:2', 'max:120'],

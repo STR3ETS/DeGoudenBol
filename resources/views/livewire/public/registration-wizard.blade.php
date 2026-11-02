@@ -74,7 +74,14 @@
                 {{-- Stap 2: adres --}}
                 @if ($step === 2)
                     <h2 class="kop-3 mb-2">Adres en provincie</h2>
-                    <p class="body-text mb-7 text-[0.9rem]">Vul postcode en huisnummer in; straat, plaats en provincie worden automatisch aangevuld.</p>
+                    <p class="body-text mb-4 text-[0.9rem]">Vul postcode en huisnummer in; straat, plaats en provincie worden automatisch aangevuld.</p>
+                    <div class="mb-7 rounded-veld bg-goud-licht p-4 text-[0.85rem]" role="note">
+                        <p><b>Geen vast adres?</b> Heeft u een kraam of standplaats zonder eigen postcode, vul dan gewoon uw huisadres in. Het adres bepaalt in welke provincie u meedoet.</p>
+                        <label class="mt-3 flex cursor-pointer items-start gap-2">
+                            <input type="checkbox" wire:model="homeAddress" class="mt-0.5 h-4 w-4 accent-goud">
+                            <span>Dit is mijn huisadres: toon op de site alleen de plaats, niet de straat.</span>
+                        </label>
+                    </div>
                     <div class="grid gap-4 sm:grid-cols-2">
                         <x-ui.field name="postcode" label="Postcode" wire:model.live.debounce.500ms="postcode" :required="true" placeholder="1234 AB" autocomplete="postal-code" />
                         <x-ui.field name="houseNumber" label="Huisnummer" wire:model.live.debounce.500ms="houseNumber" :required="true" placeholder="12a" />

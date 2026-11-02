@@ -40,5 +40,6 @@ final readonly class RegistrationData
         public ?string $discountProofUrl = null,
         public bool $plainAddon = false,
         public bool $pickup = false,
+        public bool $homeAddress = false,
     ) {}
 }

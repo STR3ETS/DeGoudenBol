@@ -5,6 +5,7 @@ namespace Tests\Feature\Participants;
 use App\Domain\Commerce\Contracts\PaymentGateway;
 use App\Domain\Edition\Enums\EditionStatus;
 use App\Domain\Edition\Models\Province;
+use App\Domain\Participants\Actions\RegisterEntry;
 use App\Domain\Participants\Enums\EntryStatus;
 use App\Domain\Participants\Models\Company;
 use App\Domain\Participants\Models\Entry;
@@ -229,6 +230,24 @@ class RegistrationWizardTest extends TestCase
         $this->assertFalse(session()->has(RegistrationWizard::DRAFT_KEY));
 
         Livewire::test(RegistrationWizard::class)->assertSet('step', 1)->assertSet('companyName', '');
+    }
+
+    #[Test]
+    public function a_home_address_shows_only_the_city_on_the_public_profile(): void
+    {
+        Livewire::test(RegistrationWizard::class)->set('step', 2)->assertSee('vul dan gewoon uw huisadres in');
+
+        $entry = app(RegisterEntry::class)($this->edition, $this->registrationData(['homeAddress' => true]));
+        $entry->forceFill(['status' => EntryStatus::Registered, 'confirmed_at' => now()])->save();
+
+        $this->assertTrue($entry->company->primaryLocation->hide_address);
+        $this->get(route('bakkers.toon', $entry->company))
+            ->assertOk()
+            ->assertSee('Arnhem')
+            ->assertDontSee('Bakkersstraat')
+            ->assertDontSee('6811 AB')
+            ->assertDontSee('google.com/maps', false)
+            ->assertDontSee('GeoCoordinates', false);
     }
 
     private function completeStepOne(Testable $component, string $kvk = '12345678'): Testable

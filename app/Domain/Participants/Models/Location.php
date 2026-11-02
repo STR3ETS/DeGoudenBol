@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'lat',
     'lng',
     'is_primary',
+    'hide_address',
     'season_from',
     'season_to',
 ])]
@@ -39,6 +40,7 @@ class Location extends DomainModel
             'lat' => 'float',
             'lng' => 'float',
             'is_primary' => 'boolean',
+            'hide_address' => 'boolean',
             'season_from' => 'immutable_date',
             'season_to' => 'immutable_date',
         ];

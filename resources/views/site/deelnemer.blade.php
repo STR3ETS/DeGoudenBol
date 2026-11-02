@@ -7,8 +7,10 @@
     $tagline = $profile?->publishedTagline() ?? $entry->tagline;
     $specialties = $profile?->publishedSpecialties() ?? [];
     $city = $location?->city;
-    $address = $location ? trim($location->street.' '.$location->house_number).'<br>'.trim($location->postcode.' '.$location->city) : null;
-    $routeQuery = $location ? urlencode(trim($location->street.' '.$location->house_number.' '.$location->city)) : null;
+    // Huisadres (vinkje bij de aanmelding): alleen de plaats tonen, geen straat, route of coördinaten.
+    $privateAddress = (bool) $location?->hide_address;
+    $address = $location ? ($privateAddress ? e($location->city) : trim($location->street.' '.$location->house_number).'<br>'.trim($location->postcode.' '.$location->city)) : null;
+    $routeQuery = $location && ! $privateAddress ? urlencode(trim($location->street.' '.$location->house_number.' '.$location->city)) : null;
     $badge = $total !== null ? "Officieel getest – De Gouden Bol {$year}" : "Deelnemer De Gouden Bol {$year}";
     $dagen = ['ma', 'di', 'wo', 'do', 'vr', 'za', 'zo'];
     $hours = collect($location?->openingHours ?? [])->keyBy('weekday');
@@ -29,8 +31,8 @@
             'name' => $entry->public_name,
             'description' => $tagline,
             'url' => route('bakkers.toon', $company),
-            'address' => $location ? ['@type' => 'PostalAddress', 'streetAddress' => trim($location->street.' '.$location->house_number), 'postalCode' => $location->postcode, 'addressLocality' => $location->city, 'addressCountry' => 'NL'] : null,
-            'geo' => $location?->lat ? ['@type' => 'GeoCoordinates', 'latitude' => $location->lat, 'longitude' => $location->lng] : null,
+            'address' => $location && $privateAddress ? ['@type' => 'PostalAddress', 'addressLocality' => $location->city, 'addressCountry' => 'NL'] : ($location ? ['@type' => 'PostalAddress', 'streetAddress' => trim($location->street.' '.$location->house_number), 'postalCode' => $location->postcode, 'addressLocality' => $location->city, 'addressCountry' => 'NL'] : null),
+            'geo' => $location?->lat && ! $privateAddress ? ['@type' => 'GeoCoordinates', 'latitude' => $location->lat, 'longitude' => $location->lng] : null,
             'sameAs' => array_values(array_filter([$company->website])),
         ]), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
         <script type="application/ld+json">{!! json_encode(['@context' => 'https://schema.org', '@type' => 'BreadcrumbList', 'itemListElement' => [['@type' => 'ListItem', 'position' => 1, 'name' => 'Alle deelnemers', 'item' => route('bakkers.index')], ['@type' => 'ListItem', 'position' => 2, 'name' => $entry->public_name, 'item' => route('bakkers.toon', $company)]]], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>

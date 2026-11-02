@@ -87,6 +87,8 @@ Een nieuwe uitvoeringsbriefing ("Technische briefing platform & sponsoring", ver
 
 | Aanlevermoment na betaling (Raphael, 2 nov) | Moment kiezen alleen in het portaal, na inloggen; herinnering alleen de dag vóór het gekozen moment | Na de betaling kiest de bakker op de bedankpagina (`/aanmelden/status/{order}`) direct een aanlevermoment, of de ophaalvrijdag als hij ophalen al betaalde; zonder inloggen, de link is uniek per order. Wie na een dag nog niets koos, krijgt dagelijks om 09:30 een herinnering met die link, hoogstens drie. Na twee herinneringen staat er een taak "Nog geen aanlevermoment" in het dashboard | `PlanningOptions`, `deliveries:plan-reminder`, kolommen `entries.planning_reminders` en `planning_reminded_at`, WorkQueue |
 
+| Huisadres bij aanmelden (Raphael, 2 nov) | Adres staat volledig op het openbare profiel | Stap 2 legt uit dat een huisadres mag (kraam of standplaats zonder postcode). Met het vinkje "Dit is mijn huisadres" toont het profiel alleen de plaats: geen straat, postcode, routelink of coördinaten | Kolom `locations.hide_address`; `site/deelnemer.blade.php` |
+
 **Open bij de naturel-test:** de extra test is verkocht en staat zichtbaar bij de inschrijving, in het portaal en bij ontvangst. De testketen zelf (aantal stuks, eigen testnummer, scorekaarten, rapport en of de naturel een eigen ranglijst krijgt) is nog niet ingericht. Bennie moet dit vóór de eerste naturel-levering beslissen.
 
 **Eigen aannames bij de briefing (corrigeerbaar):**

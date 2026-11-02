@@ -76,6 +76,7 @@ trait BuildsRegistrations
             discountProofUrl: $overrides['discountProofUrl'] ?? null,
             plainAddon: $overrides['plainAddon'] ?? false,
             pickup: $overrides['pickup'] ?? false,
+            homeAddress: $overrides['homeAddress'] ?? false,
         );
     }
 }
