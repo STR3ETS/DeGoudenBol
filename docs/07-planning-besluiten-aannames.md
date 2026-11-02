@@ -85,6 +85,8 @@ Een nieuwe uitvoeringsbriefing ("Technische briefing platform & sponsoring", ver
 
 | Ophalen bij aanmelden (Bennie, 1 nov) | Ophaalservice alleen in het portaal te kiezen en te betalen | In stap 4 heet het pakket "Deelname bij zelf aanleveren" en is er een aparte keuze "Indien ophalen: voorrijkosten + EUR 45"; die komen op de aanmeldorder. In het portaal kiest de bakker daarna alleen de vrijdag, zonder tweede betaling. Bennie vroeg ook het KvK-veld weg te halen; dat blijft staan (besluit Raphael 1 nov): optioneel, maar een ingevuld KvK-nummer dat al is aangemeld wordt geweigerd, tegen dubbele aanmeldingen | Kolom `entries.pickup_prepaid`, orderregel `pickup_fee`; `RequestPickup` activeert de aanvraag dan direct |
 
+| Aanlevermoment na betaling (Raphael, 2 nov) | Moment kiezen alleen in het portaal, na inloggen; herinnering alleen de dag vóór het gekozen moment | Na de betaling kiest de bakker op de bedankpagina (`/aanmelden/status/{order}`) direct een aanlevermoment, of de ophaalvrijdag als hij ophalen al betaalde; zonder inloggen, de link is uniek per order. Wie na een dag nog niets koos, krijgt dagelijks om 09:30 een herinnering met die link, hoogstens drie. Na twee herinneringen staat er een taak "Nog geen aanlevermoment" in het dashboard | `PlanningOptions`, `deliveries:plan-reminder`, kolommen `entries.planning_reminders` en `planning_reminded_at`, WorkQueue |
+
 **Open bij de naturel-test:** de extra test is verkocht en staat zichtbaar bij de inschrijving, in het portaal en bij ontvangst. De testketen zelf (aantal stuks, eigen testnummer, scorekaarten, rapport en of de naturel een eigen ranglijst krijgt) is nog niet ingericht. Bennie moet dit vóór de eerste naturel-levering beslissen.
 
 **Eigen aannames bij de briefing (corrigeerbaar):**

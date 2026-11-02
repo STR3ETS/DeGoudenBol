@@ -24,10 +24,36 @@
             @if ($paid)
                 <x-ui.chip status="succes" :dot="true" class="mb-4">Betaling ontvangen</x-ui.chip>
                 <h1 class="kop-pagina mb-5">Welkom bij <em>De Gouden Bol {{ $order->edition->year }}</em></h1>
-                <p class="body-text mb-4">{{ $entry->public_name }} doet mee in de provincie {{ $entry->province->name }}. We hebben een bevestiging met de factuur en een inloglink voor het deelnemersportaal gestuurd naar het opgegeven e-mailadres.</p>
-                <p class="body-text mb-8 text-[0.9rem]">In het portaal kiest u hoe uw oliebollen bij ons komen: zelf brengen op een tijdslot of op vrijdag laten ophalen.</p>
+                <p class="body-text mb-6">{{ $entry->public_name }} doet mee in de provincie {{ $entry->province->name }}. We hebben een bevestiging met de factuur en een inloglink voor het deelnemersportaal gestuurd naar het opgegeven e-mailadres.</p>
+
+                @if (session('gepland'))
+                    <div class="mb-6 rounded-veld bg-status-succes-bg p-4 text-[0.9rem] text-status-succes" role="status">{{ session('gepland') }}</div>
+                @endif
+
+                @if ($needsPlanning)
+                    @include('public.aanmelden.partials.moment-kiezen')
+                @else
+                    @if ($entry->deliverySlot)
+                        <div class="card mb-8 !p-6">
+                            <p class="text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-gedempt">Uw aanlevermoment</p>
+                            <p class="font-kop mt-1 text-[1.3rem] font-semibold">{{ ucfirst($entry->deliverySlot->label()) }}</p>
+                            @if ($entry->deliverySlot->testLocation)
+                                <p class="body-text text-[0.88rem]">{{ $entry->deliverySlot->testLocation->name }}, {{ $entry->deliverySlot->testLocation->street }}, {{ $entry->deliverySlot->testLocation->postcode }} {{ $entry->deliverySlot->testLocation->city }}</p>
+                            @endif
+                            <p class="body-text mt-2 text-[0.88rem]">Deelnemercode: <b>{{ $entry->delivery_code }}</b> · {{ $entry->edition->settings->piecesPerEntry }} oliebollen in een doos of zak, zonder naam of logo.</p>
+                        </div>
+                    @elseif ($entry->pickupRequest?->status?->isActive())
+                        <div class="card mb-8 !p-6">
+                            <p class="text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-gedempt">Wij halen uw oliebollen op</p>
+                            <p class="font-kop mt-1 text-[1.3rem] font-semibold">{{ $entry->pickupRequest->day->label() }}</p>
+                            <p class="body-text text-[0.88rem]">{{ $entry->pickupRequest->address() }}</p>
+                        </div>
+                    @endif
+                    <p class="body-text mb-8 text-[0.9rem]">Wijzigen of uw aanleverbewijs openen doet u in het portaal.</p>
+                @endif
+
                 <div class="flex flex-wrap gap-3">
-                    <x-ui.button :href="route('portaal.inloggen')">Naar het portaal</x-ui.button>
+                    <x-ui.button :href="route('portaal.inloggen')" :variant="$needsPlanning ? 'outline' : 'primary'">Naar het portaal</x-ui.button>
                     <x-ui.button variant="outline" :href="route('home')">Naar de homepage</x-ui.button>
                 </div>
             @elseif ($pending)

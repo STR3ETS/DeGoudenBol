@@ -12,5 +12,8 @@ Schedule::command('vouchers:tick')->hourly()->withoutOverlapping();
 // Herinnering voor bakkers die morgen aanleveren, en de persoonlijke rapporten die bijna te laat zijn.
 Schedule::command('deliveries:remind')->dailyAt('10:00');
 
+// Betaald maar nog geen aanlevermoment of ophaalvrijdag: dagelijks een herinnering, hoogstens drie.
+Schedule::command('deliveries:plan-reminder')->dailyAt('09:30');
+
 // Versheid: een half uur voor het verlopen een melding in de bel voor coördinatie en scorecontrole.
 Schedule::command('freshness:notify')->everyTenMinutes()->withoutOverlapping();

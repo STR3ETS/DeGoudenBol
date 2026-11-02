@@ -6,6 +6,7 @@ use App\Domain\Commerce\Models\Order;
 use App\Domain\Commerce\Models\Package;
 use App\Domain\Edition\Models\Edition;
 use App\Domain\Edition\Models\Province;
+use App\Domain\Intake\Enums\PickupStatus;
 use App\Domain\Intake\Models\PickupRequest;
 use App\Domain\Marketing\Models\Recognition;
 use App\Domain\Participants\Enums\DeliveryMethod;
@@ -97,6 +98,8 @@ class Entry extends DomainModel
             'registered_at' => 'immutable_datetime',
             'confirmed_at' => 'immutable_datetime',
             'scheduled_at' => 'immutable_datetime',
+            'planning_reminders' => 'integer',
+            'planning_reminded_at' => 'immutable_datetime',
             'linked_at' => 'immutable_datetime',
             'published_at' => 'immutable_datetime',
             'withdrawn_at' => 'immutable_datetime',
@@ -216,6 +219,32 @@ class Entry extends DomainModel
         }
 
         return ! ($this->wantsDiscount() && $this->discount_status?->blocksPayment());
+    }
+
+    /**
+     * Betaald, maar nog geen aanlevermoment en geen actieve ophaalservice: de bakker moet nog kiezen.
+     */
+    public function needsPlanning(): bool
+    {
+        return $this->status === EntryStatus::Registered
+            && $this->delivery_slot_id === null
+            && ! ($this->pickupRequest?->status?->isActive() ?? false);
+    }
+
+    /**
+     * Zelfde regel als needsPlanning(), als query.
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeAwaitingPlanning(Builder $query): Builder
+    {
+        return $query->where('status', EntryStatus::Registered)
+            ->whereNull('delivery_slot_id')
+            ->whereDoesntHave('pickupRequest', fn (Builder $pickup) => $pickup->whereIn('status', array_values(array_map(
+                fn (PickupStatus $status) => $status->value,
+                array_filter(PickupStatus::cases(), fn (PickupStatus $status) => $status->isActive()),
+            ))));
     }
 
     /**

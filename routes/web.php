@@ -23,12 +23,12 @@ use App\Http\Controllers\Portal\ScanController;
 use App\Http\Controllers\Portal\SponsorLinkController;
 use App\Http\Controllers\Portal\StaffController;
 use App\Http\Controllers\Public\BakkerController;
+use App\Http\Controllers\Public\ContentController;
 use App\Http\Controllers\Public\EditionArchiveController;
 use App\Http\Controllers\Public\FakeCheckoutController;
 use App\Http\Controllers\Public\FinaleController;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\LiveDataController;
-use App\Http\Controllers\Public\ContentController;
 use App\Http\Controllers\Public\NewsController;
 use App\Http\Controllers\Public\NewsletterController;
 use App\Http\Controllers\Public\PressController;
@@ -118,6 +118,8 @@ Route::get('/aanmelden', RegistrationWizard::class)->name('aanmelden');
 Route::get('/aanmelden/status/{order}', [RegistrationStatusController::class, 'show'])->name('aanmelden.status');
 Route::post('/aanmelden/status/{order}/opnieuw', [RegistrationStatusController::class, 'retry'])->name('aanmelden.opnieuw');
 Route::post('/aanmelden/status/{order}/standaardprijs', [RegistrationStatusController::class, 'payStandard'])->name('aanmelden.standaardprijs');
+Route::post('/aanmelden/status/{order}/aanlevermoment', [RegistrationStatusController::class, 'plan'])->middleware('throttle:10,1')->name('aanmelden.moment');
+Route::post('/aanmelden/status/{order}/ophalen', [RegistrationStatusController::class, 'pickup'])->middleware('throttle:10,1')->name('aanmelden.ophalen');
 
 // Sponsor worden (briefing 29 okt §8) en de sponsoromgeving via een persoonlijke beheerlink (§12)
 Route::get('/sponsoring/aanmelden', [SponsorRegistrationController::class, 'create'])->name('sponsoring.aanmelden');

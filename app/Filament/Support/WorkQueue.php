@@ -2,6 +2,7 @@
 
 namespace App\Filament\Support;
 
+use App\Console\Commands\SendPlanningRemindersCommand;
 use App\Domain\Commerce\Enums\InvoiceStatus;
 use App\Domain\Commerce\Enums\OfferStatus;
 use App\Domain\Commerce\Enums\OrderStatus;
@@ -126,6 +127,7 @@ final class WorkQueue
             ...$this->discounts(),
             ...$this->reports(),
             ...$this->pickups(),
+            ...$this->unplanned(),
             ...$this->sponsors(),
             ...$this->profiles(),
             ...$this->voucherWinners(),
@@ -277,6 +279,31 @@ final class WorkQueue
             'action' => 'Afronden',
             'tone' => $late > 0 ? 'fout' : 'waarschuwing',
             'icon' => 'heroicon-o-document-text',
+        ]];
+    }
+
+    /**
+     * Betaald, maar na twee herinneringen nog geen aanlevermoment of ophaalvrijdag: even bellen.
+     *
+     * @return list<WorkItem>
+     */
+    private function unplanned(): array
+    {
+        if (! EntryResource::canViewAny()) {
+            return [];
+        }
+
+        $count = Entry::query()->where('edition_id', $this->edition->getKey())->awaitingPlanning()
+            ->where('planning_reminders', '>=', SendPlanningRemindersCommand::DASHBOARD_AFTER)->count();
+
+        return $count === 0 ? [] : [[
+            'title' => 'Nog geen aanlevermoment',
+            'text' => "{$count} ".($count === 1 ? 'bakker heeft' : 'bakkers hebben').' na twee herinneringen nog geen aanlevermoment of ophaalvrijdag gekozen. Neem contact op.',
+            'count' => $count,
+            'url' => EntryResource::getUrl('index'),
+            'action' => 'Bellen',
+            'tone' => 'waarschuwing',
+            'icon' => 'heroicon-o-calendar-days',
         ]];
     }
 
