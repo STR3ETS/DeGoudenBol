@@ -107,7 +107,7 @@ class RegistrationWizardTest extends TestCase
             ->assertSet('postcode', '6811 AB')
             ->assertSet('provinceId', $gelderland->getKey())
             ->assertSet('lat', 51.98)
-            ->assertSee('Nog 50 van 50 plekken');
+            ->assertDontSee('plekken beschikbaar');
     }
 
     #[Test]
@@ -248,6 +248,27 @@ class RegistrationWizardTest extends TestCase
             ->assertDontSee('6811 AB')
             ->assertDontSee('google.com/maps', false)
             ->assertDontSee('GeoCoordinates', false);
+    }
+
+    #[Test]
+    public function a_website_without_https_is_accepted_and_completed(): void
+    {
+        $this->completeStepOne(Livewire::test(RegistrationWizard::class))
+            ->assertSee('www.uwbakkerij.nl')
+            ->set('website', 'www.bakkerij-testers.nl')
+            ->assertSet('website', 'https://www.bakkerij-testers.nl')
+            ->call('next')
+            ->assertHasNoErrors()
+            ->assertSet('step', 2);
+
+        // Nieuw begin, zonder het bewaarde concept van hierboven.
+        session()->forget(RegistrationWizard::DRAFT_KEY);
+
+        $this->completeStepOne(Livewire::test(RegistrationWizard::class))
+            ->set('website', 'bakkerij')
+            ->call('next')
+            ->assertHasErrors(['website'])
+            ->assertSet('step', 1);
     }
 
     private function completeStepOne(Testable $component, string $kvk = '12345678'): Testable

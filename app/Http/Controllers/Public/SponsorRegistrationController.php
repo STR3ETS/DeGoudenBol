@@ -15,6 +15,7 @@ use App\Domain\Edition\Models\Province;
 use App\Domain\Participants\Models\Entry;
 use App\Http\Controllers\Controller;
 use App\Support\Turnstile;
+use App\Support\WebsiteUrl;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -46,6 +47,7 @@ class SponsorRegistrationController extends Controller
         $edition = Edition::current() ?? abort(404);
         $products = $this->products($edition);
 
+        $request->merge(['website' => WebsiteUrl::normalize($request->input('website'))]);
         $data = $request->validate([
             'product' => ['required', 'integer', Rule::in($products->pluck('id')->all())],
             'company' => ['required', 'string', 'min:2', 'max:160'],
@@ -56,7 +58,7 @@ class SponsorRegistrationController extends Controller
             'street' => ['required', 'string', 'max:160'],
             'postcode' => ['required', 'regex:/^\d{4}\s?[A-Za-z]{2}$/'],
             'city' => ['required', 'string', 'max:120'],
-            'website' => ['nullable', 'url', 'max:255'],
+            'website' => WebsiteUrl::rules(),
             'logo' => ['nullable', 'image', 'max:2048'],
             'entries' => ['array'],
             'entries.*' => ['integer', Rule::exists('entries', 'id')->where('edition_id', $edition->getKey())],

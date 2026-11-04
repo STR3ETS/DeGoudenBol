@@ -11,6 +11,7 @@ use App\Domain\Edition\Models\Province;
 use App\Domain\Participants\Enums\CompanyUserRole;
 use App\Domain\Participants\Services\CompanyAccess;
 use App\Http\Controllers\Controller;
+use App\Support\WebsiteUrl;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -49,6 +50,7 @@ class CharityController extends Controller
         $company = $access->resolve($request->user('participant'), $bedrijf, [CompanyUserRole::Owner]);
         $edition = Edition::current() ?? abort(404);
 
+        $request->merge(['website' => WebsiteUrl::normalize($request->input('website'))]);
         $data = $request->validate([
             'name' => ['required', 'string', 'max:160'],
             'kvk_or_rsin' => ['nullable', 'string', 'max:20'],
@@ -56,7 +58,7 @@ class CharityController extends Controller
             'province_id' => ['nullable', 'integer', 'exists:provinces,id'],
             'category' => ['nullable', 'string', 'in:'.implode(',', array_keys(config('charities.categories')))],
             'motivation' => ['required', 'string', 'max:2000'],
-            'website' => ['nullable', 'url', 'max:255'],
+            'website' => WebsiteUrl::rules(),
         ], [], ['name' => 'naam', 'kvk_or_rsin' => 'KvK- of RSIN-nummer', 'province_id' => 'provincie', 'category' => 'categorie', 'motivation' => 'motivatie', 'website' => 'website']);
 
         try {

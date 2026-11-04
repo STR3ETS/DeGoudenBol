@@ -64,7 +64,7 @@
                         <x-ui.field name="companyName" label="Bedrijfsnaam" wire:model.blur="companyName" :required="true" placeholder="Bakkerij…" autocomplete="organization" />
                         <x-ui.select name="companyType" label="Type bedrijf" wire:model="companyType" :required="true" :options="$this->companyTypeOptions()" />
                         <x-ui.field name="kvkNumber" label="KvK-nummer" wire:model.blur="kvkNumber" placeholder="12345678" inputmode="numeric" help="Acht cijfers. Eén inschrijving per productielocatie." />
-                        <x-ui.field name="website" label="Website" wire:model.blur="website" type="url" placeholder="https://" />
+                        <x-ui.field name="website" label="Website" wire:model.blur="website" inputmode="url" placeholder="www.uwbakkerij.nl" autocomplete="url" />
                         <x-ui.field name="contactName" label="Contactpersoon" wire:model.blur="contactName" :required="true" autocomplete="name" />
                         <x-ui.field name="email" label="E-mailadres" wire:model.blur="email" type="email" :required="true" autocomplete="email" help="Hierop ontvangt u de bevestiging en de inloglink voor het portaal." />
                         <x-ui.field name="phone" label="Telefoon" wire:model.blur="phone" type="tel" autocomplete="tel" />
@@ -95,14 +95,9 @@
                         <x-ui.select name="provinceId" label="Provincie" wire:model.live="provinceId" :required="true" :options="$this->provinces->pluck('name', 'id')->all()" />
                         @if ($this->selectedProvince)
                             @php $availability = $this->availability[$this->selectedProvince->slug] ?? null; @endphp
-                            @if ($availability)
-                                <p class="field-help mt-2">
-                                    @if ($availability['available'] > 0)
-                                        Nog {{ $availability['available'] }} van {{ $availability['capacity'] }} plekken beschikbaar in {{ $this->selectedProvince->name }}.
-                                    @else
-                                        Alle {{ $availability['capacity'] }} plekken in {{ $this->selectedProvince->name }} zijn bezet.
-                                    @endif
-                                </p>
+                            {{-- Geen teller "nog X van 50" (verzoek Bennie 3 nov 2026: wekt in de beginperiode geen vertrouwen); alleen melden als de provincie vol is. --}}
+                            @if ($availability && $availability['available'] <= 0)
+                                <p class="field-error mt-2">Alle plekken in {{ $this->selectedProvince->name }} zijn bezet.</p>
                             @endif
                         @endif
                     </div>

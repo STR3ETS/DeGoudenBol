@@ -89,6 +89,8 @@ Een nieuwe uitvoeringsbriefing ("Technische briefing platform & sponsoring", ver
 
 | Huisadres bij aanmelden (Raphael, 2 nov) | Adres staat volledig op het openbare profiel | Stap 2 legt uit dat een huisadres mag (kraam of standplaats zonder postcode). Met het vinkje "Dit is mijn huisadres" toont het profiel alleen de plaats: geen straat, postcode, routelink of coördinaten | Kolom `locations.hide_address`; `site/deelnemer.blade.php` |
 
+| Website en teller (Bennie, 3 nov) | Website alleen met https://; stap 2 toont "Nog X van 50 plekken beschikbaar" | "www.bakkerij.nl" of "bakkerij.nl" mag; de app zet er https:// voor (aanmelding, profiel, goed doel, sponsor). Geen teller meer in stap 2; alleen een melding als de provincie vol is | `App\Support\WebsiteUrl` |
+
 **Open bij de naturel-test:** de extra test is verkocht en staat zichtbaar bij de inschrijving, in het portaal en bij ontvangst. De testketen zelf (aantal stuks, eigen testnummer, scorekaarten, rapport en of de naturel een eigen ranglijst krijgt) is nog niet ingericht. Bennie moet dit vóór de eerste naturel-levering beslissen.
 
 **Eigen aannames bij de briefing (corrigeerbaar):**

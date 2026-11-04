@@ -34,7 +34,7 @@
                 @csrf
                 <x-ui.field name="name" label="Naam van het doel" :required="true" class="sm:col-span-2" />
                 <x-ui.field name="kvk_or_rsin" label="KvK- of RSIN-nummer" />
-                <x-ui.field name="website" label="Website" type="url" placeholder="https://" />
+                <x-ui.field name="website" label="Website" inputmode="url" placeholder="www.goeddoel.nl" />
                 <x-ui.select name="province_id" label="Regio (provincie)" :options="$provinces->pluck('name', 'id')->all()" placeholder="Landelijk" />
                 <x-ui.select name="category" label="Categorie" :options="$categories" placeholder="Kies een categorie" />
                 <div class="sm:col-span-2">

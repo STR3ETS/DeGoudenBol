@@ -95,7 +95,7 @@
                 @endif
                 <form method="post" action="{{ route('sponsor.gegevens') }}" enctype="multipart/form-data">
                     @csrf
-                    <div class="f-field"><label class="f-label" for="website">Website</label><input id="website" name="website" type="url" class="f-input" value="{{ old('website', $sponsor->url) }}" style="cursor:text"></div>
+                    <div class="f-field"><label class="f-label" for="website">Website</label><input id="website" name="website" type="text" inputmode="url" autocomplete="url" class="f-input" value="{{ old('website', $sponsor->url) }}" style="cursor:text"></div>
                     <div class="f-field"><label class="f-label" for="logo">Nieuw logo</label><input id="logo" name="logo" type="file" accept="image/*" class="f-input"></div>
                     <button type="submit" class="f-submit">Opslaan</button>
                 </form>
@@ -131,7 +131,7 @@
                         @csrf
                         <div class="f-field"><label class="f-label" for="charity-name">Naam</label><input id="charity-name" name="name" class="f-input" required style="cursor:text"></div>
                         <div class="f-row">
-                            <div class="f-field"><label class="f-label" for="charity-website">Website</label><input id="charity-website" name="website" type="url" class="f-input" style="cursor:text"></div>
+                            <div class="f-field"><label class="f-label" for="charity-website">Website</label><input id="charity-website" name="website" type="text" inputmode="url" autocomplete="url" class="f-input" style="cursor:text"></div>
                             <div class="f-field"><label class="f-label" for="charity-province">Provincie</label><select id="charity-province" name="province_id" class="f-input"><option value="">Landelijk</option>@foreach ($provinces as $province)<option value="{{ $province->getKey() }}">{{ $province->name }}</option>@endforeach</select></div>
                         </div>
                         @if ($categories)

@@ -9,6 +9,7 @@ use App\Domain\Participants\Models\Location;
 use App\Domain\Participants\Models\OpeningHour;
 use App\Domain\Participants\Models\Profile;
 use App\Domain\Participants\Services\CompanyAccess;
+use App\Support\WebsiteUrl;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
@@ -115,13 +116,22 @@ class ProfileEditor extends Component
         ]);
     }
 
+    /**
+     * "www.bakkerij.nl" mag; https:// zetten we er zelf voor.
+     */
+    public function updatedWebsite(): void
+    {
+        $this->website = WebsiteUrl::normalize($this->website) ?? '';
+    }
+
     private function persist(): void
     {
+        $this->website = WebsiteUrl::normalize($this->website) ?? '';
         $this->validate([
             'tagline' => ['nullable', 'string', 'max:140'],
             'story' => ['nullable', 'string', 'max:3000'],
             'specialtiesText' => ['nullable', 'string', 'max:500'],
-            'website' => ['nullable', 'url', 'max:190'],
+            'website' => WebsiteUrl::rules(190),
             'instagram' => ['nullable', 'string', 'max:100'],
             'facebook' => ['nullable', 'string', 'max:190'],
             'street' => ['required', 'string', 'max:120'],

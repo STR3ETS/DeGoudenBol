@@ -20,6 +20,7 @@ use App\Domain\Participants\Services\ProvinceCapacity;
 use App\Http\Controllers\Public\RegistrationStatusController;
 use App\Support\Pdok\PdokLocatieserver;
 use App\Support\Turnstile;
+use App\Support\WebsiteUrl;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
@@ -325,6 +326,14 @@ class RegistrationWizard extends Component
         return Allergen::options();
     }
 
+    /**
+     * "www.bakkerij.nl" mag; https:// zetten we er zelf voor.
+     */
+    public function updatedWebsite(): void
+    {
+        $this->website = WebsiteUrl::normalize($this->website) ?? '';
+    }
+
     public function updatedPostcode(): void
     {
         $this->lookupAddress();
@@ -504,7 +513,7 @@ class RegistrationWizard extends Component
                 'contactName' => ['required', 'string', 'min:2', 'max:120'],
                 'email' => ['required', 'email:rfc', 'max:190'],
                 'phone' => ['nullable', 'string', 'max:32'],
-                'website' => ['nullable', 'url', 'max:190'],
+                'website' => WebsiteUrl::rules(190),
             ],
             2 => [
                 'postcode' => ['required', 'regex:/^\d{4}\s?[A-Za-z]{2}$/'],

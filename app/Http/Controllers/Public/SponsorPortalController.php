@@ -28,6 +28,7 @@ use App\Filament\Resources\SponsorOffers\SponsorOfferResource;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\EnsureSponsorSession;
 use App\Support\Mail\SendOnce;
+use App\Support\WebsiteUrl;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -94,8 +95,9 @@ class SponsorPortalController extends Controller
     {
         $sponsor = $this->sponsor($request);
 
+        $request->merge(['website' => WebsiteUrl::normalize($request->input('website'))]);
         $data = $request->validate([
-            'website' => ['nullable', 'url', 'max:255'],
+            'website' => WebsiteUrl::rules(),
             'logo' => ['nullable', 'image', 'max:2048'],
         ], [], ['website' => 'website', 'logo' => 'logo']);
 
@@ -189,9 +191,10 @@ class SponsorPortalController extends Controller
         $sponsor = $this->sponsor($request);
         $edition = Edition::current() ?? abort(404);
 
+        $request->merge(['website' => WebsiteUrl::normalize($request->input('website'))]);
         $data = $request->validate([
             'name' => ['required', 'string', 'max:160'],
-            'website' => ['nullable', 'url', 'max:255'],
+            'website' => WebsiteUrl::rules(),
             'province_id' => ['nullable', 'integer', 'exists:provinces,id'],
             'category' => ['nullable', 'string', 'in:'.implode(',', array_keys(config('charities.categories')))],
             'motivation' => ['required', 'string', 'max:2000'],

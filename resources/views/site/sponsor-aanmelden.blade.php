@@ -87,7 +87,7 @@
             </div>
             <div class="f-row">
                 <div class="f-field"><label class="f-label" for="phone">Telefoon</label><input id="phone" name="phone" type="tel" class="f-input" value="{{ old('phone') }}" autocomplete="tel"></div>
-                <div class="f-field @error('website') invalid @enderror"><label class="f-label" for="website">Website</label><input id="website" name="website" type="url" class="f-input" value="{{ old('website') }}" placeholder="https://"><span class="f-err">{{ $errors->first('website') }}</span></div>
+                <div class="f-field @error('website') invalid @enderror"><label class="f-label" for="website">Website</label><input id="website" name="website" type="text" inputmode="url" autocomplete="url" class="f-input" value="{{ old('website') }}" placeholder="www.uwbedrijf.nl"><span class="f-err">{{ $errors->first('website') }}</span></div>
             </div>
 
             <h3 style="margin-top:8px">3. Factuuradres</h3>

@@ -71,7 +71,7 @@
             <x-ui.card>
                 <h2 class="kop-3 mb-5 text-[1.25rem]">Online</h2>
                 <div class="flex flex-col gap-4">
-                    <x-ui.field name="website" label="Website" type="url" wire:model.blur="website" placeholder="https://" />
+                    <x-ui.field name="website" label="Website" wire:model.blur="website" inputmode="url" placeholder="www.uwbakkerij.nl" autocomplete="url" />
                     <x-ui.field name="instagram" label="Instagram" wire:model.blur="instagram" placeholder="gebruikersnaam" />
                     <x-ui.field name="facebook" label="Facebook" wire:model.blur="facebook" placeholder="pagina of link" />
                 </div>
