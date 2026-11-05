@@ -4,6 +4,8 @@ namespace Tests\Feature\Participants;
 
 use App\Domain\Commerce\Actions\MarkOrderPaid;
 use App\Domain\Commerce\Models\Order;
+use App\Domain\Intake\Actions\RequestPickup;
+use App\Domain\Intake\Models\PickupDay;
 use App\Domain\Participants\Actions\DeleteUnpaidEntry;
 use App\Domain\Participants\Actions\RegisterEntry;
 use App\Domain\Participants\Models\Company;
@@ -12,17 +14,23 @@ use App\Domain\Participants\Models\ParticipantUser;
 use App\Domain\Platform\Enums\StaffRole;
 use App\Filament\Resources\Entries\EntryExport;
 use App\Filament\Resources\Entries\EntryResource;
+use App\Filament\Resources\Entries\Pages\ManageEntries;
 use App\Models\User;
+use App\Support\DutchTime;
+use Carbon\CarbonInterface;
 use Database\Seeders\RoleSeeder;
+use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
+use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\Test;
+use ReflectionMethod;
 use Tests\Support\BuildsRegistrations;
 use Tests\TestCase;
 
 /**
  * Backoffice-wensen van Gill en Martijn (4 nov 2026): testaanmeldingen verwijderen, adressen en e-mail zien
- * en exporteren, en alleen betaalde inschrijvingen tonen.
+ * en exporteren, alleen betaalde inschrijvingen tonen, en de voorrijkosten terugvinden (5 nov).
  */
 class EntryAdminToolsTest extends TestCase
 {
@@ -82,6 +90,41 @@ class EntryAdminToolsTest extends TestCase
         $this->assertStringContainsString('tessa@example.test', $csv);
         $this->assertStringContainsString('Bakkersstraat 12a', $csv);
         $this->assertStringContainsString('Arnhem', $csv);
+    }
+
+    #[Test]
+    public function the_paid_total_includes_a_pickup_fee_paid_separately_in_the_portal(): void
+    {
+        $entry = app(RegisterEntry::class)($this->edition, $this->registrationData());
+        app(MarkOrderPaid::class)($entry->order);
+
+        $friday = PickupDay::query()->create([
+            'edition_id' => $this->edition->getKey(),
+            'date' => DutchTime::display(now())->next(CarbonInterface::FRIDAY)->addWeek()->toDateString(),
+            'capacity' => 3,
+        ]);
+        $owner = $entry->company->owners()->firstOrFail();
+        $pickup = app(RequestPickup::class)($entry->fresh(), $friday, [
+            'company_name' => 'Bakkerij Testers', 'contact_name' => 'Tessa', 'phone' => '0612345678',
+            'street' => 'Bakkersstraat', 'house_number' => '12a', 'postcode' => '6811 AB', 'city' => 'Arnhem',
+        ], $owner);
+        app(MarkOrderPaid::class)($pickup->order);
+
+        $total = (new ReflectionMethod(EntryResource::class, 'paidTotalCents'))->invoke(null, $entry->fresh(['order', 'pickupRequest.order']));
+        $state = (new ReflectionMethod(EntryResource::class, 'pickupFeeState'))->invoke(null, $entry->fresh(['pickupRequest']));
+
+        $this->assertSame(18150 + 5445, $total); // EUR 150 + EUR 45, beide + 21% btw
+        $this->assertSame('Betaald in portaal', $state);
+
+        $this->actingAs($this->admin);
+        Livewire::test(ManageEntries::class)
+            ->mountAction(TestAction::make('view')->table($entry))
+            ->assertMountedActionModalSee('Contact en adres')
+            ->assertMountedActionModalSee('Order ophaalservice')
+            ->assertMountedActionModalSee('Totaal betaald incl. btw')
+            ->assertMountedActionModalSee('€ 235,95')
+            ->assertMountedActionModalSee('tessa@example.test')
+            ->assertMountedActionModalSee('Bakkersstraat 12a');
     }
 
     #[Test]

@@ -120,6 +120,19 @@ class EntryResource extends Resource
                     TextEntry::make('order.status')->label('Orderstatus')->badge()->placeholder('–'),
                     TextEntry::make('order.total_cents')->label('Totaal incl. btw')->formatStateUsing(fn ($state) => Money::format((int) $state))->placeholder('–'),
                     TextEntry::make('order.invoice.number')->label('Factuur')->placeholder('–'),
+                    // Ophaalservice apart betaald in het portaal: eigen order en factuur (vraag Gill 5 nov 2026).
+                    TextEntry::make('pickupRequest.order.number')->label('Order ophaalservice')
+                        ->helperText('Voorrijkosten, apart betaald in het portaal')
+                        ->visible(fn (Entry $record) => $record->pickupRequest?->order !== null),
+                    TextEntry::make('pickupRequest.order.total_cents')->label('Voorrijkosten incl. btw')
+                        ->formatStateUsing(fn ($state) => Money::format((int) $state))
+                        ->visible(fn (Entry $record) => $record->pickupRequest?->order !== null),
+                    TextEntry::make('pickupRequest.order.invoice.number')->label('Factuur ophaalservice')->placeholder('–')
+                        ->visible(fn (Entry $record) => $record->pickupRequest?->order !== null),
+                    TextEntry::make('paid_total')->label('Totaal betaald incl. btw')
+                        ->state(fn (Entry $record) => Money::format(self::paidTotalCents($record)))
+                        ->helperText('Aanmelding plus eventuele voorrijkosten')
+                        ->weight('bold'),
                 ]),
                 Section::make('Aanlevering')->columns(3)->schema([
                     TextEntry::make('delivery_method')->label('Methode')->badge()->placeholder('Nog niet gekozen'),
@@ -282,6 +295,16 @@ class EntryResource extends Resource
             $pickup !== null && $pickup->status === PickupStatus::Requested => 'Nog niet betaald',
             default => null,
         };
+    }
+
+    /**
+     * Alles wat voor deze inschrijving is betaald: de aanmeldorder en een apart betaalde ophaalorder.
+     */
+    private static function paidTotalCents(Entry $record): int
+    {
+        return collect([$record->order, $record->pickupRequest?->order])
+            ->filter(fn ($order) => $order?->isPaid())
+            ->sum('total_cents');
     }
 
     private static function pickupAddress(Entry $record): ?string
