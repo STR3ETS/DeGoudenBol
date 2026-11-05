@@ -19,6 +19,7 @@ use App\Domain\Edition\Models\TermsVersion;
 use App\Domain\Intake\Events\EntryReceived;
 use App\Domain\Intake\Listeners\ConfirmPickupOnOrderPaid;
 use App\Domain\Intake\Listeners\HandleEntryReceived;
+use App\Domain\Intake\Listeners\RequestPreferredPickup;
 use App\Domain\Marketing\Listeners\GenerateNationalPressRelease;
 use App\Domain\Marketing\Listeners\GeneratePressReleasesOnFreeze;
 use App\Domain\Marketing\Listeners\GrantFrozenRecognitions;
@@ -153,6 +154,7 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(ProvinceRevealed::class, PublishProvincePressRelease::class);
         Event::listen(OrderPaid::class, ActivateSponsorPlacements::class);
         Event::listen(OrderPaid::class, ConfirmPickupOnOrderPaid::class);
+        Event::listen(OrderPaid::class, RequestPreferredPickup::class);
         Event::listen(OrderPaid::class, ConfirmSponsorOrder::class);
         Event::listen(EntryReceived::class, HandleEntryReceived::class);
         Event::listen(OrderPaid::class, ReserveOnOrderPaid::class);

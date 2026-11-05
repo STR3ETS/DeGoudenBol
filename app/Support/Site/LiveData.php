@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Cache;
  * Gelezen door de zwevende widget op iedere pagina (ingebed als #gb-live en vers via /live.json).
  * Het formaat is dat van de site-export van Eazyonline; verander de sleutels niet zonder het script aan te passen.
  *
- * @phpstan-type Live array{updated: string, start: string, capacity: int, edition: string, provinces: list<array{slug: string, name: string}>, signups: list<array{name: string, city: string, province: string, date: string, url: string}>, total: int, rankings: array<string, list<array{name: string, city: string, status: string, score: float, url: string}>>}
+ * @phpstan-type Live array{updated: string, start: string, edition: string, provinces: list<array{slug: string, name: string}>, signups: list<array{name: string, city: string, province: string, date: string, url: string}>, rankings: array<string, list<array{name: string, city: string, status: string, score: float, url: string}>>}
  */
 final class LiveData
 {
@@ -71,7 +71,6 @@ final class LiveData
         return [
             'updated' => now()->toIso8601String(),
             'start' => $edition?->first_test_day?->format('Y-m-d') ?? '',
-            'capacity' => (int) $provinces->sum(fn (Province $province) => (int) ($province->pivot->capacity ?? 0)),
             'edition' => (string) ($edition?->year ?? now()->year),
             'provinces' => $provinces->map(fn (Province $province) => ['slug' => $province->slug, 'name' => $province->name])->values()->all(),
             'signups' => $signups->map(fn (Entry $entry) => [
@@ -81,7 +80,6 @@ final class LiveData
                 'date' => ($entry->confirmed_at ?? $entry->registered_at ?? $entry->created_at)?->setTimezone(DutchTime::zone())->format('Y-m-d') ?? '',
                 'url' => route('bakkers.toon', $entry->company),
             ])->values()->all(),
-            'total' => $edition === null ? 0 : Entry::query()->where('edition_id', $edition->getKey())->confirmed()->count(),
             'rankings' => $rankings,
         ];
     }

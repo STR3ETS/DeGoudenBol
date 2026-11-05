@@ -1,6 +1,7 @@
 {{-- Na de betaling direct een aanlevermoment of ophaalvrijdag kiezen (besluit Raphael 2 nov 2026). --}}
 @php
     $location = $entry->company->primaryLocation;
+    $voorkeur = $entry->pickup_preference ?? [];
 @endphp
 <section class="card mb-8 !p-6 sm:!p-8" aria-labelledby="moment-h">
     @if ($entry->pickup_prepaid)
@@ -17,23 +18,23 @@
                         @php $vrij = max(0, $day->capacity - $day->taken_count); @endphp
                         <label class="card card--hover flex cursor-pointer items-center justify-between gap-3 !p-4 {{ $vrij === 0 ? 'opacity-50' : '' }}">
                             <span class="flex items-center gap-3">
-                                <input type="radio" name="pickup_day" value="{{ $day->getKey() }}" class="h-4 w-4 accent-goud" @checked(old('pickup_day') == $day->getKey()) @disabled($vrij === 0) required>
+                                <input type="radio" name="pickup_day" value="{{ $day->getKey() }}" class="h-4 w-4 accent-goud" @checked(old('pickup_day', $voorkeur['pickup_day_id'] ?? null) == $day->getKey()) @disabled($vrij === 0) required>
                                 <span class="font-semibold">{{ $day->label() }}</span>
                             </span>
-                            <span class="text-[0.78rem] text-gedempt">{{ $vrij === 0 ? 'vol' : $vrij.' plekken vrij' }}</span>
+                            @if ($vrij === 0)<span class="text-[0.78rem] text-gedempt">vol</span>@endif
                         </label>
                     @endforeach
                 </div>
                 @error('pickup_day') <p class="field-error !mt-0">{{ $message }}</p> @enderror
                 <div class="grid gap-4 sm:grid-cols-2">
                     <x-ui.field name="contact_name" label="Contactpersoon" :value="old('contact_name', $entry->company->contact_name)" :required="true" autocomplete="name" />
-                    <x-ui.field name="phone" label="Telefoon" type="tel" :value="old('phone', $entry->company->contact_phone)" :required="true" autocomplete="tel" />
-                    <x-ui.field name="postcode" label="Postcode" :value="old('postcode', $location?->postcode)" :required="true" autocomplete="postal-code" />
-                    <x-ui.field name="house_number" label="Huisnummer" :value="old('house_number', $location?->house_number)" :required="true" />
-                    <x-ui.field name="street" label="Straat" :value="old('street', $location?->street)" :required="true" autocomplete="address-line1" />
-                    <x-ui.field name="city" label="Plaats" :value="old('city', $location?->city)" :required="true" autocomplete="address-level2" />
+                    <x-ui.field name="phone" label="Telefoon" type="tel" :value="old('phone', $voorkeur['phone'] ?? $entry->company->contact_phone)" :required="true" autocomplete="tel" />
+                    <x-ui.field name="postcode" label="Postcode" :value="old('postcode', $voorkeur['postcode'] ?? $location?->postcode)" :required="true" autocomplete="postal-code" />
+                    <x-ui.field name="house_number" label="Huisnummer" :value="old('house_number', $voorkeur['house_number'] ?? $location?->house_number)" :required="true" />
+                    <x-ui.field name="street" label="Straat" :value="old('street', $voorkeur['street'] ?? $location?->street)" :required="true" autocomplete="address-line1" />
+                    <x-ui.field name="city" label="Plaats" :value="old('city', $voorkeur['city'] ?? $location?->city)" :required="true" autocomplete="address-level2" />
                 </div>
-                <x-ui.field name="instructions" label="Instructies voor de chauffeur" :value="old('instructions')" placeholder="Bijvoorbeeld: achterom, bel aan bij de bakkerij" />
+                <x-ui.field name="instructions" label="Instructies voor de chauffeur" :value="old('instructions', $voorkeur['instructions'] ?? null)" placeholder="Bijvoorbeeld: achterom, bel aan bij de bakkerij" />
                 <div><x-ui.button type="submit">Ophaalvrijdag vastleggen</x-ui.button></div>
             </form>
         @endif
@@ -59,7 +60,7 @@
                                     @endif
                                 </span>
                             </span>
-                            <span class="whitespace-nowrap text-[0.78rem] text-gedempt">{{ $vrij === 0 ? 'vol' : $vrij.' plekken vrij' }}</span>
+                            @if ($vrij === 0)<span class="whitespace-nowrap text-[0.78rem] text-gedempt">vol</span>@endif
                         </label>
                     @endforeach
                 </div>

@@ -5,12 +5,13 @@ namespace Tests\Feature\Participants;
 use App\Domain\Commerce\Contracts\PaymentGateway;
 use App\Domain\Edition\Enums\EditionStatus;
 use App\Domain\Edition\Models\Province;
+use App\Domain\Intake\Models\PickupDay;
 use App\Domain\Participants\Actions\RegisterEntry;
 use App\Domain\Participants\Enums\EntryStatus;
-use App\Domain\Participants\Models\Company;
 use App\Domain\Participants\Models\Entry;
 use App\Livewire\Public\RegistrationWizard;
 use App\Support\DutchTime;
+use Carbon\CarbonInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -129,15 +130,34 @@ class RegistrationWizardTest extends TestCase
     }
 
     #[Test]
-    public function a_kvk_number_that_already_has_an_entry_is_rejected(): void
+    public function the_same_business_on_the_same_postcode_cannot_register_twice_but_a_second_stand_can(): void
     {
-        $company = Company::factory()->create(['kvk_number' => '87654321']);
-        Entry::factory()->create(['edition_id' => $this->edition->getKey(), 'company_id' => $company->getKey()]);
+        // Geen KvK meer in het formulier (besluit Bennie 4 nov 2026); één ondernemer kan meerdere kramen hebben.
+        app(RegisterEntry::class)($this->edition, $this->registrationData());
 
-        $this->completeStepOne(Livewire::test(RegistrationWizard::class), kvk: '87654321')
+        $this->completeStepOne(Livewire::test(RegistrationWizard::class))
+            ->assertDontSee('KvK-nummer')
             ->call('next')
-            ->assertHasErrors(['kvkNumber'])
-            ->assertSet('step', 1);
+            ->assertSet('step', 2)
+            ->set('postcode', '6811 AB')
+            ->set('houseNumber', '12')
+            ->call('next')
+            ->assertHasErrors(['postcode'])
+            ->assertSet('step', 2);
+
+        session()->forget(RegistrationWizard::DRAFT_KEY);
+        Http::fake(['api.pdok.nl/*' => Http::response(['response' => ['docs' => []]])]);
+
+        $this->completeStepOne(Livewire::test(RegistrationWizard::class))
+            ->call('next')
+            ->set('postcode', '8011 AA')
+            ->set('houseNumber', '1')
+            ->set('street', 'Markt')
+            ->set('city', 'Zwolle')
+            ->set('provinceId', Province::query()->where('slug', 'overijssel')->value('id'))
+            ->call('next')
+            ->assertHasNoErrors()
+            ->assertSet('step', 3);
     }
 
     #[Test]
@@ -271,12 +291,42 @@ class RegistrationWizardTest extends TestCase
             ->assertSet('step', 1);
     }
 
-    private function completeStepOne(Testable $component, string $kvk = '12345678'): Testable
+    #[Test]
+    public function choosing_pickup_asks_for_the_friday_and_pickup_location_without_counts(): void
+    {
+        $friday = PickupDay::query()->create([
+            'edition_id' => $this->edition->getKey(),
+            'date' => DutchTime::display(now())->next(CarbonInterface::FRIDAY)->addWeek()->toDateString(),
+            'capacity' => 30,
+        ]);
+
+        $component = $this->completeStepOne(Livewire::test(RegistrationWizard::class))
+            ->set('postcode', '6811 AB')
+            ->set('houseNumber', '12')
+            ->set('step', 4)
+            ->set('pickup', true)
+            ->assertSee('Ophaallocatie')
+            ->assertSee($friday->label())
+            ->assertDontSee('plekken vrij')
+            ->assertSet('pickupStreet', 'Bakkersstraat')
+            ->assertSet('pickupCity', 'Arnhem')
+            ->call('next')
+            ->assertHasErrors(['pickupDayId'])
+            ->set('pickupDayId', $friday->getKey())
+            ->set('pickupInstructions', 'Bij de Intratuin')
+            ->call('next')
+            ->assertHasNoErrors()
+            ->assertSet('step', 5)
+            ->assertSee('Bij de Intratuin');
+
+        $this->assertSame($friday->getKey(), $component->get('pickupDayId'));
+    }
+
+    private function completeStepOne(Testable $component): Testable
     {
         return $component
             ->set('companyName', 'Bakkerij Testers')
             ->set('companyType', 'bakkerij')
-            ->set('kvkNumber', $kvk)
             ->set('contactName', 'Tessa Tester')
             ->set('email', 'tessa@example.test')
             ->set('phone', '0612345678');

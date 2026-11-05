@@ -38,7 +38,8 @@ class PublicPagesTest extends TestCase
             ->assertSee('Smaak')
             ->assertSee('Veelgestelde vragen')
             ->assertSee('Editie 2026 in vier momenten')
-            ->assertSee('"capacity":600', false);
+            // Geen aantallen richting bezoekers in de live-gegevens (besluit 4 nov 2026).
+            ->assertDontSee('"capacity":', false);
     }
 
     #[Test]

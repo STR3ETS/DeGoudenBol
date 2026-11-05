@@ -9,6 +9,8 @@ use App\Domain\Edition\Enums\TermsType;
 use App\Domain\Edition\Models\Edition;
 use App\Domain\Edition\Models\Province;
 use App\Domain\Edition\Models\TermsVersion;
+use App\Domain\Intake\Models\PickupDay;
+use App\Domain\Intake\Services\PlanningOptions;
 use App\Domain\Participants\Actions\RegisterEntry;
 use App\Domain\Participants\Data\RegistrationData;
 use App\Domain\Participants\Enums\Allergen;
@@ -48,8 +50,6 @@ class RegistrationWizard extends Component
     public string $companyName = '';
 
     public string $companyType = '';
-
-    public string $kvkNumber = '';
 
     public string $contactName = '';
 
@@ -99,6 +99,21 @@ class RegistrationWizard extends Component
 
     public bool $pickup = false;
 
+    // Ophalen: vrijdag en ophaallocatie direct bij de aanmelding (verzoek Gill 4 nov 2026)
+    public ?int $pickupDayId = null;
+
+    public string $pickupStreet = '';
+
+    public string $pickupHouseNumber = '';
+
+    public string $pickupPostcode = '';
+
+    public string $pickupCity = '';
+
+    public string $pickupPhone = '';
+
+    public string $pickupInstructions = '';
+
     // Stap 5: voorwaarden
     public bool $acceptTerms = false;
 
@@ -115,10 +130,11 @@ class RegistrationWizard extends Component
      * bewust niet: die geeft de bakker bij iedere poging opnieuw.
      */
     private const array DRAFT_FIELDS = [
-        'step', 'companyName', 'companyType', 'kvkNumber', 'contactName', 'email', 'phone', 'website',
+        'step', 'companyName', 'companyType', 'contactName', 'email', 'phone', 'website',
         'postcode', 'houseNumber', 'street', 'city', 'provinceId', 'lat', 'lng', 'homeAddress',
         'publicName', 'tagline', 'allergens', 'productNotes',
         'packageId', 'rate', 'discountProofUrl', 'plainAddon', 'pickup',
+        'pickupDayId', 'pickupStreet', 'pickupHouseNumber', 'pickupPostcode', 'pickupCity', 'pickupPhone', 'pickupInstructions',
     ];
 
     private bool $draftCleared = false;
@@ -250,6 +266,35 @@ class RegistrationWizard extends Component
     public function openingOfferEnabled(): bool
     {
         return (bool) $this->edition?->settings->openingOfferEnabled();
+    }
+
+    /**
+     * Ophaalvrijdagen om uit te kiezen, zonder aantallen; volle vrijdagen staan uit.
+     *
+     * @return Collection<int, PickupDay>
+     */
+    #[Computed]
+    public function pickupDays(): Collection
+    {
+        return $this->edition ? app(PlanningOptions::class)->pickupDays($this->edition) : collect();
+    }
+
+    /**
+     * Ophalen aangevinkt: het ophaaladres begint bij het adres uit stap 2; de bakker past het aan als de kraam
+     * ergens anders staat (bijvoorbeeld bij een bouwmarkt).
+     */
+    public function updatedPickup(): void
+    {
+        if ($this->pickup && $this->pickupStreet === '') {
+            $this->pickupStreet = $this->street;
+            $this->pickupHouseNumber = $this->houseNumber;
+            $this->pickupPostcode = $this->postcode;
+            $this->pickupCity = $this->city;
+        }
+
+        if ($this->pickup && $this->pickupPhone === '') {
+            $this->pickupPhone = $this->phone;
+        }
     }
 
     public function pickupEnabled(): bool
@@ -433,7 +478,7 @@ class RegistrationWizard extends Component
             $entry = $register($edition, new RegistrationData(
                 companyName: trim($this->companyName),
                 companyType: CompanyType::from($this->companyType),
-                kvkNumber: $this->kvkNumber !== '' ? $this->kvkNumber : null,
+                kvkNumber: null,
                 contactName: trim($this->contactName),
                 email: trim($this->email),
                 phone: $this->phone !== '' ? trim($this->phone) : null,
@@ -458,6 +503,15 @@ class RegistrationWizard extends Component
                 discountProofUrl: $this->wantsDiscount() && $this->discountProofUrl !== '' ? trim($this->discountProofUrl) : null,
                 plainAddon: $this->plainAddon && $this->plainAddonEnabled(),
                 pickup: $this->pickup && $this->pickupEnabled(),
+                pickupPreference: $this->pickup && $this->pickupEnabled() ? [
+                    'pickup_day_id' => $this->pickupDayId,
+                    'street' => trim($this->pickupStreet),
+                    'house_number' => trim($this->pickupHouseNumber),
+                    'postcode' => strtoupper(trim($this->pickupPostcode)),
+                    'city' => trim($this->pickupCity),
+                    'phone' => trim($this->pickupPhone) ?: null,
+                    'instructions' => trim($this->pickupInstructions) ?: null,
+                ] : null,
             ));
         } catch (ProvinceFullException $exception) {
             $this->step = 2;
@@ -509,7 +563,6 @@ class RegistrationWizard extends Component
             1 => [
                 'companyName' => ['required', 'string', 'min:2', 'max:120'],
                 'companyType' => ['required', Rule::enum(CompanyType::class)],
-                'kvkNumber' => ['nullable', 'digits:8'],
                 'contactName' => ['required', 'string', 'min:2', 'max:120'],
                 'email' => ['required', 'email:rfc', 'max:190'],
                 'phone' => ['nullable', 'string', 'max:32'],
@@ -536,6 +589,7 @@ class RegistrationWizard extends Component
                 'discountProofUrl' => ['nullable', 'url', 'max:500'],
                 'plainAddon' => ['boolean'],
                 'pickup' => ['boolean'],
+                ...$this->pickupRules(),
             ],
             5 => [
                 'acceptTerms' => ['accepted'],
@@ -546,20 +600,50 @@ class RegistrationWizard extends Component
     }
 
     /**
+     * Ophalen aangevinkt: vrijdag (als er een te kiezen is) en een volledig ophaaladres met telefoon voor de chauffeur.
+     *
+     * @return array<string, mixed>
+     */
+    protected function pickupRules(): array
+    {
+        if (! $this->pickup || ! $this->pickupEnabled()) {
+            return [];
+        }
+
+        $open = $this->pickupDays->filter(fn (PickupDay $day) => $day->taken_count < $day->capacity)->pluck('id')->all();
+
+        return [
+            'pickupDayId' => $open === [] ? ['nullable'] : ['required', 'integer', Rule::in($open)],
+            'pickupStreet' => ['required', 'string', 'max:120'],
+            'pickupHouseNumber' => ['required', 'string', 'max:16'],
+            'pickupPostcode' => ['required', 'regex:/^\d{4}\s?[A-Za-z]{2}$/'],
+            'pickupCity' => ['required', 'string', 'max:120'],
+            'pickupPhone' => ['required', 'string', 'max:40'],
+            'pickupInstructions' => ['nullable', 'string', 'max:500'],
+        ];
+    }
+
+    /**
      * Controles die verder gaan dan veldvalidatie.
      */
     protected function checkStep(int $step): void
     {
-        if ($step === 1 && $this->kvkNumber !== '' && $this->edition !== null) {
+        // Geen KvK meer (besluit Bennie 4 nov 2026: één ondernemer kan meerdere kramen hebben). Dubbel is dezelfde
+        // bedrijfsnaam op dezelfde postcode in deze editie; een tweede kraam op een andere plek mag wel.
+        if ($step === 2 && $this->edition !== null && $this->postcode !== '') {
+            $postcode = strtoupper(str_replace(' ', '', $this->postcode));
+
             $alreadyRegistered = Entry::query()
                 ->where('edition_id', $this->edition->getKey())
                 ->occupyingPlace()
-                ->whereHas('company', fn ($query) => $query->where('kvk_number', $this->kvkNumber))
+                ->whereHas('company', fn ($query) => $query
+                    ->whereRaw('lower(trim(name)) = ?', [mb_strtolower(trim($this->companyName))])
+                    ->whereHas('primaryLocation', fn ($location) => $location->whereRaw("upper(replace(postcode, ' ', '')) = ?", [$postcode])))
                 ->exists();
 
             if ($alreadyRegistered) {
                 throw ValidationException::withMessages([
-                    'kvkNumber' => 'Dit KvK-nummer is al aangemeld voor deze editie. Log in op het portaal of neem contact op.',
+                    'postcode' => "{$this->companyName} is op deze postcode al aangemeld voor deze editie. Log in op het portaal of neem contact op.",
                 ]);
             }
         }
@@ -583,7 +667,6 @@ class RegistrationWizard extends Component
         return [
             'companyName' => 'bedrijfsnaam',
             'companyType' => 'type bedrijf',
-            'kvkNumber' => 'KvK-nummer',
             'contactName' => 'contactpersoon',
             'email' => 'e-mailadres',
             'phone' => 'telefoonnummer',
@@ -600,6 +683,13 @@ class RegistrationWizard extends Component
             'packageId' => 'pakket',
             'rate' => 'tarief',
             'discountProofUrl' => 'link naar uw post',
+            'pickupDayId' => 'ophaalvrijdag',
+            'pickupStreet' => 'straat van de ophaallocatie',
+            'pickupHouseNumber' => 'huisnummer van de ophaallocatie',
+            'pickupPostcode' => 'postcode van de ophaallocatie',
+            'pickupCity' => 'plaats van de ophaallocatie',
+            'pickupPhone' => 'telefoon voor de chauffeur',
+            'pickupInstructions' => 'toelichting',
             'acceptTerms' => 'deelnamevoorwaarden',
             'acceptPrivacy' => 'privacyverklaring',
         ];

@@ -88,8 +88,9 @@ class PublicSiteTest extends TestCase
         $json = $this->get('/live.json')->assertOk()->json();
 
         $this->assertSame('2026', $json['edition']);
-        $this->assertSame(600, $json['capacity']);
-        $this->assertSame(1, $json['total']);
+        // Geen aantallen richting bezoekers (besluit 4 nov 2026).
+        $this->assertArrayNotHasKey('capacity', $json);
+        $this->assertArrayNotHasKey('total', $json);
         $this->assertSame('Bakkerij Testers', $json['signups'][0]['name']);
         $this->assertSame('Gelderland', $json['signups'][0]['province']);
         $this->assertSame(route('bakkers.toon', $entry->company), $json['signups'][0]['url']);

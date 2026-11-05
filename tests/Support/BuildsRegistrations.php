@@ -77,6 +77,7 @@ trait BuildsRegistrations
             plainAddon: $overrides['plainAddon'] ?? false,
             pickup: $overrides['pickup'] ?? false,
             homeAddress: $overrides['homeAddress'] ?? false,
+            pickupPreference: $overrides['pickupPreference'] ?? null,
         );
     }
 }

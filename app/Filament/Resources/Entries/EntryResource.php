@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Entries;
 
 use App\Domain\Edition\Models\Edition;
+use App\Domain\Intake\Enums\PickupStatus;
+use App\Domain\Participants\Actions\DeleteUnpaidEntry;
 use App\Domain\Participants\Actions\ReviewDiscount;
 use App\Domain\Participants\Enums\Allergen;
 use App\Domain\Participants\Enums\DiscountStatus;
@@ -15,6 +17,7 @@ use App\Filament\Resources\Entries\Pages\ManageEntries;
 use App\Support\Money;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\CheckboxList;
@@ -32,6 +35,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use UnitEnum;
 
@@ -87,6 +91,18 @@ class EntryResource extends Resource
                     TextEntry::make('confirmed_at')->label('Bevestigd')->dateTime('d-m-Y H:i')->placeholder('–'),
                     TextEntry::make('reservation_expires_at')->label('Reservering tot')->dateTime('d-m-Y H:i')->placeholder('–'),
                 ]),
+                Section::make('Contact en adres')->columns(3)->schema([
+                    TextEntry::make('company.contact_name')->label('Contactpersoon')->placeholder('–'),
+                    TextEntry::make('email')->label('E-mail')
+                        ->state(fn (Entry $record) => $record->company?->users->pluck('email')->implode(', ') ?: null)
+                        ->copyable()->placeholder('–'),
+                    TextEntry::make('company.contact_phone')->label('Telefoon')->copyable()->placeholder('–'),
+                    TextEntry::make('address')->label('Adres')
+                        ->state(fn (Entry $record) => ($location = $record->company?->primaryLocation) ? trim($location->street.' '.$location->house_number).', '.$location->postcode.' '.$location->city : null)
+                        ->helperText(fn (Entry $record) => $record->company?->primaryLocation?->hide_address ? 'Huisadres: op de site staat alleen de plaats.' : null)
+                        ->copyable()->placeholder('–'),
+                    TextEntry::make('company.website')->label('Website')->url(fn (Entry $record) => $record->company?->website, shouldOpenInNewTab: true)->placeholder('–'),
+                ]),
                 Section::make('Product')->columns(2)->schema([
                     TextEntry::make('allergens')->label('Allergenen')->badge()->formatStateUsing(fn (string $state) => Allergen::tryFrom($state)?->getLabel() ?? $state)->placeholder('Geen opgegeven'),
                     TextEntry::make('product_notes')->label('Toelichting')->placeholder('–'),
@@ -107,11 +123,20 @@ class EntryResource extends Resource
                 ]),
                 Section::make('Aanlevering')->columns(3)->schema([
                     TextEntry::make('delivery_method')->label('Methode')->badge()->placeholder('Nog niet gekozen'),
-                    IconEntry::make('pickup_prepaid')->label('Ophalen betaald bij aanmelding')->boolean(),
+                    TextEntry::make('pickup_fee')->label('Voorrijkosten')->badge()
+                        ->state(fn (Entry $record) => self::pickupFeeState($record))
+                        ->color(fn (?string $state) => str_starts_with((string) $state, 'Betaald') ? 'success' : 'warning')
+                        ->placeholder('–'),
                     TextEntry::make('delivery_code')->label('Deelnemercode')->placeholder('–'),
                     TextEntry::make('deliverySlot.starts_at')->label('Tijdslot')->dateTime('d-m-Y H:i')->placeholder('–'),
                     TextEntry::make('pickupRequest.day.date')->label('Ophaalvrijdag')->date('d-m-Y')->placeholder('–'),
                     TextEntry::make('pickupRequest.status')->label('Ophaalstatus')->badge()->placeholder('–'),
+                    TextEntry::make('pickup_address')->label('Ophaaladres')
+                        ->state(fn (Entry $record) => self::pickupAddress($record))
+                        ->copyable()->placeholder('–'),
+                    TextEntry::make('pickup_instructions')->label('Toelichting ophalen')
+                        ->state(fn (Entry $record) => $record->pickupRequest?->instructions ?? ($record->pickup_preference['instructions'] ?? null))
+                        ->placeholder('–'),
                 ]),
             ]);
     }
@@ -119,7 +144,7 @@ class EntryResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->with(['company', 'province', 'package', 'order.invoice', 'edition']))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['company.users', 'company.primaryLocation', 'province', 'package', 'order.invoice', 'edition', 'pickupRequest']))
             ->defaultSort('registered_at', 'desc')
             ->columns([
                 TextColumn::make('public_name')->label('Naam')->searchable()->sortable(),
@@ -135,7 +160,16 @@ class EntryResource extends Resource
                 TextColumn::make('order.status')->label('Betaling')->badge()->placeholder('–'),
                 TextColumn::make('order.invoice.number')->label('Factuur')->placeholder('–')->toggleable(),
                 TextColumn::make('delivery_method')->label('Aanlevering')->badge()->placeholder('–')->toggleable(),
-                IconColumn::make('pickup_prepaid')->label('Ophalen')->boolean()->tooltip('Voorrijkosten betaald bij de aanmelding')->toggleable(),
+                TextColumn::make('pickup_fee')->label('Ophalen')->badge()
+                    ->state(fn (Entry $record) => self::pickupFeeState($record))
+                    ->color(fn (?string $state) => str_starts_with((string) $state, 'Betaald') ? 'success' : 'warning')
+                    ->placeholder('–')->toggleable(),
+                TextColumn::make('email')->label('E-mail')
+                    ->state(fn (Entry $record) => $record->company?->users->pluck('email')->implode(', ') ?: null)
+                    ->searchable(query: fn (Builder $query, string $search) => $query->whereHas('company.users', fn (Builder $users) => $users->where('email', 'like', "%{$search}%")))
+                    ->copyable()->placeholder('–')->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('company.contact_phone')->label('Telefoon')->copyable()->placeholder('–')->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('company.primaryLocation.city')->label('Plaats')->placeholder('–')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('registered_at')->label('Aangemeld')->dateTime('d-m-Y H:i')->sortable(),
                 TextColumn::make('edition.year')->label('Editie')->toggleable(isToggledHiddenByDefault: true),
             ])
@@ -143,6 +177,44 @@ class EntryResource extends Resource
                 SelectFilter::make('edition_id')->label('Editie')->options(fn () => Edition::query()->orderByDesc('year')->pluck('name', 'id')->all())->default(fn () => Edition::current()?->getKey()),
                 SelectFilter::make('province')->label('Provincie')->relationship('province', 'name'),
                 SelectFilter::make('status')->label('Status')->options(EntryStatus::class)->multiple(),
+                SelectFilter::make('betaling')->label('Betaling')
+                    ->options(['betaald' => 'Betaald', 'niet' => 'Niet betaald'])
+                    ->query(fn (Builder $query, array $data) => match ($data['value'] ?? null) {
+                        'betaald' => $query->whereHas('order', fn (Builder $order) => $order->whereNotNull('paid_at')),
+                        'niet' => $query->whereDoesntHave('order', fn (Builder $order) => $order->whereNotNull('paid_at')),
+                        default => $query,
+                    }),
+            ])
+            ->headerActions([
+                Action::make('export')
+                    ->label('Exporteren (Excel/CSV)')
+                    ->icon(Heroicon::OutlinedArrowDownTray)
+                    ->color('gray')
+                    ->action(fn (ManageEntries $livewire) => EntryExport::download($livewire->getFilteredTableQuery())),
+            ])
+            ->toolbarActions([
+                BulkAction::make('deleteUnpaid')
+                    ->label('Testaanmeldingen verwijderen')
+                    ->icon(Heroicon::OutlinedTrash)
+                    ->color('danger')
+                    ->visible(fn () => self::canDeleteEntries())
+                    ->requiresConfirmation()
+                    ->modalHeading('Geselecteerde aanmeldingen verwijderen?')
+                    ->modalDescription('Alleen aanmeldingen zonder betaling worden verwijderd, met hun bedrijf en portaalaccount als die nergens anders bij horen. Betaalde aanmeldingen worden overgeslagen. Dit is niet terug te draaien.')
+                    ->action(function (Collection $records, DeleteUnpaidEntry $delete): void {
+                        $deleted = 0;
+
+                        foreach ($records as $record) {
+                            if (DeleteUnpaidEntry::canDelete($record)) {
+                                $delete($record, auth()->user());
+                                $deleted++;
+                            }
+                        }
+
+                        $skipped = $records->count() - $deleted;
+                        Notification::make()->title("{$deleted} verwijderd".($skipped > 0 ? ", {$skipped} overgeslagen (betaald of in de test)" : ''))->success()->send();
+                    })
+                    ->deselectRecordsAfterCompletion(),
             ])
             ->recordActions([
                 Action::make('approveDiscount')
@@ -178,7 +250,56 @@ class EntryResource extends Resource
                         $audit->record('entry.withdrawn', $record, ['by' => auth()->user()?->email]);
                         Notification::make()->title('Inschrijving teruggetrokken')->success()->send();
                     }),
+                Action::make('deleteUnpaid')
+                    ->label('Verwijderen')
+                    ->icon(Heroicon::OutlinedTrash)
+                    ->color('danger')
+                    ->visible(fn (Entry $record) => self::canDeleteEntries() && DeleteUnpaidEntry::canDelete($record))
+                    ->requiresConfirmation()
+                    ->modalHeading(fn (Entry $record) => "{$record->public_name} verwijderen?")
+                    ->modalDescription('Voor test- of mislukte aanmeldingen zonder betaling. Het bedrijf en het portaalaccount gaan mee als ze nergens anders bij horen. Dit is niet terug te draaien.')
+                    ->action(function (Entry $record, DeleteUnpaidEntry $delete): void {
+                        try {
+                            $delete($record, auth()->user());
+                            Notification::make()->title('Aanmelding verwijderd')->success()->send();
+                        } catch (InvalidArgumentException $exception) {
+                            Notification::make()->title($exception->getMessage())->danger()->send();
+                        }
+                    }),
             ]);
+    }
+
+    /**
+     * Voorrijkosten: betaald bij de aanmelding, apart betaald in het portaal, of nog open.
+     */
+    private static function pickupFeeState(Entry $record): ?string
+    {
+        $pickup = $record->pickupRequest;
+
+        return match (true) {
+            $record->pickup_prepaid => 'Betaald bij aanmelding',
+            $pickup !== null && $pickup->isPaid() => 'Betaald in portaal',
+            $pickup !== null && $pickup->status === PickupStatus::Requested => 'Nog niet betaald',
+            default => null,
+        };
+    }
+
+    private static function pickupAddress(Entry $record): ?string
+    {
+        if ($record->pickupRequest !== null) {
+            return $record->pickupRequest->address();
+        }
+
+        $preference = $record->pickup_preference ?? [];
+
+        return isset($preference['street'])
+            ? trim($preference['street'].' '.($preference['house_number'] ?? '')).', '.($preference['postcode'] ?? '').' '.($preference['city'] ?? '').' (gekozen bij aanmelding)'
+            : null;
+    }
+
+    private static function canDeleteEntries(): bool
+    {
+        return (bool) auth()->user()?->hasAnyRole([StaffRole::Admin->value, StaffRole::Coordinator->value]);
     }
 
     private static function canReviewDiscount(Entry $record): bool

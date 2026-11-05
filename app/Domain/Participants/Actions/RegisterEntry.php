@@ -106,6 +106,7 @@ final class RegisterEntry
                 'rate' => $rate,
                 'plain_addon' => $plainAddon,
                 'pickup_prepaid' => $pickup,
+                'pickup_preference' => $pickup ? $data->pickupPreference : null,
                 'discount_status' => $wantsDiscount ? (filled($data->discountProofUrl) ? DiscountStatus::Submitted : DiscountStatus::AwaitingProof) : null,
                 'discount_proof_url' => $wantsDiscount ? $data->discountProofUrl : null,
                 'discount_submitted_at' => $wantsDiscount && filled($data->discountProofUrl) ? now() : null,

@@ -487,7 +487,7 @@
     };
     var renderSignups=function(){
       var p=pans[0];p.textContent='';
-      var sum=el('p','gbw-sum');sum.appendChild(el('b',null,String(data.total||data.signups.length)));sum.appendChild(d.createTextNode(' bekendgemaakt · max. '+(data.capacity||600)+' plekken'));p.appendChild(sum);
+      /* Geen aantallen tonen (besluit 4 nov 2026): geen teller bekendgemaakt/max. plekken. */
       if(!data.signups.length){
         var em=el('div','gbw-empty');
         if(!started()){em.appendChild(el('b',null,'De eerste deelnemers volgen. '));em.appendChild(d.createTextNode('Ze worden bekendgemaakt voor de start van de beoordelingen op 1 november.'));p.appendChild(em);p.appendChild(countdown());p.appendChild(el('p','gbw-empty','Tot de start van de officiële beoordelingen.'));}

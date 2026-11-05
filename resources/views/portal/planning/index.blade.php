@@ -101,7 +101,7 @@
                                                         <span class="ui-rij__titel">{{ ucfirst(DutchTime::format($slot->starts_at, 'dddd D MMMM')) }}, {{ DutchTime::format($slot->starts_at, 'HH:mm') }} – {{ DutchTime::format($slot->ends_at, 'HH:mm') }}</span>
                                                         @if ($slot->testLocation)<span class="ui-rij__sub">{{ $slot->testLocation->name }}, {{ $slot->testLocation->city }}</span>@endif
                                                     </span>
-                                                    <span class="ui-rij__meta">{{ $isCurrent ? 'Jouw keuze' : ($available === 0 ? 'Vol' : $available.' vrij') }}</span>
+                                                    <span class="ui-rij__meta">{{ $isCurrent ? 'Jouw keuze' : ($available === 0 ? 'Vol' : '') }}</span>
                                                 </label>
                                             </li>
                                         @endforeach
@@ -135,7 +135,7 @@
                                             <option value="">Kies een vrijdag</option>
                                             @foreach ($pickupDays as $day)
                                                 @php $vrij = max(0, $day->capacity - $day->taken_count); $huidig = $pickup?->pickup_day_id === $day->getKey(); @endphp
-                                                <option value="{{ $day->getKey() }}" @selected(old('pickup_day', $pickup?->pickup_day_id) == $day->getKey()) @disabled($vrij === 0 && ! $huidig)>{{ $day->label() }} · {{ $huidig ? 'jouw keuze' : ($vrij === 0 ? 'vol' : $vrij.' plekken vrij') }}</option>
+                                                <option value="{{ $day->getKey() }}" @selected(old('pickup_day', $pickup?->pickup_day_id) == $day->getKey()) @disabled($vrij === 0 && ! $huidig)>{{ $day->label() }}{{ $huidig ? ' · jouw keuze' : ($vrij === 0 ? ' · vol' : '') }}</option>
                                             @endforeach
                                         </select>
                                     </div>

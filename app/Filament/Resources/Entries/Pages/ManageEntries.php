@@ -24,6 +24,14 @@ class ManageEntries extends ManageRecords
     {
         $tabs = ['alle' => Tab::make('Alle')];
 
+        // Alleen echte deelnemers: er is betaald (verzoek Gill 4 nov 2026).
+        $tabs['betaald'] = Tab::make('Betaald')
+            ->modifyQueryUsing(fn (Builder $query) => $query->whereHas('order', fn (Builder $order) => $order->whereNotNull('paid_at')))
+            ->badge(fn (): ?int => ($edition = Edition::current())
+                ? Entry::query()->where('edition_id', $edition->getKey())->whereHas('order', fn (Builder $order) => $order->whereNotNull('paid_at'))->count() ?: null
+                : null)
+            ->badgeColor('success');
+
         // Kortingsactie: bewijs ingediend, wacht op een administrator (briefing 29 okt §3).
         $tabs['korting'] = Tab::make('Korting te keuren')
             ->modifyQueryUsing(fn (Builder $query) => $query->where('status', EntryStatus::PendingPayment)->where('discount_status', DiscountStatus::Submitted))

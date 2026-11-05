@@ -95,6 +95,37 @@ class PlanningAfterPaymentTest extends TestCase
     }
 
     #[Test]
+    public function a_friday_and_pickup_location_chosen_at_registration_are_booked_automatically_after_payment(): void
+    {
+        Notification::fake();
+
+        $friday = PickupDay::query()->create([
+            'edition_id' => $this->edition->getKey(),
+            'date' => DutchTime::display(now())->next(CarbonInterface::FRIDAY)->addWeek()->toDateString(),
+            'capacity' => 3,
+        ]);
+
+        $entry = $this->paidEntry(['pickup' => true, 'pickupPreference' => [
+            'pickup_day_id' => $friday->getKey(),
+            'street' => 'Hanzelaan',
+            'house_number' => '120',
+            'postcode' => '8017 JG',
+            'city' => 'Zwolle',
+            'phone' => '0612345678',
+            'instructions' => 'Kraam op de parkeerplaats van de Hornbach',
+        ]]);
+
+        $pickup = $entry->pickupRequest()->firstOrFail();
+        $this->assertSame(PickupStatus::Paid, $pickup->status);
+        $this->assertSame($friday->getKey(), $pickup->pickup_day_id);
+        $this->assertSame('Hanzelaan 120, 8017 JG Zwolle', $pickup->address());
+        $this->assertSame('Kraam op de parkeerplaats van de Hornbach', $pickup->instructions);
+        $this->assertSame(EntryStatus::Scheduled, $entry->fresh()->status);
+
+        $this->get(route('aanmelden.status', $entry->order))->assertOk()->assertSee('Wij halen uw oliebollen op')->assertSee('Hanzelaan 120');
+    }
+
+    #[Test]
     public function an_unpaid_order_cannot_plan(): void
     {
         $slot = DeliverySlot::factory()->create(['edition_id' => $this->edition->getKey(), 'capacity' => 4, 'starts_at' => now()->addDays(5), 'ends_at' => now()->addDays(5)->addHours(2)]);

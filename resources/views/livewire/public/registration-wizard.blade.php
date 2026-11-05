@@ -63,7 +63,6 @@
                     <div class="grid gap-4 sm:grid-cols-2">
                         <x-ui.field name="companyName" label="Bedrijfsnaam" wire:model.blur="companyName" :required="true" placeholder="Bakkerij…" autocomplete="organization" />
                         <x-ui.select name="companyType" label="Type bedrijf" wire:model="companyType" :required="true" :options="$this->companyTypeOptions()" />
-                        <x-ui.field name="kvkNumber" label="KvK-nummer" wire:model.blur="kvkNumber" placeholder="12345678" inputmode="numeric" help="Acht cijfers. Eén inschrijving per productielocatie." />
                         <x-ui.field name="website" label="Website" wire:model.blur="website" inputmode="url" placeholder="www.uwbakkerij.nl" autocomplete="url" />
                         <x-ui.field name="contactName" label="Contactpersoon" wire:model.blur="contactName" :required="true" autocomplete="name" />
                         <x-ui.field name="email" label="E-mailadres" wire:model.blur="email" type="email" :required="true" autocomplete="email" help="Hierop ontvangt u de bevestiging en de inloglink voor het portaal." />
@@ -175,7 +174,7 @@
                                     <input type="checkbox" wire:model.live="pickup" class="mt-1 h-4 w-4 accent-goud">
                                     <div>
                                         <div class="font-kop text-[1.25rem] font-semibold">Indien ophalen: voorrijkosten</div>
-                                        <p class="body-text mt-1 text-[0.85rem]">Een teamlid van De Gouden Bol haalt uw oliebollen op, alleen op vrijdag. De vrijdag en het ophaaladres kiest u na de aanmelding in het portaal.</p>
+                                        <p class="body-text mt-1 text-[0.85rem]">Een teamlid van De Gouden Bol haalt uw oliebollen op, alleen op vrijdag. Kies hieronder de vrijdag en waar wij ze ophalen.</p>
                                     </div>
                                 </div>
                                 <div class="text-right">
@@ -184,6 +183,37 @@
                                 </div>
                             </div>
                         </label>
+
+                        @if ($pickup)
+                            <div class="card mt-2 grid gap-4 !p-6" wire:key="ophalen-details">
+                                @if ($this->pickupDays->isEmpty())
+                                    <p class="text-[0.85rem] text-gedempt">Er zijn nog geen ophaalvrijdagen te kiezen. Na de betaling kiest u de vrijdag op de bedankpagina of in het portaal.</p>
+                                @else
+                                    <div>
+                                        <label class="label" for="veld-pickupDayId">Ophaalvrijdag <span aria-hidden="true">*</span></label>
+                                        <select id="veld-pickupDayId" wire:model="pickupDayId" class="input input--select">
+                                            <option value="">Kies een vrijdag</option>
+                                            @foreach ($this->pickupDays as $day)
+                                                <option value="{{ $day->getKey() }}" @disabled($day->taken_count >= $day->capacity)>{{ $day->label() }}{{ $day->taken_count >= $day->capacity ? ' · vol' : '' }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('pickupDayId') <p class="field-error">{{ $message }}</p> @enderror
+                                    </div>
+                                @endif
+                                <div>
+                                    <p class="label">Ophaallocatie</p>
+                                    <p class="text-[0.82rem] text-gedempt">Waar staat uw kraam? Staat die bijvoorbeeld bij een bouwmarkt of tuincentrum, vul dan dat adres in.</p>
+                                </div>
+                                <div class="grid gap-4 sm:grid-cols-2">
+                                    <x-ui.field name="pickupPostcode" label="Postcode" wire:model.blur="pickupPostcode" :required="true" placeholder="1234 AB" />
+                                    <x-ui.field name="pickupHouseNumber" label="Huisnummer" wire:model.blur="pickupHouseNumber" :required="true" />
+                                    <x-ui.field name="pickupStreet" label="Straat" wire:model.blur="pickupStreet" :required="true" />
+                                    <x-ui.field name="pickupCity" label="Plaats" wire:model.blur="pickupCity" :required="true" />
+                                    <x-ui.field name="pickupPhone" label="Telefoon voor de chauffeur" type="tel" wire:model.blur="pickupPhone" :required="true" autocomplete="tel" />
+                                    <x-ui.field name="pickupInstructions" label="Toelichting" wire:model.blur="pickupInstructions" placeholder="Bijv. kraam op de parkeerplaats van de Hornbach" />
+                                </div>
+                            </div>
+                        @endif
                     @endif
 
                     @if ($this->plainAddonEnabled())
@@ -268,6 +298,10 @@
                                 <span class="text-gedempt">({{ App\Support\Money::format($totals['total_cents']) }} incl. {{ rtrim(rtrim(number_format($this->selectedPackage->vat_rate, 2, ',', '.'), '0'), ',') }}% btw)</span>
                             @endif
                         </dd>
+                        @if ($pickup && $this->pickupEnabled())
+                            <dt class="text-gedempt">Ophalen</dt>
+                            <dd>{{ $this->pickupDays->firstWhere('id', $pickupDayId)?->label() ?? 'Vrijdag kiest u na de betaling' }} · {{ trim($pickupStreet.' '.$pickupHouseNumber) }}, {{ $pickupPostcode }} {{ $pickupCity }}@if ($pickupInstructions) <span class="text-gedempt">({{ $pickupInstructions }})</span>@endif</dd>
+                        @endif
                         @if ($this->wantsDiscount())
                             <dt class="text-gedempt">Tarief</dt>
                             <dd>Actieprijs {{ App\Support\Money::format($this->discountedPriceCents()) }} excl. btw, na goedkeuring van uw post. U betaalt nu nog niets.</dd>
@@ -286,7 +320,6 @@
                         </label>
                         @error('acceptPrivacy') <p class="field-error !mt-0">{{ $message }}</p> @enderror
                         @error('provinceId') <p class="field-error !mt-0">{{ $message }}</p> @enderror
-                        @error('kvkNumber') <p class="field-error !mt-0">{{ $message }}</p> @enderror
                         @if ($turnstileSiteKey)
                             <div wire:ignore class="mt-2">
                                 <div class="cf-turnstile" data-sitekey="{{ $turnstileSiteKey }}" data-callback="dgbTurnstileVerified" data-theme="light" data-language="nl"></div>
