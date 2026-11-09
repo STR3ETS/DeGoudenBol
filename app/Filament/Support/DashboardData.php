@@ -9,6 +9,7 @@ use App\Domain\Commerce\Enums\SponsorStatus;
 use App\Domain\Commerce\Models\Order;
 use App\Domain\Commerce\Models\Sponsor;
 use App\Domain\Commerce\Models\SponsorLink;
+use App\Domain\Commerce\Models\VisibilitySpot;
 use App\Domain\Edition\Models\Edition;
 use App\Domain\Intake\Enums\PickupStatus;
 use App\Domain\Intake\Models\PickupRequest;
@@ -221,7 +222,7 @@ final class DashboardData
         $orders = Order::query()->where('edition_id', $this->edition->getKey());
         $streams = [];
 
-        foreach ([['Deelname', Entry::class], ['Ophaalservice', PickupRequest::class], ['Sponsoring', Sponsor::class]] as [$label, $type]) {
+        foreach ([['Deelname', Entry::class], ['Ophaalservice', PickupRequest::class], ['Extra zichtbaarheid', VisibilitySpot::class], ['Sponsoring', Sponsor::class]] as [$label, $type]) {
             $paid = (int) (clone $orders)->where('orderable_type', $type)->where('status', OrderStatus::Paid)->sum('subtotal_cents');
             $open = (clone $orders)->where('orderable_type', $type)->where('status', OrderStatus::Pending);
 

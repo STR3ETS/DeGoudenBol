@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Public;
 
 use App\Domain\Commerce\Services\SponsorPlacements;
+use App\Domain\Commerce\Services\VisibilitySpots;
 use App\Domain\Edition\Enums\EditionStatus;
 use App\Domain\Edition\Models\Edition;
 use App\Domain\Edition\Models\Province;
@@ -90,6 +91,7 @@ class ProvinceController extends Controller
                 'itemListElement' => $top->map(fn ($p) => ['@type' => 'ListItem', 'position' => $p->position, 'name' => $p->entry->public_name, 'url' => route('bakkers.toon', $p->entry->company)])->values()->all(),
             ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES).'</script>',
             'partner' => $edition ? $placements->provincePartner($edition, $province) : null,
+            'uitgelicht' => $edition ? app(VisibilitySpots::class)->live($edition, $province) : collect(),
             'pressRelease' => $edition ? PressRelease::query()->published()->where('edition_id', $edition->getKey())->where('province_id', $province->getKey())->orderByDesc('published_at')->first() : null,
         ]);
     }

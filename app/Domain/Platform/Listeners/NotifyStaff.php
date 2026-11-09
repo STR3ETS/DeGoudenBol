@@ -3,6 +3,7 @@
 namespace App\Domain\Platform\Listeners;
 
 use App\Domain\Commerce\Events\OrderPaid;
+use App\Domain\Commerce\Models\VisibilitySpot;
 use App\Domain\Participants\Events\DiscountProofSubmitted;
 use App\Domain\Participants\Events\ObjectionSubmitted;
 use App\Domain\Participants\Events\ProfileSubmitted;
@@ -146,7 +147,7 @@ final class NotifyStaff
     {
         $order = $event->order;
         $orderable = $order->orderable;
-        $name = $orderable?->public_name ?? $orderable?->name ?? ($orderable?->company_name ? 'ophaalservice '.$orderable->company_name : 'order');
+        $name = ($orderable instanceof VisibilitySpot ? 'extra zichtbaarheid '.$orderable->public_name : null) ?? $orderable?->public_name ?? $orderable?->name ?? ($orderable?->company_name ? 'ophaalservice '.$orderable->company_name : 'order');
 
         $this->notifier->notify(
             [StaffRole::Finance],

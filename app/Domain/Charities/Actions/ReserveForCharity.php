@@ -7,6 +7,7 @@ use App\Domain\Charities\Models\CharityReservation;
 use App\Domain\Commerce\Models\Order;
 use App\Domain\Commerce\Models\OrderLine;
 use App\Domain\Commerce\Models\Sponsor;
+use App\Domain\Commerce\Models\VisibilitySpot;
 use App\Domain\Intake\Models\PickupRequest;
 use App\Domain\Participants\Models\Entry;
 use Illuminate\Database\Eloquent\Model;
@@ -73,6 +74,10 @@ final class ReserveForCharity
 
         if ($orderable instanceof PickupRequest && $orderable->entry !== null) {
             return [$orderable->entry->company, $orderable->entry->province_id];
+        }
+
+        if ($orderable instanceof VisibilitySpot) {
+            return [$orderable->company, $orderable->province_id];
         }
 
         return [null, null];

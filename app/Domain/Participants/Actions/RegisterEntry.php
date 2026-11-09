@@ -3,6 +3,7 @@
 namespace App\Domain\Participants\Actions;
 
 use App\Domain\Commerce\Actions\CreateOrderForEntry;
+use App\Domain\Commerce\Actions\ReserveVisibilitySpot;
 use App\Domain\Commerce\Models\Package;
 use App\Domain\Edition\Models\Edition;
 use App\Domain\Edition\Models\Province;
@@ -30,6 +31,7 @@ final class RegisterEntry
     public function __construct(
         private readonly ProvinceCapacity $capacity,
         private readonly CreateOrderForEntry $createOrder,
+        private readonly ReserveVisibilitySpot $reserveSpot,
         private readonly AuditLogger $audit,
     ) {}
 
@@ -120,6 +122,11 @@ final class RegisterEntry
                 'registered_at' => now(),
             ]);
 
+            // Zichtbaarheidsplek vasthouden, iets langer dan de betaling kan duren. Bezet: de hele aanmelding rolt terug.
+            if ($data->visibilityPosition !== null && $edition->settings->visibilitySpotsEnabled()) {
+                ($this->reserveSpot)($entry, $data->visibilityPosition, $expiresAt->copy()->addMinutes(15));
+            }
+
             ($this->createOrder)($entry, $package, $user, $expiresAt);
 
             $this->audit->record('entry.registered', $entry, [
@@ -129,6 +136,7 @@ final class RegisterEntry
                 'rate' => $rate->value,
                 'plain_addon' => $plainAddon,
                 'pickup_prepaid' => $pickup,
+                'visibility_position' => $data->visibilityPosition,
             ], null);
 
             if ($wantsDiscount) {

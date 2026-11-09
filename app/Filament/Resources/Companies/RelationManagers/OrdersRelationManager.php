@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Companies\RelationManagers;
 
 use App\Domain\Commerce\Models\Sponsor;
+use App\Domain\Commerce\Models\VisibilitySpot;
 use App\Domain\Participants\Models\Entry;
 use App\Filament\Resources\Orders\OrderResource;
 use App\Support\Money;
@@ -43,6 +44,7 @@ class OrdersRelationManager extends RelationManager
                 TextColumn::make('orderable_type')->label('Soort')->formatStateUsing(fn (string $state) => match ($state) {
                     Entry::class => 'Deelname',
                     Sponsor::class => 'Sponsoring',
+                    VisibilitySpot::class => 'Extra zichtbaarheid',
                     default => class_basename($state),
                 }),
                 TextColumn::make('status')->label('Status')->badge(),

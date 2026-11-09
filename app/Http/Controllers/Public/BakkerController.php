@@ -30,7 +30,7 @@ class BakkerController extends Controller
             ? Entry::query()
                 ->where('edition_id', $edition->getKey())
                 ->confirmed()
-                ->with(['company.profile', 'company.primaryLocation', 'province', 'edition', 'publicationItems.batch'])
+                ->with(['company.profile', 'company.primaryLocation', 'province', 'edition', 'publicationItems.batch', 'visibilitySpot'])
                 ->when($filters['provincie'] ?? null, fn ($query, $slug) => $query->whereHas('province', fn ($q) => $q->where('slug', $slug)))
                 ->when(CompanyType::tryFrom($filters['type'] ?? ''), fn ($query, $type) => $query->whereHas('company', fn ($q) => $q->where('type', $type)))
                 ->when($filters['q'] ?? null, function ($query, string $term): void {
@@ -41,6 +41,9 @@ class BakkerController extends Controller
                 })
                 ->orderBy('public_name')
                 ->get()
+                // Betaalde zichtbaarheid eerst, op plek; op de kaart staat dat het een betaalde vermelding is.
+                ->sortBy(fn (Entry $entry) => $entry->visibilitySpot?->paid_at !== null && $entry->visibilitySpot->ends_at->isFuture() ? $entry->visibilitySpot->position : PHP_INT_MAX)
+                ->values()
             : collect();
 
         return view('site.deelnemers', [

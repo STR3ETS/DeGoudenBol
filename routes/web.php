@@ -22,6 +22,7 @@ use App\Http\Controllers\Portal\ResultController;
 use App\Http\Controllers\Portal\ScanController;
 use App\Http\Controllers\Portal\SponsorLinkController;
 use App\Http\Controllers\Portal\StaffController;
+use App\Http\Controllers\Portal\VisibilitySpotController;
 use App\Http\Controllers\Public\BakkerController;
 use App\Http\Controllers\Public\ContentController;
 use App\Http\Controllers\Public\EditionArchiveController;
@@ -202,6 +203,9 @@ Route::prefix('portaal')->name('portaal.')->group(function (): void {
 
         Route::get('/aanmelding/{bedrijf?}', [RegistrationController::class, 'show'])->name('aanmelding');
         Route::post('/aanmelding/{bedrijf}/korting', [RegistrationController::class, 'discountProof'])->middleware('throttle:10,1')->name('aanmelding.korting');
+
+        Route::post('/zichtbaarheid/{bedrijf}', [VisibilitySpotController::class, 'store'])->middleware('throttle:10,1')->name('zichtbaarheid');
+        Route::get('/zichtbaarheid/terug/{order}', [VisibilitySpotController::class, 'return'])->name('zichtbaarheid.terug');
 
         Route::get('/rapport/{bedrijf?}', [ReportController::class, 'show'])->name('rapport');
         Route::get('/oorkonde/{bedrijf?}', [ReportController::class, 'certificate'])->name('oorkonde');

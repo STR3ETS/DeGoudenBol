@@ -9,6 +9,7 @@ use App\Domain\Commerce\Events\OrderPaid;
 use App\Domain\Commerce\Models\Invoice;
 use App\Domain\Commerce\Models\Order;
 use App\Domain\Commerce\Models\Sponsor;
+use App\Domain\Commerce\Models\VisibilitySpot;
 use App\Domain\Commerce\Services\InvoiceNumberGenerator;
 use App\Domain\Intake\Models\PickupRequest;
 use App\Domain\Participants\Enums\EntryStatus;
@@ -78,6 +79,7 @@ final class MarkOrderPaid
         $company = match (true) {
             $order->orderable instanceof Entry => $order->orderable->company,
             $order->orderable instanceof PickupRequest => $order->orderable->entry?->company,
+            $order->orderable instanceof VisibilitySpot => $order->orderable->company,
             default => null,
         };
         $location = $company?->primaryLocation;

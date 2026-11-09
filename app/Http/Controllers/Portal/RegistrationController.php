@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Portal;
 
+use App\Domain\Commerce\Services\VisibilitySpots;
 use App\Domain\Edition\Models\Edition;
 use App\Domain\Participants\Actions\SubmitDiscountProof;
 use App\Domain\Participants\Enums\CompanyUserRole;
@@ -18,7 +19,7 @@ use InvalidArgumentException;
  */
 class RegistrationController extends Controller
 {
-    public function show(Request $request, CompanyAccess $access, ?string $bedrijf = null): View
+    public function show(Request $request, CompanyAccess $access, VisibilitySpots $spots, ?string $bedrijf = null): View
     {
         $company = $access->resolve($request->user('participant'), $bedrijf);
         $edition = Edition::current();
@@ -26,7 +27,10 @@ class RegistrationController extends Controller
             ? $company->entries()->where('edition_id', $edition->getKey())->with(['province', 'package', 'order.lines', 'order.invoice', 'order.latestPayment', 'pickupRequest.order.invoice'])->first()
             : null;
 
+        $entry?->loadMissing('visibilitySpot.order.invoice');
+
         return view('portal.aanmelding', [
+            'visibilityOptions' => $entry && $edition?->settings->visibilitySpotsEnabled() ? $spots->options($edition, $entry->province) : [],
             'company' => $company,
             'edition' => $edition,
             'entry' => $entry,

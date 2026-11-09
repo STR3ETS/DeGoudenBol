@@ -28,6 +28,7 @@ final readonly class EditionSettings
      * @param  int  $changeDeadlineHours  Aanlevermoment of ophaalvrijdag wijzigen kan tot zoveel uur vooraf.
      * @param  int  $openingOfferCents  Tijdelijke openingsactie: deelnameprijs excl. btw zolang de actie loopt; 0 zet de actie uit (dan gelden standaardprijs en kortingsactie).
      * @param  int  $plainAddonCents  Extra test van de naturel oliebol bij de aanmelding, excl. btw; 0 zet de optie uit.
+     * @param  list<int|string>  $visibilitySpotPricesCents  Prijs per betaalde zichtbaarheidsplek (eerste waarde is plek 1), excl. btw; leeg zet de plekken uit.
      */
     public function __construct(
         public int $capacityPerProvince = 50,
@@ -65,7 +66,23 @@ final readonly class EditionSettings
         public int $changeDeadlineHours = 24,
         public int $openingOfferCents = 0,
         public int $plainAddonCents = 0,
+        public array $visibilitySpotPricesCents = [],
     ) {}
+
+    public function visibilitySpotsEnabled(): bool
+    {
+        return $this->visibilitySpotPricesCents !== [];
+    }
+
+    /**
+     * Prijs van een zichtbaarheidsplek in centen excl. btw, of null als die plek niet bestaat.
+     */
+    public function visibilitySpotPrice(int $position): ?int
+    {
+        $price = $this->visibilitySpotPricesCents[$position - 1] ?? null;
+
+        return $price === null ? null : (int) $price;
+    }
 
     public function openingOfferEnabled(): bool
     {

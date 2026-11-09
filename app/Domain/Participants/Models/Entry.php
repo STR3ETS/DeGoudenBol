@@ -4,6 +4,7 @@ namespace App\Domain\Participants\Models;
 
 use App\Domain\Commerce\Models\Order;
 use App\Domain\Commerce\Models\Package;
+use App\Domain\Commerce\Models\VisibilitySpot;
 use App\Domain\Edition\Models\Edition;
 use App\Domain\Edition\Models\Province;
 use App\Domain\Intake\Enums\PickupStatus;
@@ -179,6 +180,11 @@ class Entry extends DomainModel
     public function finalist(): HasOne
     {
         return $this->hasOne(Finalist::class)->latestOfMany();
+    }
+
+    public function visibilitySpot(): HasOne
+    {
+        return $this->hasOne(VisibilitySpot::class);
     }
 
     public function pickupRequest(): HasOne

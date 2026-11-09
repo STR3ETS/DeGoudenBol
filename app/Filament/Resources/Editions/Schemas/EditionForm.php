@@ -196,6 +196,8 @@ class EditionForm
                         ->helperText('7500 = EUR 75,00. Vervangt zolang hij loopt de standaardprijs en de kortingsactie. 0 zet de actie uit.'),
                     TextInput::make('settings.plain_addon_cents')->label('Extra test naturel oliebol (centen, excl. btw)')->numeric()->minValue(0)->required()
                         ->helperText('5000 = EUR 50,00. Bakkers kiezen dit bij de aanmelding. 0 zet de optie uit.'),
+                    TagsInput::make('settings.visibility_spot_prices_cents')->label('Zichtbaarheidsplekken: prijs per plek (centen, excl. btw)')->columnSpanFull()
+                        ->helperText('Eerste waarde is plek 1, tweede plek 2, enzovoort. 95000 = EUR 950,00. Leeg zet de plekken uit. Puur marketing; staat los van de test.'),
                     TextInput::make('settings.discount_percentage')->label('Korting kortingsactie')->numeric()->minValue(0)->maxValue(99)->suffix('%')->required()
                         ->helperText('Filmpje maken, delen en De Gouden Bol taggen. 0 zet de actie uit.'),
                     TextInput::make('settings.discount_hold_days')->label('Plek vasthouden tijdens kortingscontrole')->numeric()->minValue(1)->suffix('dagen')->required(),

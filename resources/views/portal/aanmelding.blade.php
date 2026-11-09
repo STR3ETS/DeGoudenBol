@@ -1,4 +1,5 @@
 @php
+    use App\Domain\Commerce\Actions\CreateOrderForEntry;
     use App\Domain\Participants\Enums\DiscountStatus;
     use App\Support\DutchTime;
     use App\Support\Money;
@@ -7,6 +8,11 @@
     $invoice = $order?->invoice;
     $settings = $edition?->settings;
     $base = $order?->lines->first();
+    $regel = fn (string $type) => $order?->lines->firstWhere('lineable_type', $type);
+    $opening = $regel(CreateOrderForEntry::OPENING_OFFER_LINE_TYPE);
+    $naturel = $regel(CreateOrderForEntry::PLAIN_ADDON_LINE_TYPE);
+    $ophalen = $regel(CreateOrderForEntry::PICKUP_LINE_TYPE);
+    $plek = $entry?->visibilitySpot;
     $betaalstatus = match (true) {
         $order === null => 'Geen order',
         $order->isPaid() => 'Betaald op '.DutchTime::format($order->paid_at, 'D MMMM YYYY'),
@@ -22,6 +28,10 @@
             <p class="ui-app__sub">{{ $company->name }}{{ $edition ? ' · De Gouden Bol '.$edition->year : '' }}</p>
         </div>
     </header>
+
+    @if (session('status'))
+        <div class="ui-statusregel ui-app__blok" role="status"><span class="ui-icoonvak ui-icoonvak--goud ui-icoonvak--rond"><x-ui.icoon naam="info" dikte="2.4" /></span><div>{{ session('status') }}</div></div>
+    @endif
 
     @if ($errors->any())
         <div class="ui-statusregel ui-statusregel--fout ui-app__blok" role="alert"><span class="ui-icoonvak ui-icoonvak--fout ui-icoonvak--rond"><x-ui.icoon naam="waarschuwing" dikte="2.4" /></span><div>{{ $errors->first() }}</div></div>
@@ -42,13 +52,19 @@
                             @if ($base)
                                 <span class="font-normal text-gedempt">· {{ match (true) {
                                     $entry->wantsDiscount() && $settings !== null => Money::format($settings->discountedCents($base->unit_price_cents)),
-                                    $entry->rate === App\Domain\Participants\Enums\EntryRate::OpeningOffer => Money::format((int) $order->lines->where('lineable_type', '!=', App\Domain\Commerce\Actions\CreateOrderForEntry::PLAIN_ADDON_LINE_TYPE)->sum('subtotal_cents')),
+                                    $opening !== null => Money::format($base->unit_price_cents + $opening->unit_price_cents),
                                     default => Money::format($base->unit_price_cents),
                                 } }} excl. btw</span>
                             @endif
                         </dd>
                         @if ($entry->plain_addon)
-                            <dt class="text-gedempt">Extra</dt><dd class="font-semibold">Test naturel oliebol</dd>
+                            <dt class="text-gedempt">Extra test</dt><dd class="font-semibold">Naturel oliebol @if ($naturel)<span class="font-normal text-gedempt">· {{ Money::format($naturel->unit_price_cents) }} excl. btw</span>@endif</dd>
+                        @endif
+                        @if ($ophalen)
+                            <dt class="text-gedempt">Ophalen</dt><dd class="font-semibold">Voorrijkosten <span class="font-normal text-gedempt">· {{ Money::format($ophalen->unit_price_cents) }} excl. btw</span></dd>
+                        @endif
+                        @if ($plek?->isPaid())
+                            <dt class="text-gedempt">Extra zichtbaarheid</dt><dd class="font-semibold">Plek {{ $plek->position }} in {{ $entry->province->name }} <span class="font-normal text-gedempt">· {{ $plek->formattedPrice() }} excl. btw · tot en met {{ DutchTime::date($plek->ends_at) }}</span></dd>
                         @endif
                         @if ($entry->wantsDiscount())
                             <dt class="text-gedempt">Kortingsactie</dt>
@@ -67,6 +83,10 @@
                             <dt class="text-gedempt">Ophaalservice</dt>
                             <dd><a href="{{ route('portaal.facturen.toon', $entry->pickupRequest->order->invoice) }}" class="font-semibold text-goud-tekst underline">{{ $entry->pickupRequest->order->invoice->number }}</a> <span class="text-gedempt">· {{ $entry->pickupRequest->order->invoice->formattedTotal() }}</span></dd>
                         @endif
+                        @if ($plek?->isPaid() && $plek->order?->invoice && ! $plek->order->is($order))
+                            <dt class="text-gedempt">Factuur zichtbaarheid</dt>
+                            <dd><a href="{{ route('portaal.facturen.toon', $plek->order->invoice) }}" class="font-semibold text-goud-tekst underline">{{ $plek->order->invoice->number }}</a> <span class="text-gedempt">· {{ $plek->order->invoice->formattedTotal() }}</span></dd>
+                        @endif
                     </dl>
 
                     @if ($order && $order->isPending() && $entry->canPay())
@@ -80,6 +100,28 @@
             </section>
 
             <div class="flex flex-col gap-6">
+                @if ($settings?->visibilitySpotsEnabled() && $order?->isPaid() && ! $plek?->isPaid() && $canDecide)
+                    <section class="ui-kaart ui-kaart--zand" id="zichtbaarheid">
+                        <div class="ui-kaart__kop"><span class="ui-icoonvak ui-icoonvak--goud"><x-ui.icoon naam="bliksem" /></span><div><div class="ui-kaart__titel">Extra zichtbaarheid</div><div class="ui-kaart__sub">Uitgelicht in {{ $entry->province->name }}, tot en met 31 december</div></div></div>
+                        <div class="ui-kaart__inhoud !pt-2">
+                            <p class="mb-4 text-[0.88rem]">Kies een plek en sta uitgelicht op de pagina van je provincie en bovenaan het deelnemersoverzicht. Hoe lager het nummer, hoe hoger je staat. Dit is een betaalde vermelding en staat helemaal los van de test: je score en plaats in de uitslag bepaalt alleen het testpanel.</p>
+                            <form method="post" action="{{ route('portaal.zichtbaarheid', $company) }}" class="grid gap-4">
+                                @csrf
+                                <div class="ui-veld">
+                                    <label class="ui-label" for="position">Plek</label>
+                                    <select id="position" name="position" class="ui-invoer ui-invoer--select" required>
+                                        <option value="">Kies een plek</option>
+                                        @foreach ($visibilityOptions as $optie)
+                                            <option value="{{ $optie['position'] }}" @selected(old('position') == $optie['position']) @disabled($optie['taken'])>Plek {{ $optie['position'] }} · {{ Money::format($optie['price_cents']) }} excl. btw{{ $optie['taken'] ? ' · bezet' : '' }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div><button type="submit" class="ui-knop">Kiezen en afrekenen <x-ui.icoon naam="pijl-rechts" dikte="2.4" /></button></div>
+                            </form>
+                        </div>
+                    </section>
+                @endif
+
                 @if ($entry->canSubmitDiscountProof() && $canDecide)
                     <section class="ui-kaart ui-kaart--zand" id="korting">
                         <div class="ui-kaart__kop"><span class="ui-icoonvak ui-icoonvak--goud"><x-ui.icoon naam="bliksem" /></span><div><div class="ui-kaart__titel">Kortingsactie: {{ $settings?->discountPercentage }}% korting</div><div class="ui-kaart__sub">Filmpje maken, delen en De Gouden Bol taggen</div></div></div>

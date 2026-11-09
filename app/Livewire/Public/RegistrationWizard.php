@@ -4,7 +4,9 @@ namespace App\Livewire\Public;
 
 use App\Domain\Commerce\Actions\CreateOrderForEntry;
 use App\Domain\Commerce\Contracts\PaymentGateway;
+use App\Domain\Commerce\Exceptions\VisibilitySpotTakenException;
 use App\Domain\Commerce\Models\Package;
+use App\Domain\Commerce\Services\VisibilitySpots;
 use App\Domain\Edition\Enums\TermsType;
 use App\Domain\Edition\Models\Edition;
 use App\Domain\Edition\Models\Province;
@@ -114,6 +116,9 @@ class RegistrationWizard extends Component
 
     public string $pickupInstructions = '';
 
+    // Extra zichtbaarheid: betaalde plek in de provincie, los van de test
+    public ?int $visibilityPosition = null;
+
     // Stap 5: voorwaarden
     public bool $acceptTerms = false;
 
@@ -134,7 +139,7 @@ class RegistrationWizard extends Component
         'postcode', 'houseNumber', 'street', 'city', 'provinceId', 'lat', 'lng', 'homeAddress',
         'publicName', 'tagline', 'allergens', 'productNotes',
         'packageId', 'rate', 'discountProofUrl', 'plainAddon', 'pickup',
-        'pickupDayId', 'pickupStreet', 'pickupHouseNumber', 'pickupPostcode', 'pickupCity', 'pickupPhone', 'pickupInstructions',
+        'pickupDayId', 'pickupStreet', 'pickupHouseNumber', 'pickupPostcode', 'pickupCity', 'pickupPhone', 'pickupInstructions', 'visibilityPosition',
     ];
 
     private bool $draftCleared = false;
@@ -297,6 +302,19 @@ class RegistrationWizard extends Component
         }
     }
 
+    /**
+     * Zichtbaarheidsplekken in de gekozen provincie; bezette plekken staan uit.
+     *
+     * @return list<array{position: int, price_cents: int, taken: bool}>
+     */
+    #[Computed]
+    public function visibilityOptions(): array
+    {
+        return $this->edition && $this->selectedProvince && $this->edition->settings->visibilitySpotsEnabled()
+            ? app(VisibilitySpots::class)->options($this->edition, $this->selectedProvince)
+            : [];
+    }
+
     public function pickupEnabled(): bool
     {
         return (bool) $this->edition?->settings->pickupEnabled;
@@ -339,7 +357,7 @@ class RegistrationWizard extends Component
             return null;
         }
 
-        return CreateOrderForEntry::totals($this->selectedPackage, $this->edition->settings, $this->edition->year, $this->chosenRate(), $this->plainAddon && $this->plainAddonEnabled(), $this->pickup && $this->pickupEnabled());
+        return CreateOrderForEntry::totals($this->selectedPackage, $this->edition->settings, $this->edition->year, $this->chosenRate(), $this->plainAddon && $this->plainAddonEnabled(), $this->pickup && $this->pickupEnabled(), $this->visibilityPosition);
     }
 
     public function wantsDiscount(): bool
@@ -503,6 +521,7 @@ class RegistrationWizard extends Component
                 discountProofUrl: $this->wantsDiscount() && $this->discountProofUrl !== '' ? trim($this->discountProofUrl) : null,
                 plainAddon: $this->plainAddon && $this->plainAddonEnabled(),
                 pickup: $this->pickup && $this->pickupEnabled(),
+                visibilityPosition: $this->visibilityPosition,
                 pickupPreference: $this->pickup && $this->pickupEnabled() ? [
                     'pickup_day_id' => $this->pickupDayId,
                     'street' => trim($this->pickupStreet),
@@ -513,6 +532,13 @@ class RegistrationWizard extends Component
                     'instructions' => trim($this->pickupInstructions) ?: null,
                 ] : null,
             ));
+        } catch (VisibilitySpotTakenException $exception) {
+            $this->step = 4;
+            $this->visibilityPosition = null;
+            unset($this->visibilityOptions);
+            $this->addError('visibilityPosition', $exception->getMessage());
+
+            return null;
         } catch (ProvinceFullException $exception) {
             $this->step = 2;
             $this->addError('provinceId', $exception->getMessage());
@@ -590,6 +616,7 @@ class RegistrationWizard extends Component
                 'plainAddon' => ['boolean'],
                 'pickup' => ['boolean'],
                 ...$this->pickupRules(),
+                'visibilityPosition' => ['nullable', 'integer', Rule::in(collect($this->visibilityOptions)->reject(fn (array $option) => $option['taken'])->pluck('position')->all())],
             ],
             5 => [
                 'acceptTerms' => ['accepted'],
@@ -684,6 +711,7 @@ class RegistrationWizard extends Component
             'rate' => 'tarief',
             'discountProofUrl' => 'link naar uw post',
             'pickupDayId' => 'ophaalvrijdag',
+            'visibilityPosition' => 'zichtbaarheidsplek',
             'pickupStreet' => 'straat van de ophaallocatie',
             'pickupHouseNumber' => 'huisnummer van de ophaallocatie',
             'pickupPostcode' => 'postcode van de ophaallocatie',

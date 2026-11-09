@@ -8,11 +8,13 @@ use App\Domain\Charities\Models\CharityPayout;
 use App\Domain\Charities\Models\CharityReservation;
 use App\Domain\Commerce\Events\OrderPaid;
 use App\Domain\Commerce\Listeners\ActivateSponsorPlacements;
+use App\Domain\Commerce\Listeners\ActivateVisibilitySpot;
 use App\Domain\Commerce\Listeners\ConfirmSponsorOrder;
 use App\Domain\Commerce\Models\Placement;
 use App\Domain\Commerce\Models\Product;
 use App\Domain\Commerce\Models\Sponsor;
 use App\Domain\Commerce\Models\SponsorLink;
+use App\Domain\Commerce\Models\VisibilitySpot;
 use App\Domain\Edition\Models\Edition;
 use App\Domain\Edition\Models\Province;
 use App\Domain\Edition\Models\TermsVersion;
@@ -155,6 +157,7 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(OrderPaid::class, ActivateSponsorPlacements::class);
         Event::listen(OrderPaid::class, ConfirmPickupOnOrderPaid::class);
         Event::listen(OrderPaid::class, RequestPreferredPickup::class);
+        Event::listen(OrderPaid::class, ActivateVisibilitySpot::class);
         Event::listen(OrderPaid::class, ConfirmSponsorOrder::class);
         Event::listen(EntryReceived::class, HandleEntryReceived::class);
         Event::listen(OrderPaid::class, ReserveOnOrderPaid::class);
@@ -177,7 +180,7 @@ class AppServiceProvider extends ServiceProvider
             Entry::class, Company::class, Location::class, OpeningHour::class, OpeningHourException::class, Profile::class,
             PublicationBatch::class, RankingSnapshot::class, Finalist::class,
             NewsPost::class, PressRelease::class, Recognition::class,
-            Sponsor::class, Placement::class, SponsorLink::class, Product::class,
+            Sponsor::class, Placement::class, SponsorLink::class, Product::class, VisibilitySpot::class,
             Charity::class, CharityReservation::class, CharityPayout::class,
             VoucherCampaign::class, VoucherWinner::class,
         ]);

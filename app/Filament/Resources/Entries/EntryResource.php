@@ -129,6 +129,9 @@ class EntryResource extends Resource
                         ->visible(fn (Entry $record) => $record->pickupRequest?->order !== null),
                     TextEntry::make('pickupRequest.order.invoice.number')->label('Factuur ophaalservice')->placeholder('–')
                         ->visible(fn (Entry $record) => $record->pickupRequest?->order !== null),
+                    TextEntry::make('visibilitySpot.position')->label('Extra zichtbaarheid')
+                        ->formatStateUsing(fn ($state, Entry $record) => "Plek {$state} · ".$record->visibilitySpot->formattedPrice().' excl. btw'.($record->visibilitySpot->isPaid() ? '' : ' (nog niet betaald)'))
+                        ->placeholder('–'),
                     TextEntry::make('paid_total')->label('Totaal betaald incl. btw')
                         ->state(fn (Entry $record) => Money::format(self::paidTotalCents($record)))
                         ->helperText('Aanmelding plus eventuele voorrijkosten')
@@ -302,7 +305,9 @@ class EntryResource extends Resource
      */
     private static function paidTotalCents(Entry $record): int
     {
-        return collect([$record->order, $record->pickupRequest?->order])
+        return collect([$record->order, $record->pickupRequest?->order, $record->visibilitySpot?->order])
+            ->filter()
+            ->unique(fn ($order) => $order->getKey())
             ->filter(fn ($order) => $order?->isPaid())
             ->sum('total_cents');
     }

@@ -17,6 +17,7 @@
 <p class="body-text rev" style="max-width:620px;margin-bottom:32px">De Voorlijst is een echte ranglijst op basis van geteste producten. Nieuwe beoordelingen worden direct op score ingevoegd, dus deelnemers kunnen stijgen of dalen.</p>
 @include('site.partials.voorlijst')
 </div></section>
+@include('site.partials.uitgelicht')
 <section class="sec" id="feiten" aria-labelledby="feiten-h"><div class="sec-inner">
 <span class="eyebrow rev">{{ $province->name }} in het kort</span><h2 class="h2 rev" id="feiten-h">Wat je kunt verwachten in {{ $province->name }}</h2>
 <ol class="three-col stagger-grid ul-reset"><li class="step-r"><div class="step-no" aria-hidden="true">01</div><h3>Maximaal {{ $capacity }} deelnemers</h3><p>In {{ $province->name }} zijn maximaal {{ $capacity }} plaatsen beschikbaar, binnen een landelijk maximum van {{ $capacityTotal }}. Op dit moment zijn {{ $taken }} van de {{ $capacity }} plaatsen ingevuld; nog {{ $available }} beschikbaar. Het maximum van {{ $capacity }} is een bovengrens: een provincie hoeft niet volledig gevuld te zijn om een geldige ranglijst te vormen.</p></li><li class="step-r"><div class="step-no" aria-hidden="true">02</div><h3>Voorlijst vanaf {{ $startLabel }}</h3><p>Nieuwe beoordelingen worden direct op score ingevoegd. Scores vanaf 5,0 kunnen openbaar worden.</p></li><li class="step-r"><div class="step-no" aria-hidden="true">03</div><h3>Nummer 1 naar de finale</h3><p>De nummer 1 van {{ $province->name }} gaat door naar de landelijke finale en begint daar opnieuw op nul.</p></li></ol>

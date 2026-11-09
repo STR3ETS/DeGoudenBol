@@ -216,6 +216,21 @@
                         @endif
                     @endif
 
+                    @if ($this->visibilityOptions !== [])
+                        <div class="card mt-4 !p-6" wire:key="extra-zichtbaarheid">
+                            <div class="font-kop text-[1.25rem] font-semibold">Extra zichtbaarheid in {{ $this->selectedProvince->name }}</div>
+                            <p class="body-text mt-1 text-[0.85rem]">Optioneel. Kies een plek en sta uitgelicht op de pagina van uw provincie en bovenaan het deelnemersoverzicht, tot en met 31 december. Hoe lager het nummer, hoe hoger u staat. Dit is een betaalde vermelding en staat helemaal los van de test: uw score en plaats in de uitslag bepaalt alleen het testpanel.</p>
+                            <label class="label mt-4" for="veld-visibilityPosition">Plek</label>
+                            <select id="veld-visibilityPosition" wire:model.live="visibilityPosition" class="input input--select">
+                                <option value="">Geen extra zichtbaarheid</option>
+                                @foreach ($this->visibilityOptions as $option)
+                                    <option value="{{ $option['position'] }}" @disabled($option['taken'])>Plek {{ $option['position'] }} · {{ App\Support\Money::format($option['price_cents']) }} excl. btw{{ $option['taken'] ? ' · bezet' : '' }}</option>
+                                @endforeach
+                            </select>
+                            @error('visibilityPosition') <p class="field-error">{{ $message }}</p> @enderror
+                        </div>
+                    @endif
+
                     @if ($this->plainAddonEnabled())
                         <label class="card card--hover mt-4 block cursor-pointer !p-6 {{ $plainAddon ? 'ring-2 ring-goud' : '' }}">
                             <div class="flex items-start justify-between gap-4">
@@ -294,6 +309,7 @@
                                 {{ $this->selectedPackage->name }}@if ($this->openingOfferEnabled()) · openingsactie @endif
                                 @if ($plainAddon && $this->plainAddonEnabled()) + extra test naturel oliebol @endif
                                 @if ($pickup && $this->pickupEnabled()) + ophalen (voorrijkosten) @else · zelf aanleveren @endif
+                                @if ($visibilityPosition) + extra zichtbaarheid @endif
                                 · {{ App\Support\Money::format($totals['subtotal_cents']) }} excl. btw
                                 <span class="text-gedempt">({{ App\Support\Money::format($totals['total_cents']) }} incl. {{ rtrim(rtrim(number_format($this->selectedPackage->vat_rate, 2, ',', '.'), '0'), ',') }}% btw)</span>
                             @endif
@@ -301,6 +317,10 @@
                         @if ($pickup && $this->pickupEnabled())
                             <dt class="text-gedempt">Ophalen</dt>
                             <dd>{{ $this->pickupDays->firstWhere('id', $pickupDayId)?->label() ?? 'Vrijdag kiest u na de betaling' }} · {{ trim($pickupStreet.' '.$pickupHouseNumber) }}, {{ $pickupPostcode }} {{ $pickupCity }}@if ($pickupInstructions) <span class="text-gedempt">({{ $pickupInstructions }})</span>@endif</dd>
+                        @endif
+                        @if ($visibilityPosition)
+                            <dt class="text-gedempt">Extra zichtbaarheid</dt>
+                            <dd>Plek {{ $visibilityPosition }} in {{ $this->selectedProvince?->name }} · {{ App\Support\Money::format($edition->settings->visibilitySpotPrice((int) $visibilityPosition) ?? 0) }} excl. btw</dd>
                         @endif
                         @if ($this->wantsDiscount())
                             <dt class="text-gedempt">Tarief</dt>

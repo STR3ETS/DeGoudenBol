@@ -18,12 +18,12 @@ final class EntryExport
      */
     public static function download(Builder $query): StreamedResponse
     {
-        $entries = $query->with(['company.primaryLocation', 'company.users', 'province', 'order', 'deliverySlot', 'pickupRequest.day'])->get();
+        $entries = $query->with(['company.primaryLocation', 'company.users', 'province', 'order', 'deliverySlot', 'pickupRequest.day', 'visibilitySpot'])->get();
 
         return response()->streamDownload(function () use ($entries): void {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, ['naam', 'bedrijf', 'provincie', 'status', 'betaling', 'contactpersoon', 'e-mail', 'telefoon', 'adres', 'postcode', 'plaats', 'aanlevering', 'aanlevermoment', 'ophaalvrijdag', 'ophaaladres', 'toelichting ophalen', 'deelnemercode', 'aangemeld'], ';');
+            fputcsv($out, ['naam', 'bedrijf', 'provincie', 'status', 'betaling', 'contactpersoon', 'e-mail', 'telefoon', 'adres', 'postcode', 'plaats', 'aanlevering', 'aanlevermoment', 'ophaalvrijdag', 'ophaaladres', 'toelichting ophalen', 'extra zichtbaarheid', 'deelnemercode', 'aangemeld'], ';');
 
             foreach ($entries as $entry) {
                 $company = $entry->company;
@@ -48,6 +48,7 @@ final class EntryExport
                     $pickup?->day ? DutchTime::date($pickup->day->date, 'D-M-YYYY') : null,
                     $pickup ? $pickup->address() : (isset($preference['street']) ? trim($preference['street'].' '.($preference['house_number'] ?? '')).', '.($preference['postcode'] ?? '').' '.($preference['city'] ?? '') : null),
                     $pickup?->instructions ?? ($preference['instructions'] ?? null),
+                    $entry->visibilitySpot?->isPaid() ? 'Plek '.$entry->visibilitySpot->position : null,
                     $entry->delivery_code,
                     $entry->registered_at ? DutchTime::format($entry->registered_at, 'D-M-YYYY HH:mm') : null,
                 ], ';');

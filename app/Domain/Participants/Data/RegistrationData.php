@@ -43,5 +43,6 @@ final readonly class RegistrationData
         public bool $homeAddress = false,
         /** @var array{pickup_day_id: int|null, street: string, house_number: string, postcode: string, city: string, phone: string|null, instructions: string|null}|null */
         public ?array $pickupPreference = null,
+        public ?int $visibilityPosition = null,
     ) {}
 }
