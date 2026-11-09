@@ -48,6 +48,43 @@ class RegistrationStatusAndWebhookTest extends TestCase
     }
 
     #[Test]
+    public function a_paid_checkout_returns_to_the_trackable_thank_you_page(): void
+    {
+        Notification::fake();
+
+        $entry = app(RegisterEntry::class)($this->edition, $this->registrationData());
+        $this->post(route('aanmelden.opnieuw', $entry->order))->assertRedirect();
+        $payment = $entry->order->latestPayment()->first();
+
+        $this->assertSame(route('aanmelden.terug', $entry->order), $payment->raw['redirect_url']);
+
+        $this->post(route('betaling.fake.afronden', $payment), ['status' => 'paid'])
+            ->assertRedirect(route('aanmelden.terug', $entry->order));
+
+        $this->get(route('aanmelden.terug', $entry->order))->assertRedirect(route('aanmelden.bedankt', $entry->order));
+
+        $this->get(route('aanmelden.bedankt', $entry->order))
+            ->assertOk()
+            ->assertSee('Bedankt voor uw aanmelding')
+            ->assertSee('Betaling ontvangen');
+    }
+
+    #[Test]
+    public function an_unpaid_order_never_reaches_the_thank_you_page(): void
+    {
+        $entry = app(RegisterEntry::class)($this->edition, $this->registrationData());
+        $payment = app(FakePaymentGateway::class)->create($entry->order, 'Test', route('aanmelden.terug', $entry->order));
+
+        $this->get(route('aanmelden.terug', $entry->order))->assertRedirect(route('aanmelden.status', $entry->order));
+        $this->get(route('aanmelden.status', $entry->order))->assertOk()->assertSee(route('aanmelden.terug', $entry->order), false);
+
+        app(FakePaymentGateway::class)->settle($payment, PaymentStatus::Failed);
+
+        $this->get(route('aanmelden.terug', $entry->order))->assertRedirect(route('aanmelden.status', $entry->order));
+        $this->get(route('aanmelden.bedankt', $entry->order))->assertRedirect(route('aanmelden.status', $entry->order));
+    }
+
+    #[Test]
     public function a_failed_payment_offers_a_retry_while_the_reservation_lasts(): void
     {
         $entry = app(RegisterEntry::class)($this->edition, $this->registrationData());

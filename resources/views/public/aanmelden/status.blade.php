@@ -6,12 +6,14 @@
     $pending = $payment !== null && ! $payment->status->isFinal() && ! $paid;
     $firstPayment = ! $paid && ! $pending && $payment === null && $canRetry;
 @endphp
-<x-layouts.public title="Status van uw aanmelding">
-    @if ($pending)
-        <x-slot:head>
-            <meta http-equiv="refresh" content="5">
-        </x-slot:head>
-    @endif
+<x-layouts.public :title="$isThankYouPage ? 'Bedankt voor uw aanmelding' : 'Status van uw aanmelding'">
+    <x-slot:head>
+        <meta name="robots" content="noindex, nofollow">
+        @if ($pending)
+            {{-- Via de terugkeer-URL verversen, zodat een alsnog geslaagde betaling op de bedankpagina eindigt. --}}
+            <meta http-equiv="refresh" content="5;url={{ route('aanmelden.terug', $order) }}">
+        @endif
+    </x-slot:head>
 
     <div class="site-container pt-36 pb-24">
         <div class="mx-auto max-w-[640px]">

@@ -23,7 +23,8 @@ use InvalidArgumentException;
 use Throwable;
 
 /**
- * Pagina waar de deelnemer na de checkout terugkomt, of na de aanmelding met kortingsactie. Na de betaling
+ * Status van de aanmelding na de checkout of na de aanmelding met kortingsactie; een geslaagde betaling landt
+ * eerst op de eigen bedankpagina (meetbare URL, besluit Raphael 9 nov 2026). Na de betaling
  * kiest de bakker hier direct een aanlevermoment of ophaalvrijdag, zonder eerst in te loggen (besluit Raphael
  * 2 nov 2026); de link is uniek per order (ULID) en staat ook in de herinneringsmail.
  */
@@ -35,34 +36,40 @@ class RegistrationStatusController extends Controller
     {
         abort_unless($order->orderable instanceof Entry, 404);
 
-        $payment = $order->latestPayment;
+        $this->syncPayment($order, $gateway, $markPaid);
 
-        if ($payment !== null && ! $order->isPaid() && ! $payment->status->isFinal() && $payment->provider === $gateway->name()) {
-            try {
-                $payment = $gateway->refresh($payment);
-            } catch (Throwable $exception) {
-                report($exception);
-            }
+        return $this->statusView($order, $options);
+    }
+
+    /**
+     * Terugkeer-URL van de checkout. Betaald: door naar de bedankpagina, de vaste URL waarop de conversie wordt
+     * gemeten. Nog open of mislukt: naar de status (die bij "wordt verwerkt" hierheen terug ververst).
+     */
+    public function returned(Order $order, PaymentGateway $gateway, MarkOrderPaid $markPaid): RedirectResponse
+    {
+        abort_unless($order->orderable instanceof Entry, 404);
+
+        $this->syncPayment($order, $gateway, $markPaid);
+
+        return $order->refresh()->isPaid()
+            ? redirect()->route('aanmelden.bedankt', $order)
+            : redirect()->route('aanmelden.status', $order);
+    }
+
+    /**
+     * Bedankpagina na een geslaagde betaling. Alleen bereikbaar via de terugkeer-URL van de checkout, zodat een
+     * bezoek hier gelijkstaat aan een nieuwe betaalde aanmelding; herinneringsmails en het plannen van een
+     * aanlevermoment lopen via de statuspagina.
+     */
+    public function thanks(Order $order, PlanningOptions $options): View|RedirectResponse
+    {
+        abort_unless($order->orderable instanceof Entry, 404);
+
+        if (! $order->isPaid()) {
+            return redirect()->route('aanmelden.status', $order);
         }
 
-        if ($payment?->isPaid() && ! $order->isPaid()) {
-            $markPaid($order);
-        }
-
-        $order->refresh()->load(['orderable.company.primaryLocation', 'orderable.province', 'orderable.edition', 'orderable.deliverySlot.testLocation', 'orderable.pickupRequest.day', 'latestPayment']);
-        $entry = $order->orderable;
-        $needsPlanning = $order->isPaid() && $entry->needsPlanning();
-
-        return view('public.aanmelden.status', [
-            'order' => $order,
-            'entry' => $entry,
-            'payment' => $order->latestPayment,
-            'canRetry' => $order->isPending() && $entry->canPay(),
-            'discountPending' => $order->isPending() && $entry->wantsDiscount() && (bool) $entry->discount_status?->blocksPayment() && ! $entry->isReservationExpired(),
-            'needsPlanning' => $needsPlanning,
-            'slots' => $needsPlanning && ! $entry->pickup_prepaid ? $options->slots($entry->edition) : collect(),
-            'pickupDays' => $needsPlanning && $entry->pickup_prepaid ? $options->pickupDays($entry->edition) : collect(),
-        ]);
+        return $this->statusView($order, $options, isThankYouPage: true);
     }
 
     public function retry(Order $order, PaymentGateway $gateway): RedirectResponse
@@ -167,6 +174,46 @@ class RegistrationStatusController extends Controller
         return redirect()->route('aanmelden.status', $order)->with('gepland', 'Uw ophaalmoment is vastgelegd. U ontvangt een bevestiging per e-mail.');
     }
 
+    /**
+     * Haalt de status van een lopende betaling op bij de provider en zet de order op betaald als dat zo is,
+     * voor het geval de webhook nog niet binnen is.
+     */
+    private function syncPayment(Order $order, PaymentGateway $gateway, MarkOrderPaid $markPaid): void
+    {
+        $payment = $order->latestPayment;
+
+        if ($payment !== null && ! $order->isPaid() && ! $payment->status->isFinal() && $payment->provider === $gateway->name()) {
+            try {
+                $payment = $gateway->refresh($payment);
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        }
+
+        if ($payment?->isPaid() && ! $order->isPaid()) {
+            $markPaid($order);
+        }
+    }
+
+    private function statusView(Order $order, PlanningOptions $options, bool $isThankYouPage = false): View
+    {
+        $order->refresh()->load(['orderable.company.primaryLocation', 'orderable.province', 'orderable.edition', 'orderable.deliverySlot.testLocation', 'orderable.pickupRequest.day', 'latestPayment']);
+        $entry = $order->orderable;
+        $needsPlanning = $order->isPaid() && $entry->needsPlanning();
+
+        return view('public.aanmelden.status', [
+            'order' => $order,
+            'entry' => $entry,
+            'payment' => $order->latestPayment,
+            'isThankYouPage' => $isThankYouPage,
+            'canRetry' => $order->isPending() && $entry->canPay(),
+            'discountPending' => $order->isPending() && $entry->wantsDiscount() && (bool) $entry->discount_status?->blocksPayment() && ! $entry->isReservationExpired(),
+            'needsPlanning' => $needsPlanning,
+            'slots' => $needsPlanning && ! $entry->pickup_prepaid ? $options->slots($entry->edition) : collect(),
+            'pickupDays' => $needsPlanning && $entry->pickup_prepaid ? $options->pickupDays($entry->edition) : collect(),
+        ]);
+    }
+
     private function paidEntry(Order $order): Entry
     {
         $entry = $order->orderable;
@@ -195,7 +242,7 @@ class RegistrationStatusController extends Controller
         return $gateway->create(
             $order,
             "De Gouden Bol {$order->edition->year} – deelname {$order->orderable->public_name}",
-            route('aanmelden.status', $order),
+            route('aanmelden.terug', $order),
             config('commerce.payment_driver') === 'mollie' ? route('webhooks.mollie') : null,
         )->checkout_url;
     }

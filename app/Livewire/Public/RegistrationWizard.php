@@ -560,7 +560,7 @@ class RegistrationWizard extends Component
             $payment = $gateway->create(
                 $entry->order,
                 "De Gouden Bol {$edition->year} – deelname {$entry->public_name}",
-                route('aanmelden.status', $entry->order),
+                route('aanmelden.terug', $entry->order),
                 config('commerce.payment_driver') === 'mollie' ? route('webhooks.mollie') : null, // Stripe: webhook staat in het dashboard
             );
         } catch (Throwable $exception) {

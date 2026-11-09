@@ -117,6 +117,8 @@ Route::get('/redesign-dashboard-klant', [RedesignController::class, 'klant'])->n
 // Aanmelden
 Route::get('/aanmelden', RegistrationWizard::class)->name('aanmelden');
 Route::get('/aanmelden/status/{order}', [RegistrationStatusController::class, 'show'])->name('aanmelden.status');
+Route::get('/aanmelden/betaald/{order}', [RegistrationStatusController::class, 'returned'])->name('aanmelden.terug');
+Route::get('/aanmelden/bedankt/{order}', [RegistrationStatusController::class, 'thanks'])->name('aanmelden.bedankt');
 Route::post('/aanmelden/status/{order}/opnieuw', [RegistrationStatusController::class, 'retry'])->name('aanmelden.opnieuw');
 Route::post('/aanmelden/status/{order}/standaardprijs', [RegistrationStatusController::class, 'payStandard'])->name('aanmelden.standaardprijs');
 Route::post('/aanmelden/status/{order}/aanlevermoment', [RegistrationStatusController::class, 'plan'])->middleware('throttle:10,1')->name('aanmelden.moment');
