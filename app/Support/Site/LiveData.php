@@ -49,7 +49,6 @@ final class LiveData
             ->with(['province', 'company.primaryLocation'])
             ->orderByDesc('confirmed_at')
             ->orderByDesc('id')
-            ->limit(50)
             ->get();
 
         $rankings = [];

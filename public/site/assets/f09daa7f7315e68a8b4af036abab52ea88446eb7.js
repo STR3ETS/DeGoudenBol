@@ -495,7 +495,7 @@
         return;
       }
       var ul=el('ul','gbw-list');
-      data.signups.slice(0,6).forEach(function(s){
+      data.signups.forEach(function(s){
         var li=el('li'),it=el('div','gbw-item'),tx=el('div','gbw-tx');
         it.appendChild(el('span','gbw-ic','\u2605'));tx.appendChild(el('b',null,s.name));tx.appendChild(el('span',null,[s.city,s.province].filter(Boolean).join(' \u00B7 ')+' \u00B7 '+rel(s.date)));it.appendChild(tx);
         if(s.date&&days(s.date)<=3)it.appendChild(el('span','gbw-bd new','Nieuw'));
@@ -530,7 +530,7 @@
     var pillText=function(){
       var t='Aanmeldingen en ranglijst';
       if(START&&!started()){var dd=Math.ceil(left()/864e5);t=dd<=1?'Start morgen':'Nog '+dd+' dagen';}
-      else{var any=false;for(var k in (data.rankings||{}))if((data.rankings[k]||[]).length)any=true;if(any)t='Top 3 per provincie';else if(data.signups.length)t=data.signups.length+' aanmeldingen';}
+      else{var any=false;for(var k in (data.rankings||{}))if((data.rankings[k]||[]).length)any=true;if(any)t='Top 3 per provincie';}
       pillT.textContent=t;
       var seen='';try{seen=localStorage.getItem('gbw-seen')||'';}catch(e){}
       var newest=data.signups.length?data.signups[0].date:'';

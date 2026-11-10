@@ -33,7 +33,7 @@ class PublicPagesTest extends TestCase
             ->assertOk()
             ->assertSee('Drenthe')
             ->assertSee('Zuid-Holland')
-            ->assertSee('Max. 50 deelnemers', false)
+            ->assertDontSee('plekken bezet', false)
             ->assertSee('Voorlijst opent 1 november', false)
             ->assertSee('Smaak')
             ->assertSee('Veelgestelde vragen')

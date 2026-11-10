@@ -42,7 +42,7 @@ class BakkerController extends Controller
                 ->orderBy('public_name')
                 ->get()
                 // Betaalde zichtbaarheid eerst, op plek; op de kaart staat dat het een betaalde vermelding is.
-                ->sortBy(fn (Entry $entry) => $entry->visibilitySpot?->paid_at !== null && $entry->visibilitySpot->ends_at->isFuture() ? $entry->visibilitySpot->position : PHP_INT_MAX)
+                ->sortBy(fn (Entry $entry) => $entry->visibilitySpot?->isShowing() ? $entry->visibilitySpot->position : PHP_INT_MAX)
                 ->values()
             : collect();
 

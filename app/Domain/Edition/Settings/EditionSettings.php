@@ -29,6 +29,11 @@ final readonly class EditionSettings
      * @param  int  $openingOfferCents  Tijdelijke openingsactie: deelnameprijs excl. btw zolang de actie loopt; 0 zet de actie uit (dan gelden standaardprijs en kortingsactie).
      * @param  int  $plainAddonCents  Extra test van de naturel oliebol bij de aanmelding, excl. btw; 0 zet de optie uit.
      * @param  list<int|string>  $visibilitySpotPricesCents  Prijs per betaalde zichtbaarheidsplek (eerste waarde is plek 1), excl. btw; leeg zet de plekken uit.
+     * @param  list<int|string>  $visibilitySpotRegularPricesCents  Regulier tarief per plek, doorgestreept naast de prijs; leeg toont alleen de prijs.
+     * @param  bool  $visibilitySpotsStartAtPublication  Nieuwe plekken worden pas zichtbaar vanaf de hoofdpublicatie in plaats van direct na betaling.
+     * @param  int  $bundleCents  Alles-in-één deelnamepakket (test met krenten, test naturel en ophalen), excl. btw. Vervangt alle keuzes bij de aanmelding zolang het aan staat; 0 zet het uit.
+     * @param  int  $bundleRegularCents  Normale prijs van dat pakket, doorgestreept naast de actieprijs; 0 toont alleen de prijs.
+     * @param  int  $totalCapacity  Landelijk maximum aantal deelnemers, bovenop het maximum per provincie; 0 is geen landelijk maximum.
      */
     public function __construct(
         public int $capacityPerProvince = 50,
@@ -67,7 +72,27 @@ final readonly class EditionSettings
         public int $openingOfferCents = 0,
         public int $plainAddonCents = 0,
         public array $visibilitySpotPricesCents = [],
+        public array $visibilitySpotRegularPricesCents = [],
+        public bool $visibilitySpotsStartAtPublication = false,
+        public int $bundleCents = 0,
+        public int $bundleRegularCents = 0,
+        public int $totalCapacity = 0,
     ) {}
+
+    public function bundleEnabled(): bool
+    {
+        return $this->bundleCents > 0;
+    }
+
+    /**
+     * Regulier tarief van een zichtbaarheidsplek in centen excl. btw, of null als er geen hoger regulier tarief is.
+     */
+    public function visibilitySpotRegularPrice(int $position): ?int
+    {
+        $regular = $this->visibilitySpotRegularPricesCents[$position - 1] ?? null;
+
+        return $regular !== null && (int) $regular > (int) $this->visibilitySpotPrice($position) ? (int) $regular : null;
+    }
 
     public function visibilitySpotsEnabled(): bool
     {

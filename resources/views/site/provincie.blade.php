@@ -9,7 +9,7 @@
 <div class="page-hero-inner">
 <span class="eyebrow">Provincie {{ $province->name }}</span>
 <h1 class="h1" id="h1">De beste oliebollen van <em>{{ $province->name }}</em></h1>
-<p class="lead">In {{ $province->name }} strijden maximaal {{ $capacity }} deelnemers om een plek in de provinciale Top 10. Vanaf {{ $startLabel }} verschijnt hier de Voorlijst; de nummer 1 gaat door naar de landelijke finale.</p>
+<p class="lead">In {{ $province->name }} strijden de deelnemers om een plek in de provinciale Top 10. Vanaf {{ $startLabel }} verschijnt hier de Voorlijst; de nummer 1 gaat door naar de landelijke finale.</p>
 <div class="btn-row" style="justify-content:flex-start;margin-top:32px"><a href="/deelnemen" class="btn-pill btn-pill-lg"><span>Aanmelden in {{ $province->name }}</span></a></div>
 </div></section>
 <section class="sec on-dark-sec" id="voorlijst" aria-labelledby="vl-h"><div class="bgv bgv-oil glow" aria-hidden="true"><i></i><i></i><i></i><b></b></div><div class="sec-inner">
@@ -20,7 +20,7 @@
 @include('site.partials.uitgelicht')
 <section class="sec" id="feiten" aria-labelledby="feiten-h"><div class="sec-inner">
 <span class="eyebrow rev">{{ $province->name }} in het kort</span><h2 class="h2 rev" id="feiten-h">Wat je kunt verwachten in {{ $province->name }}</h2>
-<ol class="three-col stagger-grid ul-reset"><li class="step-r"><div class="step-no" aria-hidden="true">01</div><h3>Maximaal {{ $capacity }} deelnemers</h3><p>In {{ $province->name }} zijn maximaal {{ $capacity }} plaatsen beschikbaar, binnen een landelijk maximum van {{ $capacityTotal }}. Op dit moment zijn {{ $taken }} van de {{ $capacity }} plaatsen ingevuld; nog {{ $available }} beschikbaar. Het maximum van {{ $capacity }} is een bovengrens: een provincie hoeft niet volledig gevuld te zijn om een geldige ranglijst te vormen.</p></li><li class="step-r"><div class="step-no" aria-hidden="true">02</div><h3>Voorlijst vanaf {{ $startLabel }}</h3><p>Nieuwe beoordelingen worden direct op score ingevoegd. Scores vanaf 5,0 kunnen openbaar worden.</p></li><li class="step-r"><div class="step-no" aria-hidden="true">03</div><h3>Nummer 1 naar de finale</h3><p>De nummer 1 van {{ $province->name }} gaat door naar de landelijke finale en begint daar opnieuw op nul.</p></li></ol>
+<ol class="three-col stagger-grid ul-reset"><li class="step-r"><div class="step-no" aria-hidden="true">01</div><h3>Maximaal {{ $capacityTotal }} deelnemers</h3><p>Landelijk doen maximaal {{ $capacityTotal }} deelnemers mee, verdeeld over de twaalf provincies. Vol is vol. Een provincie hoeft niet volledig gevuld te zijn om een geldige ranglijst te vormen.</p></li><li class="step-r"><div class="step-no" aria-hidden="true">02</div><h3>Voorlijst vanaf {{ $startLabel }}</h3><p>Nieuwe beoordelingen worden direct op score ingevoegd. Scores vanaf 5,0 kunnen openbaar worden.</p></li><li class="step-r"><div class="step-no" aria-hidden="true">03</div><h3>Nummer 1 naar de finale</h3><p>De nummer 1 van {{ $province->name }} gaat door naar de landelijke finale en begint daar opnieuw op nul.</p></li></ol>
 </div></section>
 @includeIf('site.partials.provincie-foto.'.$province->slug)
 <section class="sec bg-linen" id="werking" aria-labelledby="werking-h"><div class="sec-inner"><div class="two-col">

@@ -76,7 +76,7 @@ class VisibilitySpotController extends Controller
         }
 
         return $order->refresh()->isPaid()
-            ? redirect()->route('portaal.aanmelding', $company)->with('status', "Betaald. U staat uitgelicht op plek {$spot->position} in {$spot->province->name}.")
+            ? redirect()->route('portaal.aanmelding', $company)->with('status', $spot->starts_at?->isFuture() ? "Betaald. Plek {$spot->position} in {$spot->province->name} staat vast en gaat in bij de bekendmaking." : "Betaald. U staat uitgelicht op plek {$spot->position} in {$spot->province->name}.")
             : redirect()->route('portaal.aanmelding', $company)->withErrors(['position' => 'De betaling is nog niet gelukt. Kies opnieuw een plek om het nog eens te proberen.']);
     }
 }

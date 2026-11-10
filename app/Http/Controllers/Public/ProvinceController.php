@@ -77,7 +77,7 @@ class ProvinceController extends Controller
             'capacity' => $availability['capacity'] ?? ($edition?->settings->capacityPerProvince ?? 50),
             'taken' => $availability['taken'] ?? 0,
             'available' => $availability['available'] ?? ($edition?->settings->capacityPerProvince ?? 50),
-            'capacityTotal' => (int) array_sum(array_column($overview, 'capacity')) ?: 600,
+            'capacityTotal' => ($edition?->settings->totalCapacity ?: (int) array_sum(array_column($overview, 'capacity'))) ?: 600,
             'startLabel' => SiteFacts::startLabel($edition) ?? '1 november',
             'threshold' => number_format($edition?->settings->publishThreshold ?? 5.0, 1, ',', '.'),
             'mapInfo' => SiteFacts::mapInfo($edition),

@@ -9,6 +9,7 @@ use App\Domain\Commerce\Actions\ReserveVisibilitySpot;
 use App\Domain\Commerce\Exceptions\VisibilitySpotTakenException;
 use App\Domain\Commerce\Models\VisibilitySpot;
 use App\Domain\Commerce\Notifications\VisibilitySpotConfirmedNotification;
+use App\Domain\Commerce\Services\VisibilitySpots;
 use App\Domain\Edition\Models\Province;
 use App\Domain\Participants\Actions\RegisterEntry;
 use App\Domain\Participants\Enums\EntryRate;
@@ -112,27 +113,66 @@ class VisibilitySpotTest extends TestCase
     }
 
     #[Test]
-    public function the_wizard_offers_the_spots_of_the_chosen_province_and_marks_taken_ones_without_counts(): void
+    public function the_wizard_no_longer_offers_spots_they_are_bought_in_the_portal(): void
     {
-        $this->register(['visibilityPosition' => 1]);
-
         $component = Livewire::test(RegistrationWizard::class)
             ->set('provinceId', Province::query()->where('slug', 'gelderland')->value('id'))
             ->set('packageId', $this->package->getKey())
             ->set('step', 4)
-            ->assertSee('Extra zichtbaarheid in Gelderland')
-            ->assertSee('Plek 2 · € 872,00 excl. btw')
-            ->assertSee('Plek 1 · € 950,00 excl. btw · bezet')
-            ->assertSee('los van de test')
-            ->set('visibilityPosition', 1)
-            ->call('next')
-            ->assertHasErrors(['visibilityPosition'])
-            ->set('visibilityPosition', 2)
+            ->assertDontSee('Extra zichtbaarheid')
             ->call('next')
             ->assertHasNoErrors()
             ->assertSet('step', 5);
 
-        $this->assertSame(18150 + 105512, $component->instance()->orderTotals()['total_cents']);
+        $this->assertSame(18150, $component->instance()->orderTotals()['total_cents']);
+    }
+
+    #[Test]
+    public function a_new_spot_is_paid_now_but_only_shows_from_the_main_publication(): void
+    {
+        Notification::fake();
+
+        $sold = $this->register(['visibilityPosition' => 1]);
+        app(MarkOrderPaid::class)($sold->order);
+
+        $publication = now()->addDays(10)->startOfHour();
+        $this->edition->forceFill([
+            'main_publication_at' => $publication,
+            'settings' => $this->edition->settings->with([
+                'visibility_spots_start_at_publication' => true,
+                'visibility_spot_regular_prices_cents' => [225000, 195000],
+            ]),
+        ])->save();
+
+        $entry = $this->register(['companyName' => 'Tweede', 'publicName' => 'Tweede Bakker', 'email' => 'tweede@example.test']);
+        app(MarkOrderPaid::class)($entry->order);
+        $owner = $entry->company->owners()->first();
+
+        $this->actingAs($owner, 'participant')
+            ->get(route('portaal.aanmelding', $entry->company))
+            ->assertOk()
+            ->assertSee('Gaat in na de bekendmaking')
+            ->assertSee('Plek 2 · € 872,00 excl. btw (regulier € 1.950,00)');
+
+        $this->actingAs($owner, 'participant')->post(route('portaal.zichtbaarheid', $entry->company), ['position' => 2])->assertRedirect();
+
+        $spot = $entry->visibilitySpot()->firstOrFail();
+        $this->post(route('betaling.fake.afronden', $spot->order->latestPayment), ['status' => 'paid']);
+        $spot->refresh();
+
+        $this->assertTrue($spot->isPaid());
+        $this->assertTrue($publication->equalTo($spot->starts_at));
+        $this->assertFalse($spot->isShowing());
+
+        // De plek die al verkocht was, blijft zoals hij was: direct zichtbaar.
+        $this->assertNull($sold->visibilitySpot->fresh()->starts_at);
+        $live = fn (): array => app(VisibilitySpots::class)->live($this->edition->fresh(), $entry->province)->pluck('position')->all();
+        $this->assertSame([1], $live());
+
+        $this->travelTo($publication->addMinute());
+
+        $this->assertTrue($spot->fresh()->isShowing());
+        $this->assertSame([1, 2], $live());
     }
 
     #[Test]

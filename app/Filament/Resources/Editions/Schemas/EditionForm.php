@@ -192,12 +192,22 @@ class EditionForm
                 ->description('Briefing 29 okt. De deelnameprijs zelf staat bij Geld > Pakketten en prijzen.')
                 ->columns(3)
                 ->schema([
+                    TextInput::make('settings.bundle_cents')->label('Alles-in-één pakket: prijs (centen, excl. btw)')->numeric()->minValue(0)->required()
+                        ->helperText('19500 = EUR 195,00. Dit is wat de bakker betaalt. Eén pakket met de test met krenten, de test naturel en ophalen. Vervangt alle keuzes bij de aanmelding. 0 zet het uit.'),
+                    TextInput::make('settings.bundle_regular_cents')->label('Alles-in-één pakket: normale prijs (centen, excl. btw)')->numeric()->minValue(0)->required()
+                        ->helperText('39000 = EUR 390,00. Staat doorgestreept naast de prijs, met het kortingspercentage. 0 toont alleen de prijs.'),
+                    TextInput::make('settings.total_capacity')->label('Landelijk maximum deelnemers')->numeric()->minValue(0)->required()
+                        ->helperText('Bovenop het maximum per provincie. Bereikt: de site toont "vol", zonder aantallen. 0 is geen landelijk maximum.'),
                     TextInput::make('settings.opening_offer_cents')->label('Openingsactie: deelnameprijs (centen, excl. btw)')->numeric()->minValue(0)->required()
                         ->helperText('7500 = EUR 75,00. Vervangt zolang hij loopt de standaardprijs en de kortingsactie. 0 zet de actie uit.'),
                     TextInput::make('settings.plain_addon_cents')->label('Extra test naturel oliebol (centen, excl. btw)')->numeric()->minValue(0)->required()
                         ->helperText('5000 = EUR 50,00. Bakkers kiezen dit bij de aanmelding. 0 zet de optie uit.'),
                     TagsInput::make('settings.visibility_spot_prices_cents')->label('Zichtbaarheidsplekken: prijs per plek (centen, excl. btw)')->columnSpanFull()
                         ->helperText('Eerste waarde is plek 1, tweede plek 2, enzovoort. 95000 = EUR 950,00. Leeg zet de plekken uit. Puur marketing; staat los van de test.'),
+                    TagsInput::make('settings.visibility_spot_regular_prices_cents')->label('Zichtbaarheidsplekken: regulier tarief per plek (centen, excl. btw)')->columnSpanFull()
+                        ->helperText('Zelfde volgorde. Staat in het portaal naast de prijs als "regulier". Leeg toont alleen de prijs.'),
+                    Toggle::make('settings.visibility_spots_start_at_publication')->label('Zichtbaarheidsplekken gaan in bij de hoofdpublicatie')->inline(false)
+                        ->helperText('Aan: een nieuwe plek is direct te betalen, maar staat pas op de site vanaf de hoofdpublicatie. Al verkochte plekken veranderen niet.'),
                     TextInput::make('settings.discount_percentage')->label('Korting kortingsactie')->numeric()->minValue(0)->maxValue(99)->suffix('%')->required()
                         ->helperText('Filmpje maken, delen en De Gouden Bol taggen. 0 zet de actie uit.'),
                     TextInput::make('settings.discount_hold_days')->label('Plek vasthouden tijdens kortingscontrole')->numeric()->minValue(1)->suffix('dagen')->required(),

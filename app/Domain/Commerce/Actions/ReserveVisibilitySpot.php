@@ -26,7 +26,11 @@ final class ReserveVisibilitySpot
             throw new InvalidArgumentException('Deze plek bestaat niet.');
         }
 
-        return DB::transaction(function () use ($entry, $position, $until, $price): VisibilitySpot {
+        // Pas zichtbaar vanaf de bekendmaking (hoofdpublicatie), als de editie dat zo heeft ingesteld en die nog komt.
+        $publication = $settings->visibilitySpotsStartAtPublication ? $entry->edition->main_publication_at : null;
+        $startsAt = $publication?->isFuture() ? $publication : null;
+
+        return DB::transaction(function () use ($entry, $position, $until, $price, $startsAt): VisibilitySpot {
             $own = VisibilitySpot::query()->where('entry_id', $entry->getKey())->lockForUpdate()->first();
 
             if ($own?->isPaid()) {
@@ -58,6 +62,7 @@ final class ReserveVisibilitySpot
                     'position' => $position,
                     'price_cents' => $price,
                     'reserved_until' => $until,
+                    'starts_at' => $startsAt,
                     'ends_at' => RegisterSponsor::seasonEnd($entry->edition),
                 ]);
             } catch (UniqueConstraintViolationException) {

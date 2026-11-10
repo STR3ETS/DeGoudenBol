@@ -1,6 +1,7 @@
 @php
     use App\Domain\Commerce\Actions\CreateOrderForEntry;
     use App\Domain\Participants\Enums\DiscountStatus;
+    use App\Domain\Participants\Enums\EntryRate;
     use App\Support\DutchTime;
     use App\Support\Money;
 
@@ -13,6 +14,8 @@
     $naturel = $regel(CreateOrderForEntry::PLAIN_ADDON_LINE_TYPE);
     $ophalen = $regel(CreateOrderForEntry::PICKUP_LINE_TYPE);
     $plek = $entry?->visibilitySpot;
+    // Nieuwe plekken gaan pas in bij de bekendmaking, als de editie dat zo heeft ingesteld en die nog komt.
+    $plekVanaf = $settings?->visibilitySpotsStartAtPublication && $edition?->main_publication_at?->isFuture() ? $edition->main_publication_at : null;
     $betaalstatus = match (true) {
         $order === null => 'Geen order',
         $order->isPaid() => 'Betaald op '.DutchTime::format($order->paid_at, 'D MMMM YYYY'),
@@ -62,9 +65,11 @@
                         @endif
                         @if ($ophalen)
                             <dt class="text-gedempt">Ophalen</dt><dd class="font-semibold">Voorrijkosten <span class="font-normal text-gedempt">· {{ Money::format($ophalen->unit_price_cents) }} excl. btw</span></dd>
+                        @elseif ($entry->rate === EntryRate::Bundle)
+                            <dt class="text-gedempt">Ophalen</dt><dd class="font-semibold">Op vrijdag <span class="font-normal text-gedempt">· zit in het pakket</span></dd>
                         @endif
                         @if ($plek?->isPaid())
-                            <dt class="text-gedempt">Extra zichtbaarheid</dt><dd class="font-semibold">Plek {{ $plek->position }} in {{ $entry->province->name }} <span class="font-normal text-gedempt">· {{ $plek->formattedPrice() }} excl. btw · tot en met {{ DutchTime::date($plek->ends_at) }}</span></dd>
+                            <dt class="text-gedempt">Extra zichtbaarheid</dt><dd class="font-semibold">Plek {{ $plek->position }} in {{ $entry->province->name }} <span class="font-normal text-gedempt">· {{ $plek->formattedPrice() }} excl. btw · {{ $plek->starts_at?->isFuture() ? 'vanaf '.DutchTime::date($plek->starts_at).' ' : '' }}tot en met {{ DutchTime::date($plek->ends_at) }}</span></dd>
                         @endif
                         @if ($entry->wantsDiscount())
                             <dt class="text-gedempt">Kortingsactie</dt>
@@ -102,8 +107,11 @@
             <div class="flex flex-col gap-6">
                 @if ($settings?->visibilitySpotsEnabled() && $order?->isPaid() && ! $plek?->isPaid() && $canDecide)
                     <section class="ui-kaart ui-kaart--zand" id="zichtbaarheid">
-                        <div class="ui-kaart__kop"><span class="ui-icoonvak ui-icoonvak--goud"><x-ui.icoon naam="bliksem" /></span><div><div class="ui-kaart__titel">Extra zichtbaarheid</div><div class="ui-kaart__sub">Uitgelicht in {{ $entry->province->name }}, tot en met 31 december</div></div></div>
+                        <div class="ui-kaart__kop"><span class="ui-icoonvak ui-icoonvak--goud"><x-ui.icoon naam="bliksem" /></span><div><div class="ui-kaart__titel">Extra zichtbaarheid</div><div class="ui-kaart__sub">Uitgelicht in {{ $entry->province->name }}, {{ $plekVanaf ? 'vanaf de bekendmaking ' : '' }}tot en met 31 december</div></div></div>
                         <div class="ui-kaart__inhoud !pt-2">
+                            @if ($plekVanaf)
+                                <div class="ui-melding ui-melding--neutraal mb-4"><span class="ui-melding__icoon"><x-ui.icoon naam="info" dikte="2" /></span><div class="ui-melding__inhoud"><span class="ui-melding__titel">Gaat in na de bekendmaking</span>Je kiest en betaalt je plek nu. Je vermelding staat op de site vanaf de bekendmaking van de uitslag op {{ DutchTime::date($plekVanaf) }}, niet eerder.</div></div>
+                            @endif
                             <p class="mb-4 text-[0.88rem]">Kies een plek en sta uitgelicht op de pagina van je provincie en bovenaan het deelnemersoverzicht. Hoe lager het nummer, hoe hoger je staat. Dit is een betaalde vermelding en staat helemaal los van de test: je score en plaats in de uitslag bepaalt alleen het testpanel.</p>
                             <form method="post" action="{{ route('portaal.zichtbaarheid', $company) }}" class="grid gap-4">
                                 @csrf
@@ -112,7 +120,7 @@
                                     <select id="position" name="position" class="ui-invoer ui-invoer--select" required>
                                         <option value="">Kies een plek</option>
                                         @foreach ($visibilityOptions as $optie)
-                                            <option value="{{ $optie['position'] }}" @selected(old('position') == $optie['position']) @disabled($optie['taken'])>Plek {{ $optie['position'] }} · {{ Money::format($optie['price_cents']) }} excl. btw{{ $optie['taken'] ? ' · bezet' : '' }}</option>
+                                            <option value="{{ $optie['position'] }}" @selected(old('position') == $optie['position']) @disabled($optie['taken'])>Plek {{ $optie['position'] }} · {{ Money::format($optie['price_cents']) }} excl. btw{{ $optie['regular_price_cents'] ? ' (regulier '.Money::format($optie['regular_price_cents']).')' : '' }}{{ $optie['taken'] ? ' · bezet' : '' }}</option>
                                         @endforeach
                                     </select>
                                 </div>

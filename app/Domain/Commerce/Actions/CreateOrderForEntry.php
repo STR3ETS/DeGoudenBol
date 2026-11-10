@@ -15,7 +15,8 @@ use Carbon\CarbonInterface;
 
 /**
  * Maakt de order voor een inschrijving: de pakketregel, bij de openingsactie een kortingsregel,
- * eventueel de extra test van de naturel oliebol en de voorrijkosten van de ophaalservice. De
+ * eventueel de extra test van de naturel oliebol en de voorrijkosten van de ophaalservice. Bij het
+ * alles-in-één pakket is het één regel waar naturel en ophalen in zitten. De
  * omschrijving noemt de inhoud, nooit een positie.
  */
 final class CreateOrderForEntry
@@ -31,6 +32,11 @@ final class CreateOrderForEntry
     public static function visibilitySpotDescription(int $position, string $province): string
     {
         return "Extra zichtbaarheid: plek {$position} in {$province} (staat los van de test)";
+    }
+
+    public static function bundleDescription(int $year): string
+    {
+        return "Deelnamepakket De Gouden Bol {$year}: test oliebol met krenten, test naturel oliebol en ophalen op vrijdag";
     }
 
     public function __invoke(Entry $entry, Package $package, ParticipantUser $buyer, ?CarbonInterface $expiresAt = null): Order
@@ -83,7 +89,17 @@ final class CreateOrderForEntry
             ...OrderLine::amounts(1, $cents, $vat ?? $vatRate),
         ];
 
-        $lines = [$line($package->getMorphClass(), "{$package->name} – De Gouden Bol {$year}", $package->price_cents, 1)];
+        $bundle = $rate === EntryRate::Bundle && $settings->bundleEnabled();
+
+        $lines = [$bundle
+            ? $line($package->getMorphClass(), self::bundleDescription($year), $settings->bundleCents, 1)
+            : $line($package->getMorphClass(), "{$package->name} – De Gouden Bol {$year}", $package->price_cents, 1)];
+
+        // In het pakket zitten naturel en ophalen al; die krijgen geen eigen regel.
+        if ($bundle) {
+            $plainAddon = false;
+            $pickup = false;
+        }
 
         if ($rate === EntryRate::OpeningOffer && $settings->openingOfferEnabled() && $settings->openingOfferCents < $package->price_cents) {
             $lines[] = $line(

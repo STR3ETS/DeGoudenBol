@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
 final class VisibilitySpots
 {
     /**
-     * @return list<array{position: int, price_cents: int, taken: bool}>
+     * @return list<array{position: int, price_cents: int, regular_price_cents: int|null, taken: bool}>
      */
     public function options(Edition $edition, Province $province): array
     {
@@ -27,7 +27,12 @@ final class VisibilitySpots
         $options = [];
 
         foreach (array_values($edition->settings->visibilitySpotPricesCents) as $index => $price) {
-            $options[] = ['position' => $index + 1, 'price_cents' => (int) $price, 'taken' => in_array($index + 1, $taken, true)];
+            $options[] = [
+                'position' => $index + 1,
+                'price_cents' => (int) $price,
+                'regular_price_cents' => $edition->settings->visibilitySpotRegularPrice($index + 1),
+                'taken' => in_array($index + 1, $taken, true),
+            ];
         }
 
         return $options;

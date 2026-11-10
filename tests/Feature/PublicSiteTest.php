@@ -46,10 +46,10 @@ class PublicSiteTest extends TestCase
         $this->get(route('provincies.show', Province::query()->where('slug', 'gelderland')->first()))
             ->assertOk()
             ->assertSee('De beste oliebollen van')
-            ->assertSee('2 van de 50 plaatsen ingevuld; nog 48 beschikbaar') // de reservering telt mee tot hij vervalt
+            ->assertDontSee('plaatsen ingevuld') // geen aantallen richting bezoekers (besluit Bennie 3 en 9 nov 2026)
             ->assertSee('Nog niet bekend')
             ->assertSee('Er zijn nog geen scores gepubliceerd')
-            ->assertSee('2 van 50 plekken bezet', false);
+            ->assertDontSee('plekken bezet', false);
     }
 
     #[Test]

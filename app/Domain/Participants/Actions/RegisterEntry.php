@@ -39,16 +39,19 @@ final class RegisterEntry
     {
         $province = Province::query()->findOrFail($data->provinceId);
         $package = Package::query()->where('edition_id', $edition->getKey())->active()->findOrFail($data->packageId);
-        // Zolang de openingsactie loopt, vervangt die de standaardprijs en de kortingsactie.
-        $openingOffer = $edition->settings->openingOfferEnabled();
-        $wantsDiscount = ! $openingOffer && $data->rate === EntryRate::Discount && $edition->settings->discountEnabled();
+        // Het alles-in-één pakket vervangt alle keuzes: naturel en ophalen zitten erin. Anders vervangt de
+        // openingsactie, zolang die loopt, de standaardprijs en de kortingsactie.
+        $bundle = $edition->settings->bundleEnabled();
+        $openingOffer = ! $bundle && $edition->settings->openingOfferEnabled();
+        $wantsDiscount = ! $bundle && ! $openingOffer && $data->rate === EntryRate::Discount && $edition->settings->discountEnabled();
         $rate = match (true) {
+            $bundle => EntryRate::Bundle,
             $openingOffer => EntryRate::OpeningOffer,
             $wantsDiscount => EntryRate::Discount,
             default => EntryRate::Standard,
         };
-        $plainAddon = $data->plainAddon && $edition->settings->plainAddonEnabled();
-        $pickup = $data->pickup && $edition->settings->pickupEnabled;
+        $plainAddon = $bundle || ($data->plainAddon && $edition->settings->plainAddonEnabled());
+        $pickup = $bundle || ($data->pickup && $edition->settings->pickupEnabled);
 
         // Met kortingsaanvraag blijft de plek langer vast: eerst bewijs en controle, dan pas betalen.
         $reservationMinutes = $wantsDiscount

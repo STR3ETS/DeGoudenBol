@@ -17,8 +17,8 @@ final class SiteFacts
     }
 
     /**
-     * Tekst per provincie voor de kaart van Nederland (data-info), bijvoorbeeld
-     * "12 van 50 plekken bezet · Voorlijst opent 1 november".
+     * Tekst per provincie voor de kaart van Nederland (data-info), bijvoorbeeld "Voorlijst opent 1 november".
+     * Geen aantallen aanmeldingen of vrije plekken (besluit Bennie 3 en 9 nov 2026); alleen "Vol" als het vol is.
      *
      * @return array<string, string>
      */
@@ -40,8 +40,8 @@ final class SiteFacts
             $ranked = count($live['rankings'][$province->slug] ?? []);
             $parts = [];
 
-            if ($stats !== null) {
-                $parts[] = $stats['taken'] > 0 ? "{$stats['taken']} van {$stats['capacity']} plekken bezet" : "Max. {$stats['capacity']} deelnemers";
+            if ($stats !== null && $stats['available'] <= 0) {
+                $parts[] = 'Vol';
             }
 
             $parts[] = $ranked > 0 ? "{$ranked} op de Voorlijst" : ($started || $start === null ? 'Voorlijst volgt' : "Voorlijst opent {$start}");

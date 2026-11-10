@@ -6,7 +6,15 @@
     $stepLabels = ['Bedrijf', 'Adres', 'Publicatie', 'Pakket', 'Afronden'];
 @endphp
 <div class="site-container pt-36 pb-24">
-    @if (! $this->isOpen)
+    @if ($this->isOpen && $this->isFull)
+        {{-- Landelijk maximum bereikt (besluit Bennie 9 nov 2026: vol is vol). Geen aantallen. --}}
+        <div class="mx-auto max-w-[640px] text-center">
+            <x-ui.eyebrow>Aanmelden</x-ui.eyebrow>
+            <h1 class="kop-pagina mb-5">De inschrijving is <em>vol</em></h1>
+            <p class="body-text mb-8">Alle plekken voor De Gouden Bol {{ $edition->year }} zijn bezet. Komt er een plek vrij, dan kunt u zich hier weer aanmelden.</p>
+            <x-ui.button variant="outline" :href="route('home')">Naar de homepage</x-ui.button>
+        </div>
+    @elseif (! $this->isOpen)
         <div class="mx-auto max-w-[640px] text-center">
             <x-ui.eyebrow>Aanmelden</x-ui.eyebrow>
             @if ($edition?->registrationHasClosed() || in_array($edition?->status, [\App\Domain\Edition\Enums\EditionStatus::Closed, \App\Domain\Edition\Enums\EditionStatus::Frozen, \App\Domain\Edition\Enums\EditionStatus::Published], true))
@@ -136,6 +144,33 @@
                 @if ($step === 4)
                     <h2 class="kop-3 mb-2">Deelname</h2>
                     <p class="body-text mb-7 text-[0.9rem]">Erkenningen en badges hangen nooit aan een pakket; die volgen alleen uit de beoordeling.</p>
+                    @if ($this->bundleEnabled())
+                        {{-- Eén pakket, geen keuzes (besluit Bennie 9 nov 2026): krenten, naturel en ophalen in één prijs. --}}
+                        @php
+                            $bundelPrijs = $edition->settings->bundleCents;
+                            $bundelNormaal = $edition->settings->bundleRegularCents > $bundelPrijs ? $edition->settings->bundleRegularCents : null;
+                        @endphp
+                        <div class="card !p-6 ring-2 ring-goud">
+                            <div class="flex items-start justify-between gap-4">
+                                <div>
+                                    <div class="font-kop text-[1.25rem] font-semibold">Deelnamepakket De Gouden Bol {{ $edition->year }}</div>
+                                    <ul class="body-text mt-2 list-disc space-y-1 pl-5 text-[0.9rem]">
+                                        <li>Test van uw oliebol met krenten</li>
+                                        <li>Test van uw naturel oliebol</li>
+                                        <li>Wij halen uw oliebollen op, op vrijdag</li>
+                                    </ul>
+                                </div>
+                                <div class="text-right">
+                                    @if ($bundelNormaal)
+                                        <span class="ui-chip ui-chip--klein ui-chip--succes whitespace-nowrap">Introductieactie {{ (int) round(100 - $bundelPrijs / $bundelNormaal * 100) }}% korting</span>
+                                        <div class="mt-1 text-[0.85rem] text-gedempt line-through">{{ App\Support\Money::format($bundelNormaal) }}</div>
+                                    @endif
+                                    <div class="cijfer whitespace-nowrap text-[1.6rem] text-goud-tekst">{{ App\Support\Money::format($bundelPrijs) }}</div>
+                                    <div class="text-[0.72rem] text-gedempt">excl. btw</div>
+                                </div>
+                            </div>
+                        </div>
+                    @else
                     <div class="grid gap-4">
                         @foreach ($this->packages as $package)
                             <label class="card card--hover block cursor-pointer !p-6 {{ $packageId === $package->getKey() ? 'ring-2 ring-goud' : '' }}">
@@ -165,9 +200,11 @@
                             </label>
                         @endforeach
                     </div>
+                    @endif
                     @error('packageId') <p class="field-error">{{ $message }}</p> @enderror
 
                     @if ($this->pickupEnabled())
+                        @unless ($this->bundleEnabled())
                         <label class="card card--hover mt-4 block cursor-pointer !p-6 {{ $pickup ? 'ring-2 ring-goud' : '' }}">
                             <div class="flex items-start justify-between gap-4">
                                 <div class="flex items-start gap-3">
@@ -183,9 +220,16 @@
                                 </div>
                             </div>
                         </label>
+                        @endunless
 
                         @if ($pickup)
-                            <div class="card mt-2 grid gap-4 !p-6" wire:key="ophalen-details">
+                            <div class="card {{ $this->bundleEnabled() ? 'mt-4' : 'mt-2' }} grid gap-4 !p-6" wire:key="ophalen-details">
+                                @if ($this->bundleEnabled())
+                                    <div>
+                                        <div class="font-kop text-[1.25rem] font-semibold">Ophalen</div>
+                                        <p class="body-text mt-1 text-[0.85rem]">Een teamlid van De Gouden Bol haalt uw oliebollen op, alleen op vrijdag. Kies de vrijdag en waar wij ze ophalen.</p>
+                                    </div>
+                                @endif
                                 @if ($this->pickupDays->isEmpty())
                                     <p class="text-[0.85rem] text-gedempt">Er zijn nog geen ophaalvrijdagen te kiezen. Na de betaling kiest u de vrijdag op de bedankpagina of in het portaal.</p>
                                 @else
@@ -212,26 +256,13 @@
                                     <x-ui.field name="pickupPhone" label="Telefoon voor de chauffeur" type="tel" wire:model.blur="pickupPhone" :required="true" autocomplete="tel" />
                                     <x-ui.field name="pickupInstructions" label="Toelichting" wire:model.blur="pickupInstructions" placeholder="Bijv. kraam op de parkeerplaats van de Hornbach" />
                                 </div>
+                                {{-- Verzoek Bennie 10 nov 2026: vooraf melden dat er bij het ophalen gefilmd kan worden. --}}
+                                <p class="rounded-veld bg-goud-licht p-4 text-[0.85rem]"><b>Filmpjes.</b> Bij het ophalen kunnen wij een kort filmpje maken van uw kraam of bakkerij en uw oliebollen, voor de website en de sociale media van De Gouden Bol.</p>
                             </div>
                         @endif
                     @endif
 
-                    @if ($this->visibilityOptions !== [])
-                        <div class="card mt-4 !p-6" wire:key="extra-zichtbaarheid">
-                            <div class="font-kop text-[1.25rem] font-semibold">Extra zichtbaarheid in {{ $this->selectedProvince->name }}</div>
-                            <p class="body-text mt-1 text-[0.85rem]">Optioneel. Kies een plek en sta uitgelicht op de pagina van uw provincie en bovenaan het deelnemersoverzicht, tot en met 31 december. Hoe lager het nummer, hoe hoger u staat. Dit is een betaalde vermelding en staat helemaal los van de test: uw score en plaats in de uitslag bepaalt alleen het testpanel.</p>
-                            <label class="label mt-4" for="veld-visibilityPosition">Plek</label>
-                            <select id="veld-visibilityPosition" wire:model.live="visibilityPosition" class="input input--select">
-                                <option value="">Geen extra zichtbaarheid</option>
-                                @foreach ($this->visibilityOptions as $option)
-                                    <option value="{{ $option['position'] }}" @disabled($option['taken'])>Plek {{ $option['position'] }} · {{ App\Support\Money::format($option['price_cents']) }} excl. btw{{ $option['taken'] ? ' · bezet' : '' }}</option>
-                                @endforeach
-                            </select>
-                            @error('visibilityPosition') <p class="field-error">{{ $message }}</p> @enderror
-                        </div>
-                    @endif
-
-                    @if ($this->plainAddonEnabled())
+                    @if ($this->plainAddonEnabled() && ! $this->bundleEnabled())
                         <label class="card card--hover mt-4 block cursor-pointer !p-6 {{ $plainAddon ? 'ring-2 ring-goud' : '' }}">
                             <div class="flex items-start justify-between gap-4">
                                 <div class="flex items-start gap-3">
@@ -306,10 +337,13 @@
                         <dt class="text-gedempt">Pakket</dt>
                         <dd>
                             @if ($this->selectedPackage && ($totals = $this->orderTotals()))
-                                {{ $this->selectedPackage->name }}@if ($this->openingOfferEnabled()) · openingsactie @endif
-                                @if ($plainAddon && $this->plainAddonEnabled()) + extra test naturel oliebol @endif
-                                @if ($pickup && $this->pickupEnabled()) + ophalen (voorrijkosten) @else · zelf aanleveren @endif
-                                @if ($visibilityPosition) + extra zichtbaarheid @endif
+                                @if ($this->bundleEnabled())
+                                    Deelnamepakket: test met krenten, test naturel en ophalen
+                                @else
+                                    {{ $this->selectedPackage->name }}@if ($this->openingOfferEnabled()) · openingsactie @endif
+                                    @if ($plainAddon && $this->plainAddonEnabled()) + extra test naturel oliebol @endif
+                                    @if ($pickup && $this->pickupEnabled()) + ophalen (voorrijkosten) @else · zelf aanleveren @endif
+                                @endif
                                 · {{ App\Support\Money::format($totals['subtotal_cents']) }} excl. btw
                                 <span class="text-gedempt">({{ App\Support\Money::format($totals['total_cents']) }} incl. {{ rtrim(rtrim(number_format($this->selectedPackage->vat_rate, 2, ',', '.'), '0'), ',') }}% btw)</span>
                             @endif
@@ -317,10 +351,6 @@
                         @if ($pickup && $this->pickupEnabled())
                             <dt class="text-gedempt">Ophalen</dt>
                             <dd>{{ $this->pickupDays->firstWhere('id', $pickupDayId)?->label() ?? 'Vrijdag kiest u na de betaling' }} · {{ trim($pickupStreet.' '.$pickupHouseNumber) }}, {{ $pickupPostcode }} {{ $pickupCity }}@if ($pickupInstructions) <span class="text-gedempt">({{ $pickupInstructions }})</span>@endif</dd>
-                        @endif
-                        @if ($visibilityPosition)
-                            <dt class="text-gedempt">Extra zichtbaarheid</dt>
-                            <dd>Plek {{ $visibilityPosition }} in {{ $this->selectedProvince?->name }} · {{ App\Support\Money::format($edition->settings->visibilitySpotPrice((int) $visibilityPosition) ?? 0) }} excl. btw</dd>
                         @endif
                         @if ($this->wantsDiscount())
                             <dt class="text-gedempt">Tarief</dt>
