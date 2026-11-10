@@ -230,10 +230,13 @@
                                         <input type="checkbox" wire:model.live="videoAddon" class="mt-1 h-4 w-4 accent-goud">
                                         <div>
                                             <div class="font-kop text-[1.25rem] font-semibold">Filmpje</div>
-                                            <p class="body-text mt-1 text-[0.85rem]">Optioneel. Laat bij het ophalen een kort filmpje maken van uw kraam of bakkerij en uw oliebollen.</p>
+                                            <p class="body-text mt-1 text-[0.85rem]">Optioneel. Laat bij het ophalen een kort filmpje maken van uw kraam of bakkerij en uw oliebollen. U krijgt het filmpje zelf en wij gebruiken het voor de sociale media van De Gouden Bol.</p>
                                         </div>
                                     </div>
                                     <div class="text-right">
+                                        @if ($edition->settings->videoAddonRegularPrice())
+                                            <div class="text-[0.85rem] text-gedempt line-through">{{ App\Support\Money::format($edition->settings->videoAddonRegularPrice()) }}</div>
+                                        @endif
                                         <div class="cijfer whitespace-nowrap text-[1.6rem] text-goud-tekst">+ {{ App\Support\Money::format($edition->settings->videoAddonCents) }}</div>
                                         <div class="text-[0.72rem] text-gedempt">excl. btw</div>
                                     </div>

@@ -132,7 +132,7 @@ class BundleRegistrationTest extends TestCase
     {
         Notification::fake();
 
-        $this->edition->forceFill(['settings' => $this->edition->settings->with(['video_addon_cents' => 10000])])->save();
+        $this->edition->forceFill(['settings' => $this->edition->settings->with(['video_addon_cents' => 10000, 'video_addon_regular_cents' => 15000])])->save();
 
         $component = Livewire::test(RegistrationWizard::class)
             ->set('companyName', 'Bakkerij Testers')
@@ -148,6 +148,8 @@ class BundleRegistrationTest extends TestCase
             ->assertSet('step', 4)
             ->assertSeeInOrder(['Deelnamepakket De Gouden Bol 2026', 'Laat bij het ophalen een kort filmpje maken', 'Ophaallocatie'])
             ->assertSee('+ € 100,00')
+            ->assertSee('€ 150,00')
+            ->assertSee('U krijgt het filmpje zelf')
             ->assertDontSee('Filmpjes.')
             ->assertSet('videoAddon', false);
 

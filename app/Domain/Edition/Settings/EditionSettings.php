@@ -35,6 +35,7 @@ final readonly class EditionSettings
      * @param  int  $bundleRegularCents  Normale prijs van dat pakket, doorgestreept naast de actieprijs; 0 toont alleen de prijs.
      * @param  int  $totalCapacity  Landelijk maximum aantal deelnemers, bovenop het maximum per provincie; 0 is geen landelijk maximum.
      * @param  int  $videoAddonCents  Filmpje van de kraam of bakkerij als betaalde extra bij de aanmelding, excl. btw; 0 zet de optie uit.
+     * @param  int  $videoAddonRegularCents  Normale prijs van het filmpje, doorgestreept naast de prijs; 0 toont alleen de prijs.
      */
     public function __construct(
         public int $capacityPerProvince = 50,
@@ -79,11 +80,20 @@ final readonly class EditionSettings
         public int $bundleRegularCents = 0,
         public int $totalCapacity = 0,
         public int $videoAddonCents = 0,
+        public int $videoAddonRegularCents = 0,
     ) {}
 
     public function videoAddonEnabled(): bool
     {
         return $this->videoAddonCents > 0;
+    }
+
+    /**
+     * De normale prijs van het filmpje, alleen als die hoger is dan wat de bakker nu betaalt.
+     */
+    public function videoAddonRegularPrice(): ?int
+    {
+        return $this->videoAddonEnabled() && $this->videoAddonRegularCents > $this->videoAddonCents ? $this->videoAddonRegularCents : null;
     }
 
     public function bundleEnabled(): bool
