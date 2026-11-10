@@ -128,6 +128,71 @@ class BundleRegistrationTest extends TestCase
     }
 
     #[Test]
+    public function the_video_is_an_optional_extra_that_is_added_to_the_package_price(): void
+    {
+        Notification::fake();
+
+        $this->edition->forceFill(['settings' => $this->edition->settings->with(['video_addon_cents' => 10000])])->save();
+
+        $component = Livewire::test(RegistrationWizard::class)
+            ->set('companyName', 'Bakkerij Testers')
+            ->set('companyType', 'bakkerij')
+            ->set('contactName', 'Tessa Tester')
+            ->set('email', 'tessa@example.test')
+            ->set('phone', '0612345678')
+            ->call('next')
+            ->set('postcode', '6811 AB')
+            ->set('houseNumber', '12')
+            ->call('next')
+            ->call('next')
+            ->assertSet('step', 4)
+            ->assertSeeInOrder(['Deelnamepakket De Gouden Bol 2026', 'Laat bij het ophalen een kort filmpje maken', 'Ophaallocatie'])
+            ->assertSee('+ € 100,00')
+            ->assertDontSee('Filmpjes.')
+            ->assertSet('videoAddon', false);
+
+        // Niet aangevinkt: alleen het pakket.
+        $this->assertSame(23595, $component->instance()->orderTotals()['total_cents']);
+
+        $component->set('videoAddon', true)
+            ->call('next')
+            ->assertSet('step', 5)
+            ->assertSee('+ filmpje')
+            ->assertSee('€ 356,95')
+            ->set('acceptTerms', true)
+            ->set('acceptPrivacy', true)
+            ->call('submit')
+            ->assertHasNoErrors();
+
+        $entry = Entry::query()->firstOrFail();
+        $video = $entry->order->lines->firstWhere('lineable_type', CreateOrderForEntry::VIDEO_ADDON_LINE_TYPE);
+
+        $this->assertTrue($entry->video_addon);
+        $this->assertSame(10000, $video->unit_price_cents);
+        $this->assertSame(35695, $entry->order->total_cents); // (EUR 195 + EUR 100) + 21% btw
+
+        app(MarkOrderPaid::class)($entry->order);
+
+        $this->actingAs($entry->company->owners()->first(), 'participant')
+            ->get(route('portaal.aanmelding', $entry->company))
+            ->assertOk()
+            ->assertSee('Filmpje')
+            ->assertSee('€ 100,00 excl. btw');
+    }
+
+    #[Test]
+    public function without_a_price_the_video_is_not_offered_and_never_charged(): void
+    {
+        $entry = app(RegisterEntry::class)($this->edition->fresh(), $this->registrationData(['videoAddon' => true]));
+
+        $this->assertFalse($entry->video_addon);
+        $this->assertCount(1, $entry->order->lines);
+        $this->assertSame(23595, $entry->order->total_cents);
+
+        Livewire::test(RegistrationWizard::class)->set('step', 4)->assertDontSee('+ € 100,00')->assertSee('Filmpjes.');
+    }
+
+    #[Test]
     public function the_national_maximum_closes_every_province_and_shows_full_without_counts(): void
     {
         Notification::fake();

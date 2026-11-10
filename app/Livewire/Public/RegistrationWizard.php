@@ -99,6 +99,9 @@ class RegistrationWizard extends Component
 
     public bool $pickup = false;
 
+    // Filmpje van de kraam of bakkerij, gemaakt bij het ophalen; betaalde extra (verzoek Gill 10 nov 2026)
+    public bool $videoAddon = false;
+
     // Ophalen: vrijdag en ophaallocatie direct bij de aanmelding (verzoek Gill 4 nov 2026)
     public ?int $pickupDayId = null;
 
@@ -133,7 +136,7 @@ class RegistrationWizard extends Component
         'step', 'companyName', 'companyType', 'contactName', 'email', 'phone', 'website',
         'postcode', 'houseNumber', 'street', 'city', 'provinceId', 'lat', 'lng', 'homeAddress',
         'publicName', 'tagline', 'allergens', 'productNotes',
-        'packageId', 'rate', 'discountProofUrl', 'plainAddon', 'pickup',
+        'packageId', 'rate', 'discountProofUrl', 'plainAddon', 'pickup', 'videoAddon',
         'pickupDayId', 'pickupStreet', 'pickupHouseNumber', 'pickupPostcode', 'pickupCity', 'pickupPhone', 'pickupInstructions',
     ];
 
@@ -340,6 +343,19 @@ class RegistrationWizard extends Component
         return (bool) $this->edition?->settings->plainAddonEnabled();
     }
 
+    public function videoAddonEnabled(): bool
+    {
+        return (bool) $this->edition?->settings->videoAddonEnabled();
+    }
+
+    /**
+     * Het filmpje wordt bij het ophalen gemaakt: alleen te kiezen, en alleen meegerekend, als er opgehaald wordt.
+     */
+    public function wantsVideo(): bool
+    {
+        return $this->videoAddon && $this->videoAddonEnabled() && $this->pickup && $this->pickupEnabled();
+    }
+
     /**
      * De kortingsactie geldt niet zolang de openingsactie loopt; dan noemen we hem ook niet.
      */
@@ -373,7 +389,7 @@ class RegistrationWizard extends Component
             return null;
         }
 
-        return CreateOrderForEntry::totals($this->selectedPackage, $this->edition->settings, $this->edition->year, $this->chosenRate(), $this->plainAddon && $this->plainAddonEnabled(), $this->pickup && $this->pickupEnabled());
+        return CreateOrderForEntry::totals($this->selectedPackage, $this->edition->settings, $this->edition->year, $this->chosenRate(), $this->plainAddon && $this->plainAddonEnabled(), $this->pickup && $this->pickupEnabled(), video: $this->wantsVideo());
     }
 
     public function wantsDiscount(): bool
@@ -543,6 +559,7 @@ class RegistrationWizard extends Component
                 discountProofUrl: $this->wantsDiscount() && $this->discountProofUrl !== '' ? trim($this->discountProofUrl) : null,
                 plainAddon: $this->plainAddon && $this->plainAddonEnabled(),
                 pickup: $this->pickup && $this->pickupEnabled(),
+                videoAddon: $this->wantsVideo(),
                 pickupPreference: $this->pickup && $this->pickupEnabled() ? [
                     'pickup_day_id' => $this->pickupDayId,
                     'street' => trim($this->pickupStreet),
@@ -629,6 +646,7 @@ class RegistrationWizard extends Component
                 'discountProofUrl' => ['nullable', 'url', 'max:500'],
                 'plainAddon' => ['boolean'],
                 'pickup' => ['boolean'],
+                'videoAddon' => ['boolean'],
                 ...$this->pickupRules(),
             ],
             5 => [

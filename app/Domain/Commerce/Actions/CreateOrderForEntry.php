@@ -29,6 +29,10 @@ final class CreateOrderForEntry
 
     public const string VISIBILITY_LINE_TYPE = 'visibility_spot';
 
+    public const string VIDEO_ADDON_LINE_TYPE = 'video_addon';
+
+    public const string VIDEO_ADDON_DESCRIPTION = 'Filmpje van uw kraam of bakkerij, gemaakt bij het ophalen';
+
     public static function visibilitySpotDescription(int $position, string $province): string
     {
         return "Extra zichtbaarheid: plek {$position} in {$province} (staat los van de test)";
@@ -57,7 +61,7 @@ final class CreateOrderForEntry
 
         $spot = $entry->visibilitySpot()->first();
 
-        foreach (self::lines($package, $entry->edition->settings, $entry->edition->year, $entry->rate, $entry->plain_addon, $entry->pickup_prepaid, $spot?->position, $entry->province?->name) as $line) {
+        foreach (self::lines($package, $entry->edition->settings, $entry->edition->year, $entry->rate, $entry->plain_addon, $entry->pickup_prepaid, $spot?->position, $entry->province?->name, $entry->video_addon) as $line) {
             $order->lines()->create([
                 ...$line,
                 'lineable_id' => $line['lineable_type'] === $package->getMorphClass() ? $package->getKey() : $entry->getKey(),
@@ -75,7 +79,7 @@ final class CreateOrderForEntry
      *
      * @return list<array{lineable_type: string, description: string, quantity: int, unit_price_cents: int, vat_rate: float, counts_for_charity: bool, sort: int, subtotal_cents: int, vat_cents: int, total_cents: int}>
      */
-    public static function lines(Package $package, EditionSettings $settings, int $year, EntryRate $rate, bool $plainAddon, bool $pickup = false, ?int $spotPosition = null, ?string $province = null): array
+    public static function lines(Package $package, EditionSettings $settings, int $year, EntryRate $rate, bool $plainAddon, bool $pickup = false, ?int $spotPosition = null, ?string $province = null, bool $video = false): array
     {
         $vatRate = (float) $package->vat_rate;
         $line = fn (string $type, string $description, int $cents, int $sort, ?float $vat = null): array => [
@@ -119,10 +123,15 @@ final class CreateOrderForEntry
             $lines[] = $line(self::PICKUP_LINE_TYPE, 'Ophaalservice op vrijdag (voorrijkosten); de vrijdag kiest u in het portaal', $settings->pickupFeeCents, 4, (float) config('commerce.default_vat_rate', 21.0));
         }
 
+        // Het filmpje is een losse extra, ook naast het alles-in-één pakket.
+        if ($video && $settings->videoAddonEnabled()) {
+            $lines[] = $line(self::VIDEO_ADDON_LINE_TYPE, self::VIDEO_ADDON_DESCRIPTION, $settings->videoAddonCents, 5, (float) config('commerce.default_vat_rate', 21.0));
+        }
+
         $spotPrice = $spotPosition !== null ? $settings->visibilitySpotPrice($spotPosition) : null;
 
         if ($spotPrice !== null) {
-            $lines[] = $line(self::VISIBILITY_LINE_TYPE, self::visibilitySpotDescription($spotPosition, (string) $province), $spotPrice, 5, (float) config('commerce.default_vat_rate', 21.0));
+            $lines[] = $line(self::VISIBILITY_LINE_TYPE, self::visibilitySpotDescription($spotPosition, (string) $province), $spotPrice, 6, (float) config('commerce.default_vat_rate', 21.0));
         }
 
         return $lines;
@@ -131,9 +140,9 @@ final class CreateOrderForEntry
     /**
      * @return array{subtotal_cents: int, total_cents: int}
      */
-    public static function totals(Package $package, EditionSettings $settings, int $year, EntryRate $rate, bool $plainAddon, bool $pickup = false, ?int $spotPosition = null): array
+    public static function totals(Package $package, EditionSettings $settings, int $year, EntryRate $rate, bool $plainAddon, bool $pickup = false, ?int $spotPosition = null, bool $video = false): array
     {
-        $lines = collect(self::lines($package, $settings, $year, $rate, $plainAddon, $pickup, $spotPosition));
+        $lines = collect(self::lines($package, $settings, $year, $rate, $plainAddon, $pickup, $spotPosition, video: $video));
 
         return ['subtotal_cents' => (int) $lines->sum('subtotal_cents'), 'total_cents' => (int) $lines->sum('total_cents')];
     }

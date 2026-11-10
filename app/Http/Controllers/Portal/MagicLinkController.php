@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Domain\Participants\Services\MagicLinkService;
+use App\Domain\Participants\Services\PortalViewing;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,6 +23,7 @@ class MagicLinkController extends Controller
 
         Auth::guard('participant')->login($result['user'], remember: true);
         $request->session()->regenerate();
+        $request->session()->forget(PortalViewing::SESSION_KEY);
         $result['user']->forceFill(['last_login_at' => now()])->save();
 
         return redirect()->to($result['redirect'] ?? route('portaal.dashboard'));

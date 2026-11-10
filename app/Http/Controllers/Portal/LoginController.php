@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portal;
 
 use App\Domain\Participants\Models\ParticipantUser;
 use App\Domain\Participants\Notifications\MagicLinkNotification;
+use App\Domain\Participants\Services\PortalViewing;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -40,6 +41,7 @@ class LoginController extends Controller
 
         RateLimiter::clear($this->throttleKey($request));
         $request->session()->regenerate();
+        $request->session()->forget(PortalViewing::SESSION_KEY);
         $request->user('participant')->forceFill(['last_login_at' => now()])->save();
 
         return redirect()->intended(route('portaal.dashboard'));

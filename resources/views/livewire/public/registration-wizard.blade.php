@@ -222,6 +222,25 @@
                         </label>
                         @endunless
 
+                        {{-- Filmpje als betaalde extra, aan te vinken bij de aanmelding (verzoek Gill 10 nov 2026). Wordt bij het ophalen gemaakt. --}}
+                        @if ($pickup && $this->videoAddonEnabled())
+                            <label class="card card--hover mt-4 block cursor-pointer !p-6 {{ $videoAddon ? 'ring-2 ring-goud' : '' }}" wire:key="filmpje">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="flex items-start gap-3">
+                                        <input type="checkbox" wire:model.live="videoAddon" class="mt-1 h-4 w-4 accent-goud">
+                                        <div>
+                                            <div class="font-kop text-[1.25rem] font-semibold">Filmpje</div>
+                                            <p class="body-text mt-1 text-[0.85rem]">Optioneel. Laat bij het ophalen een kort filmpje maken van uw kraam of bakkerij en uw oliebollen.</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="cijfer whitespace-nowrap text-[1.6rem] text-goud-tekst">+ {{ App\Support\Money::format($edition->settings->videoAddonCents) }}</div>
+                                        <div class="text-[0.72rem] text-gedempt">excl. btw</div>
+                                    </div>
+                                </div>
+                            </label>
+                        @endif
+
                         @if ($pickup)
                             <div class="card {{ $this->bundleEnabled() ? 'mt-4' : 'mt-2' }} grid gap-4 !p-6" wire:key="ophalen-details">
                                 @if ($this->bundleEnabled())
@@ -256,8 +275,10 @@
                                     <x-ui.field name="pickupPhone" label="Telefoon voor de chauffeur" type="tel" wire:model.blur="pickupPhone" :required="true" autocomplete="tel" />
                                     <x-ui.field name="pickupInstructions" label="Toelichting" wire:model.blur="pickupInstructions" placeholder="Bijv. kraam op de parkeerplaats van de Hornbach" />
                                 </div>
-                                {{-- Verzoek Bennie 10 nov 2026: vooraf melden dat er bij het ophalen gefilmd kan worden. --}}
-                                <p class="rounded-veld bg-goud-licht p-4 text-[0.85rem]"><b>Filmpjes.</b> Bij het ophalen kunnen wij een kort filmpje maken van uw kraam of bakkerij en uw oliebollen, voor de website en de sociale media van De Gouden Bol.</p>
+                                {{-- Verzoek Bennie 10 nov 2026: vooraf melden dat er bij het ophalen gefilmd kan worden. Vervalt zodra het filmpje een eigen vinkje heeft. --}}
+                                @unless ($this->videoAddonEnabled())
+                                    <p class="rounded-veld bg-goud-licht p-4 text-[0.85rem]"><b>Filmpjes.</b> Bij het ophalen kunnen wij een kort filmpje maken van uw kraam of bakkerij en uw oliebollen, voor de website en de sociale media van De Gouden Bol.</p>
+                                @endunless
                             </div>
                         @endif
                     @endif
@@ -344,6 +365,7 @@
                                     @if ($plainAddon && $this->plainAddonEnabled()) + extra test naturel oliebol @endif
                                     @if ($pickup && $this->pickupEnabled()) + ophalen (voorrijkosten) @else · zelf aanleveren @endif
                                 @endif
+                                @if ($this->wantsVideo()) + filmpje @endif
                                 · {{ App\Support\Money::format($totals['subtotal_cents']) }} excl. btw
                                 <span class="text-gedempt">({{ App\Support\Money::format($totals['total_cents']) }} incl. {{ rtrim(rtrim(number_format($this->selectedPackage->vat_rate, 2, ',', '.'), '0'), ',') }}% btw)</span>
                             @endif

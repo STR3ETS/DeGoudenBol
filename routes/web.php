@@ -16,6 +16,7 @@ use App\Http\Controllers\Portal\MarketingController;
 use App\Http\Controllers\Portal\PasswordController;
 use App\Http\Controllers\Portal\PickupController;
 use App\Http\Controllers\Portal\PlanningController;
+use App\Http\Controllers\Portal\PortalViewingController;
 use App\Http\Controllers\Portal\RegistrationController;
 use App\Http\Controllers\Portal\ReportController;
 use App\Http\Controllers\Portal\ResultController;
@@ -47,6 +48,7 @@ use App\Http\Controllers\StyleguideController;
 use App\Http\Controllers\Webhooks\MollieWebhookController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Http\Middleware\EnsureSponsorSession;
+use App\Http\Middleware\RestrictPortalViewing;
 use App\Livewire\Portal\ProfileEditor;
 use App\Livewire\Public\RegistrationWizard;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -190,9 +192,11 @@ Route::prefix('portaal')->name('portaal.')->group(function (): void {
 
     Route::get('/inloggen/link', MagicLinkController::class)->middleware('signed')->name('magic');
 
-    Route::middleware('auth:participant')->group(function (): void {
+    // RestrictPortalViewing: een medewerker die meekijkt kan alleen lezen; voor de bakker zelf doet het niets.
+    Route::middleware(['auth:participant', RestrictPortalViewing::class])->group(function (): void {
         Route::get('/', DashboardController::class)->name('dashboard');
         Route::post('/uitloggen', [LoginController::class, 'logout'])->name('uitloggen');
+        Route::post('/meekijken/stoppen', [PortalViewingController::class, 'stop'])->name('meekijken.stoppen');
 
         Route::get('/profiel/{bedrijf?}', ProfileEditor::class)->name('profiel');
 

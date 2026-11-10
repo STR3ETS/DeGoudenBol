@@ -28,7 +28,7 @@ Zijn volgende stap zien, een aanlevermoment kiezen of wijzigen (tot de dag ervoo
 
 ## Kan ik meekijken wat een bakker ziet?
 
-Niet door in te loggen als de bakker: dat kan niet en hoort niet. Het bakkerdossier toont dezelfde gegevens. Wil je iets controleren op de site, open dan de profielpagina van de bakker op de publiekssite.
+Ja, met de knop "Portaal bekijken" in het bakkerdossier, bij een inschrijving of bij een account. Je ziet dan het portaal precies zoals de bakker het ziet, met bovenaan een balk dat je meekijkt. Je kunt alleen kijken: wijzigen, betalen of iets indienen kan niet, en rapport en uitslag blijven dicht. Met "Stop meekijken" ga je terug naar het dossier; na een uur stopt het vanzelf. De knop is er voor beheer, ontvangst en financiën, en elke keer dat je meekijkt komt op jouw naam in het logboek. De bakker merkt er niets van. Moet er iets veranderen, doe dat dan in de backoffice of laat de bakker het zelf doen.
 
 ## Hoe wijzig ik de naam waarmee een bakker op de site staat?
 

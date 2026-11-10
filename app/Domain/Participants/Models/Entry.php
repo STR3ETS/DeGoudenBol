@@ -43,6 +43,7 @@ use Illuminate\Support\Facades\Storage;
     'rate',
     'plain_addon',
     'pickup_prepaid',
+    'video_addon',
     'pickup_preference',
     'discount_status',
     'discount_proof_url',
@@ -79,6 +80,7 @@ class Entry extends DomainModel
         'rate' => 'standard',
         'plain_addon' => false,
         'pickup_prepaid' => false,
+        'video_addon' => false,
     ];
 
     /**
@@ -91,6 +93,7 @@ class Entry extends DomainModel
             'rate' => EntryRate::class,
             'plain_addon' => 'boolean',
             'pickup_prepaid' => 'boolean',
+            'video_addon' => 'boolean',
             'pickup_preference' => 'array',
             'discount_status' => DiscountStatus::class,
             'discount_submitted_at' => 'immutable_datetime',

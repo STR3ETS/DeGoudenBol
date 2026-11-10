@@ -3,6 +3,10 @@
 ])
 @php
     $user = auth('participant')->user();
+    // Een medewerker die meekijkt: balk bovenaan en "Stop meekijken" in plaats van uitloggen.
+    $meekijken = $user ? app(\App\Domain\Participants\Services\PortalViewing::class)->current() : null;
+    $uitlogRoute = $meekijken ? 'portaal.meekijken.stoppen' : 'portaal.uitloggen';
+    $uitlogLabel = $meekijken ? 'Stop meekijken' : 'Uitloggen';
     $groepen = [
         'Deelname' => [
             ['label' => 'Mijn deelname', 'route' => 'portaal.dashboard', 'icoon' => 'huis'],
@@ -63,15 +67,22 @@
                     @endforeach
                     <div class="ui-sidebar__voet">
                         <a href="{{ route('portaal.wachtwoord') }}" class="ui-sidebar__item {{ $isActief('portaal.wachtwoord') ? 'is-actief' : '' }}"><span class="ui-icoonvak"><x-ui.icoon naam="vergrendel" /></span>Wachtwoord</a>
-                        <form method="post" action="{{ route('portaal.uitloggen') }}">
+                        <form method="post" action="{{ route($uitlogRoute) }}">
                             @csrf
-                            <button type="submit" class="ui-sidebar__item w-full"><span class="ui-icoonvak"><x-ui.icoon naam="uitloggen" /></span>Uitloggen</button>
+                            <button type="submit" class="ui-sidebar__item w-full"><span class="ui-icoonvak"><x-ui.icoon naam="uitloggen" /></span>{{ $uitlogLabel }}</button>
                         </form>
                     </div>
                 </nav>
             </aside>
 
             <main id="inhoud" class="ui-app__hoofd">
+                @if ($meekijken)
+                    <div class="ui-statusregel ui-statusregel--waarschuwing mb-6 flex-wrap items-center print:hidden" role="status">
+                        <span class="ui-icoonvak ui-icoonvak--waarschuwing ui-icoonvak--rond"><x-ui.icoon naam="oog" /></span>
+                        <div class="min-w-[220px] flex-1"><strong>Je kijkt mee in het portaal van {{ $meekijken['company_name'] }}.</strong> Je ziet wat de bakker ziet, maar kunt niets wijzigen. Rapport en uitslag blijven dicht. Deze inzage staat in het logboek.</div>
+                        <form method="post" action="{{ route('portaal.meekijken.stoppen') }}">@csrf<button type="submit" class="ui-knop ui-knop--klein ui-knop--secundair">Stop meekijken</button></form>
+                    </div>
+                @endif
                 @if (session('status'))
                     <div class="ui-statusregel ui-statusregel--succes mb-6 print:hidden" role="status"><span class="ui-icoonvak ui-icoonvak--succes ui-icoonvak--rond"><x-ui.icoon naam="vink" dikte="2.6" /></span><div>{{ session('status') }}</div></div>
                 @endif
@@ -104,7 +115,7 @@
                 <div class="ui-label mt-4 mb-1">Account</div>
                 <div class="ui-lijst">
                     <a href="{{ route('portaal.wachtwoord') }}" class="ui-rij ui-rij--klik"><span class="ui-icoonvak"><x-ui.icoon naam="vergrendel" /></span><span class="ui-rij__tekst"><span class="ui-rij__titel">Wachtwoord</span></span></a>
-                    <form method="post" action="{{ route('portaal.uitloggen') }}">@csrf<button type="submit" class="ui-rij ui-rij--klik w-full text-left"><span class="ui-icoonvak"><x-ui.icoon naam="uitloggen" /></span><span class="ui-rij__tekst"><span class="ui-rij__titel">Uitloggen</span></span></button></form>
+                    <form method="post" action="{{ route($uitlogRoute) }}">@csrf<button type="submit" class="ui-rij ui-rij--klik w-full text-left"><span class="ui-icoonvak"><x-ui.icoon naam="uitloggen" /></span><span class="ui-rij__tekst"><span class="ui-rij__titel">{{ $uitlogLabel }}</span></span></button></form>
                 </div>
             </div>
         </dialog>

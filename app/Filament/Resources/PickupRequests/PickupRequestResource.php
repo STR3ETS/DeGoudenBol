@@ -84,6 +84,8 @@ class PickupRequestResource extends Resource
                     ->formatStateUsing(fn (PickupRequest $record) => $record->address())
                     ->url(fn (PickupRequest $record) => $record->mapsUrl(), shouldOpenInNewTab: true),
                 TextColumn::make('contact_name')->label('Contact')->description(fn (PickupRequest $record) => $record->phone),
+                TextColumn::make('entry.video_addon')->label('Filmpje')->formatStateUsing(fn ($state): string => $state ? 'Filmpje maken' : '–')
+                    ->badge(fn ($state): bool => (bool) $state)->color('warning')->tooltip('De bakker heeft bij de aanmelding een filmpje besteld'),
                 TextColumn::make('status')->label('Status')->badge(),
                 TextColumn::make('order.status')->label('Betaling')->badge()->placeholder('–'),
                 TextColumn::make('driver_name')->label('Chauffeur')->placeholder('–'),
@@ -186,10 +188,10 @@ class PickupRequestResource extends Resource
         return response()->streamDownload(function () use ($rows): void {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, ['volgorde', 'bedrijf', 'contactpersoon', 'telefoon', 'straat', 'huisnummer', 'postcode', 'plaats', 'deelnemercode', 'chauffeur', 'instructies'], ';');
+            fputcsv($out, ['volgorde', 'bedrijf', 'contactpersoon', 'telefoon', 'straat', 'huisnummer', 'postcode', 'plaats', 'deelnemercode', 'chauffeur', 'instructies', 'filmpje'], ';');
 
             foreach ($rows as $row) {
-                fputcsv($out, [$row->route_order, $row->company_name, $row->contact_name, $row->phone, $row->street, $row->house_number, $row->postcode, $row->city, $row->entry?->delivery_code, $row->driver_name, $row->instructions], ';');
+                fputcsv($out, [$row->route_order, $row->company_name, $row->contact_name, $row->phone, $row->street, $row->house_number, $row->postcode, $row->city, $row->entry?->delivery_code, $row->driver_name, $row->instructions, $row->entry?->video_addon ? 'Ja' : null], ';');
             }
 
             fclose($out);

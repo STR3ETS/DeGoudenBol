@@ -13,6 +13,7 @@
     $opening = $regel(CreateOrderForEntry::OPENING_OFFER_LINE_TYPE);
     $naturel = $regel(CreateOrderForEntry::PLAIN_ADDON_LINE_TYPE);
     $ophalen = $regel(CreateOrderForEntry::PICKUP_LINE_TYPE);
+    $filmpje = $regel(CreateOrderForEntry::VIDEO_ADDON_LINE_TYPE);
     $plek = $entry?->visibilitySpot;
     // Nieuwe plekken gaan pas in bij de bekendmaking, als de editie dat zo heeft ingesteld en die nog komt.
     $plekVanaf = $settings?->visibilitySpotsStartAtPublication && $edition?->main_publication_at?->isFuture() ? $edition->main_publication_at : null;
@@ -67,6 +68,9 @@
                             <dt class="text-gedempt">Ophalen</dt><dd class="font-semibold">Voorrijkosten <span class="font-normal text-gedempt">· {{ Money::format($ophalen->unit_price_cents) }} excl. btw</span></dd>
                         @elseif ($entry->rate === EntryRate::Bundle)
                             <dt class="text-gedempt">Ophalen</dt><dd class="font-semibold">Op vrijdag <span class="font-normal text-gedempt">· zit in het pakket</span></dd>
+                        @endif
+                        @if ($entry->video_addon)
+                            <dt class="text-gedempt">Filmpje</dt><dd class="font-semibold">Bij het ophalen @if ($filmpje)<span class="font-normal text-gedempt">· {{ Money::format($filmpje->unit_price_cents) }} excl. btw</span>@endif</dd>
                         @endif
                         @if ($plek?->isPaid())
                             <dt class="text-gedempt">Extra zichtbaarheid</dt><dd class="font-semibold">Plek {{ $plek->position }} in {{ $entry->province->name }} <span class="font-normal text-gedempt">· {{ $plek->formattedPrice() }} excl. btw · {{ $plek->starts_at?->isFuture() ? 'vanaf '.DutchTime::date($plek->starts_at).' ' : '' }}tot en met {{ DutchTime::date($plek->ends_at) }}</span></dd>

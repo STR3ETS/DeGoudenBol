@@ -34,6 +34,7 @@ final readonly class EditionSettings
      * @param  int  $bundleCents  Alles-in-één deelnamepakket (test met krenten, test naturel en ophalen), excl. btw. Vervangt alle keuzes bij de aanmelding zolang het aan staat; 0 zet het uit.
      * @param  int  $bundleRegularCents  Normale prijs van dat pakket, doorgestreept naast de actieprijs; 0 toont alleen de prijs.
      * @param  int  $totalCapacity  Landelijk maximum aantal deelnemers, bovenop het maximum per provincie; 0 is geen landelijk maximum.
+     * @param  int  $videoAddonCents  Filmpje van de kraam of bakkerij als betaalde extra bij de aanmelding, excl. btw; 0 zet de optie uit.
      */
     public function __construct(
         public int $capacityPerProvince = 50,
@@ -77,7 +78,13 @@ final readonly class EditionSettings
         public int $bundleCents = 0,
         public int $bundleRegularCents = 0,
         public int $totalCapacity = 0,
+        public int $videoAddonCents = 0,
     ) {}
+
+    public function videoAddonEnabled(): bool
+    {
+        return $this->videoAddonCents > 0;
+    }
 
     public function bundleEnabled(): bool
     {

@@ -14,6 +14,7 @@ use App\Domain\Platform\Enums\StaffRole;
 use App\Domain\Platform\Services\AuditLogger;
 use App\Filament\Concerns\RestrictsToRoles;
 use App\Filament\Resources\Entries\Pages\ManageEntries;
+use App\Filament\Support\ViewPortalAction;
 use App\Support\Money;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -111,6 +112,7 @@ class EntryResource extends Resource
                 Section::make('Tarief en betaling')->columns(3)->schema([
                     TextEntry::make('rate')->label('Tarief')->badge(),
                     IconEntry::make('plain_addon')->label('Extra test naturel')->boolean(),
+                    IconEntry::make('video_addon')->label('Filmpje bij ophalen')->boolean(),
                     TextEntry::make('discount_status')->label('Kortingsactie')->badge()->placeholder('–'),
                     TextEntry::make('discount_proof_url')->label('Post')->url(fn (Entry $record) => $record->discount_proof_url, shouldOpenInNewTab: true)->placeholder('–'),
                     TextEntry::make('discount_note')->label('Toelichting korting')->placeholder('–'),
@@ -169,6 +171,7 @@ class EntryResource extends Resource
                 TextColumn::make('status')->label('Status')->badge(),
                 TextColumn::make('rate')->label('Tarief')->badge(),
                 IconColumn::make('plain_addon')->label('Naturel')->boolean()->tooltip('Extra test naturel oliebol')->toggleable(),
+                IconColumn::make('video_addon')->label('Filmpje')->boolean()->tooltip('Filmpje besteld, te maken bij het ophalen')->toggleable(),
                 TextColumn::make('discount_status')->label('Korting')->badge()->placeholder('–')
                     ->url(fn (Entry $record) => $record->discount_proof_url, shouldOpenInNewTab: true)
                     ->tooltip(fn (Entry $record) => $record->discount_proof_url ? 'Open de post' : null),
@@ -252,6 +255,7 @@ class EntryResource extends Resource
                     ->modalDescription('De bakker krijgt de reden per mail en kan opnieuw aanleveren of de standaardprijs betalen.')
                     ->action(fn (Entry $record, array $data, ReviewDiscount $review) => self::review($record, $review, false, $data['note'])),
                 ViewAction::make(),
+                ViewPortalAction::make(),
                 EditAction::make(),
                 Action::make('withdraw')
                     ->label('Terugtrekken')

@@ -94,6 +94,7 @@ Bevriezing (`FreezeEdition`) is één transactie in het hoofddomein; alles erna 
 
 - Norm: OWASP ASVS niveau 2 voor portaal en backoffice; security headers (CSP, HSTS, frame-ancestors), dependency-scans, geheimen buiten de code.
 - Auditlog: append-only; `hash = sha256(prev_hash . canonical_json(payload))`; wekelijks laatste hash naar notaris/toezichthouder (besluit 22, optioneel).
+- Meekijken in het portaal (`PortalViewing`): beheerder, ontvangst en financiën openen het portaal van een bakker alleen-lezen vanuit de backoffice. Schrijfverzoeken worden geweigerd, rapport en uitslag blijven dicht, maximaal 60 minuten, elke start in de auditlog. Zie `docs/07`.
 - Dagelijkse back-ups met point-in-time herstel; hersteltest vóór 1 november; externe security-quickscan vóór release 2 en 3.
 - Privacy: verwerkingsregister, privacyverklaring, verwerkersovereenkomsten (hosting, mail, Stripe, boekhouding, monitoring, CDN). Allergieën panelleden = gezondheidsgegevens: uitdrukkelijke toestemming, alleen categorieën, alleen testcoördinatie, wissen na editie. Beeldtoestemming los van actievoorwaarden en intrekbaar. Export- en anonimiseerfunctie in backoffice. Alleen functionele cookies + Matomo/Plausible; social embeds pas na toestemming.
 

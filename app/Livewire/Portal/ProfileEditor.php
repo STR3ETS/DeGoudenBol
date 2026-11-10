@@ -9,6 +9,7 @@ use App\Domain\Participants\Models\Location;
 use App\Domain\Participants\Models\OpeningHour;
 use App\Domain\Participants\Models\Profile;
 use App\Domain\Participants\Services\CompanyAccess;
+use App\Domain\Participants\Services\PortalViewing;
 use App\Support\WebsiteUrl;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
@@ -95,6 +96,10 @@ class ProfileEditor extends Component
 
     public function save(): void
     {
+        if ($this->isViewedByStaff()) {
+            return;
+        }
+
         $this->persist();
 
         session()->flash('status', 'Opgeslagen als concept. Dien het profiel in om het te laten beoordelen.');
@@ -102,10 +107,28 @@ class ProfileEditor extends Component
 
     public function submitForReview(): void
     {
+        if ($this->isViewedByStaff()) {
+            return;
+        }
+
         $this->persist();
         $this->profile()->submitForReview();
 
         session()->flash('status', 'Ingediend. Communicatie beoordeelt de tekst; tot die tijd blijft de laatst goedgekeurde versie zichtbaar.');
+    }
+
+    /**
+     * Een medewerker die meekijkt wijzigt niets; Livewire-verzoeken lopen niet langs de portaalmiddleware.
+     */
+    private function isViewedByStaff(): bool
+    {
+        if (! app(PortalViewing::class)->blocksChanges()) {
+            return false;
+        }
+
+        session()->flash('status', 'Je kijkt mee: wijzigen kan niet.');
+
+        return true;
     }
 
     public function render(): View

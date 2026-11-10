@@ -79,6 +79,7 @@ trait BuildsRegistrations
             homeAddress: $overrides['homeAddress'] ?? false,
             pickupPreference: $overrides['pickupPreference'] ?? null,
             visibilityPosition: $overrides['visibilityPosition'] ?? null,
+            videoAddon: $overrides['videoAddon'] ?? false,
         );
     }
 }

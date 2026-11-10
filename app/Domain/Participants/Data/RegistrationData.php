@@ -44,5 +44,6 @@ final readonly class RegistrationData
         /** @var array{pickup_day_id: int|null, street: string, house_number: string, postcode: string, city: string, phone: string|null, instructions: string|null}|null */
         public ?array $pickupPreference = null,
         public ?int $visibilityPosition = null,
+        public bool $videoAddon = false,
     ) {}
 }

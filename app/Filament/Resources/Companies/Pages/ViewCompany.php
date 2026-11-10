@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Companies\Pages;
 
 use App\Domain\Participants\Models\Company;
 use App\Filament\Resources\Companies\CompanyResource;
+use App\Filament\Support\ViewPortalAction;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
@@ -42,6 +43,7 @@ class ViewCompany extends ViewRecord
                 ->icon(Heroicon::OutlinedArrowTopRightOnSquare)
                 ->color('gray')
                 ->url(fn () => route('bakkers.toon', $this->getRecord()), shouldOpenInNewTab: true),
+            ViewPortalAction::make(),
             EditAction::make(),
         ];
     }

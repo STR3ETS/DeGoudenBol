@@ -196,6 +196,8 @@ class EditionForm
                         ->helperText('19500 = EUR 195,00. Dit is wat de bakker betaalt. Eén pakket met de test met krenten, de test naturel en ophalen. Vervangt alle keuzes bij de aanmelding. 0 zet het uit.'),
                     TextInput::make('settings.bundle_regular_cents')->label('Alles-in-één pakket: normale prijs (centen, excl. btw)')->numeric()->minValue(0)->required()
                         ->helperText('39000 = EUR 390,00. Staat doorgestreept naast de prijs, met het kortingspercentage. 0 toont alleen de prijs.'),
+                    TextInput::make('settings.video_addon_cents')->label('Filmpje bij het ophalen (centen, excl. btw)')->numeric()->minValue(0)->required()
+                        ->helperText('10000 = EUR 100,00. Bakkers vinken dit aan bij de aanmelding; het bedrag komt bij het pakket op dezelfde rekening. 0 zet de optie uit.'),
                     TextInput::make('settings.total_capacity')->label('Landelijk maximum deelnemers')->numeric()->minValue(0)->required()
                         ->helperText('Bovenop het maximum per provincie. Bereikt: de site toont "vol", zonder aantallen. 0 is geen landelijk maximum.'),
                     TextInput::make('settings.opening_offer_cents')->label('Openingsactie: deelnameprijs (centen, excl. btw)')->numeric()->minValue(0)->required()

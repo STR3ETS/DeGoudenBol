@@ -7,6 +7,7 @@ use App\Domain\Participants\Notifications\MagicLinkNotification;
 use App\Domain\Platform\Enums\StaffRole;
 use App\Filament\Concerns\RestrictsToRoles;
 use App\Filament\Resources\ParticipantUsers\Pages\ManageParticipantUsers;
+use App\Filament\Support\ViewPortalAction;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -71,6 +72,7 @@ class ParticipantUserResource extends Resource
             ])
             ->recordActions([
                 EditAction::make(),
+                ViewPortalAction::make(),
                 Action::make('magicLink')
                     ->label('Stuur inloglink')
                     ->icon(Heroicon::OutlinedEnvelope)
