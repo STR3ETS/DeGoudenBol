@@ -102,6 +102,8 @@ class PublicSiteTest extends TestCase
     public function the_static_pages_and_old_addresses_keep_working(): void
     {
         $this->get(route('hoe-werkt-de-test'))->assertOk()->assertSee('De reis van');
+        // Bakkers konden het portaal niet vinden (11 nov 2026): inlogknop in de header en een link in de footer.
+        $this->get(route('home'))->assertOk()->assertSee('<a class="nav-login" href="/portaal/inloggen"', false)->assertSee('Inloggen voor deelnemers');
         $this->get('/hoe-werkt-de-test')->assertRedirect('/test');
         $this->get('/het-panel')->assertRedirect('/test#organisatie');
         $this->get(route('faq'))->assertOk()->assertSee('Alles wat je wilt weten');

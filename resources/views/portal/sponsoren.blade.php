@@ -49,4 +49,8 @@
             @endforeach
         </div>
     @endif
+
+    <div class="mt-12 max-w-[560px]">
+        @include('portal.partials.top10-partner')
+    </div>
 </x-layouts.portal>

@@ -75,8 +75,16 @@ class VisibilitySpotTest extends TestCase
         $this->get(route('provincies.show', 'gelderland'))
             ->assertOk()
             ->assertSee('Uitgelicht in Gelderland')
-            ->assertSee('Betaalde vermelding')
+            ->assertSee('Deze deelnemers hebben gekozen voor extra zichtbaarheid')
+            ->assertDontSee('Betaalde vermelding')
             ->assertSee('Bakkerij Testers');
+
+        // Op het deelnemersoverzicht: "Uitgelicht" op de kaart, de uitleg één keer onder de lijst (verzoek Gill 11 nov 2026).
+        $this->get(route('bakkers.index'))
+            ->assertOk()
+            ->assertSee('Uitgelicht')
+            ->assertDontSee('betaalde vermelding')
+            ->assertSee('Dat staat los van de test.');
     }
 
     #[Test]

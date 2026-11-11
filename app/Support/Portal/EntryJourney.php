@@ -254,7 +254,18 @@ final class EntryJourney
         $start = $entry->deliverySlot?->starts_at ?? $entry->scheduled_at;
         $end = $entry->deliverySlot?->ends_at ?? $entry->scheduled_at;
 
-        return $this->action('Je bent ingepland', 'Breng je oliebollen op', ucfirst(DutchTime::format($start, 'dddd D MMMM')), 'Tussen '.DutchTime::format($start, 'HH:mm').' en '.DutchTime::format($end, 'HH:mm').' uur. Neem je aanleverbewijs mee, daar staat je deelnemercode op. Verder hoef je nu niets te doen.', 'Open je aanleverbewijs', route('portaal.planning.bewijs', $company), 'Ander moment kiezen', route('portaal.planning', $company));
+        return $this->action('Je bent ingepland', 'Breng je oliebollen op', ucfirst(DutchTime::format($start, 'dddd D MMMM')), 'Tussen '.DutchTime::format($start, 'HH:mm').' en '.DutchTime::format($end, 'HH:mm').' uur. Neem je aanleverbewijs mee, daar staat je deelnemercode op. Verder hoef je nu niets te doen.', 'Open je aanleverbewijs', route('portaal.planning.bewijs', $company));
+    }
+
+    /**
+     * Heeft de bakker een tijdslot om zelf te brengen? Dan staat "Ander moment kiezen" bij "Ook handig"
+     * (verzoek Gill, 10 nov 2026: niet meer als tweede knop bovenaan).
+     */
+    private function hasDeliverySlotToChange(): bool
+    {
+        return $this->entry?->status === EntryStatus::Scheduled
+            && ! ($this->entry->delivery_method === DeliveryMethod::Pickup && $this->entry->pickupRequest !== null)
+            && Route::has('portaal.planning');
     }
 
     /**
@@ -305,31 +316,40 @@ final class EntryJourney
         $invoice = $entry?->order?->invoice;
         $actions = [];
 
+        if ($this->hasDeliverySlotToChange()) {
+            $actions['moment'] = ['titel' => 'Ander moment kiezen', 'tekst' => 'Kies een ander tijdslot of laat je oliebollen ophalen. Wijzigen kan tot '.($this->edition?->settings->changeDeadlineHours ?? 24).' uur vooraf.', 'icoon' => 'kalender', 'toon' => 'info', 'url' => route('portaal.planning', $company), 'staat' => '', 'pijl' => 'pijl-rechts'];
+        }
+
         if (Route::has('portaal.profiel')) {
-            $actions[] = $profile === null || ! $profile->isPublished()
+            $actions['profiel'] = $profile === null || ! $profile->isPublished()
                 ? ['titel' => 'Vertel iets over je zaak', 'tekst' => 'Een verhaal en je specialiteiten op je pagina. Bakkers met een profiel worden vaker bekeken.', 'icoon' => 'potlood', 'toon' => 'goud', 'url' => route('portaal.profiel', $company), 'staat' => '', 'pijl' => 'pijl-rechts']
                 : ['titel' => 'Je profiel staat online', 'tekst' => $profile->hasUnpublishedChanges() ? 'Je laatste wijziging wacht op de redactie.' : 'Aanpassen kan altijd; de redactie kijkt even mee.', 'icoon' => 'oog', 'toon' => 'succes', 'url' => route('portaal.profiel', $company), 'staat' => 'klaar', 'pijl' => 'potlood'];
         }
 
         if ($invoice !== null && Route::has('portaal.facturen.toon')) {
-            $actions[] = ['titel' => 'Factuur '.$invoice->number, 'tekst' => $invoice->status->getLabel().' · '.$invoice->formattedTotal().' · bekijken of opslaan als pdf', 'icoon' => 'document', 'toon' => 'succes', 'url' => route('portaal.facturen.toon', $invoice), 'staat' => 'klaar', 'pijl' => 'download'];
+            $actions['factuur'] = ['titel' => 'Factuur '.$invoice->number, 'tekst' => $invoice->status->getLabel().' · '.$invoice->formattedTotal().' · bekijken of opslaan als pdf', 'icoon' => 'document', 'toon' => 'succes', 'url' => route('portaal.facturen.toon', $invoice), 'staat' => 'klaar', 'pijl' => 'download'];
         }
 
         if ($entry !== null && Route::has('portaal.planning.bewijs')) {
-            $actions[] = $entry->delivery_code !== null && ($entry->deliverySlot !== null || $entry->pickupRequest?->isPaid())
+            $actions['bewijs'] = $entry->delivery_code !== null && ($entry->deliverySlot !== null || $entry->pickupRequest?->isPaid())
                 ? ['titel' => 'Aanleverbewijs', 'tekst' => 'Met QR-code en je deelnemercode. Afdrukken of op je telefoon laten zien.', 'icoon' => 'klembord', 'toon' => 'goud', 'url' => route('portaal.planning.bewijs', $company), 'staat' => '', 'pijl' => 'pijl-rechts']
                 : ['titel' => 'Aanleverbewijs', 'tekst' => 'Komt beschikbaar zodra je hebt gekozen hoe je oliebollen bij ons komen.', 'icoon' => 'klembord', 'toon' => 'neutraal', 'url' => null, 'staat' => 'later', 'pijl' => 'vergrendel'];
         }
 
         if ($entry !== null && $entry->status->occupiesPlace() && $entry->status !== EntryStatus::PendingPayment && Route::has('portaal.oorkonde')) {
-            $actions[] = ['titel' => 'Oorkonde', 'tekst' => 'Officiële deelnemer van De Gouden Bol. Afdrukken en ophangen in je zaak.', 'icoon' => 'ster', 'toon' => 'goud', 'url' => route('portaal.oorkonde', $company), 'staat' => '', 'pijl' => 'download'];
+            $actions['oorkonde'] = ['titel' => 'Oorkonde', 'tekst' => 'Officiële deelnemer van De Gouden Bol. Afdrukken en ophangen in je zaak.', 'icoon' => 'ster', 'toon' => 'goud', 'url' => route('portaal.oorkonde', $company), 'staat' => '', 'pijl' => 'download'];
         }
 
         if (Route::has('portaal.medewerkers')) {
-            $actions[] = ['titel' => 'Geef een collega toegang', 'tekst' => 'Dan kan die ook het aanlevermoment zien en bonnen scannen.', 'icoon' => 'mensen', 'toon' => 'info', 'url' => route('portaal.medewerkers', $company), 'staat' => '', 'pijl' => 'pijl-rechts'];
+            $actions['collega'] = ['titel' => 'Geef een collega toegang', 'tekst' => 'Dan kan die ook het aanlevermoment zien en bonnen scannen.', 'icoon' => 'mensen', 'toon' => 'info', 'url' => route('portaal.medewerkers', $company), 'staat' => '', 'pijl' => 'pijl-rechts'];
         }
 
-        return $actions;
+        // Twee kolommen. Met "Ander moment kiezen" erbij: links moment, profiel, aanleverbewijs; rechts factuur, oorkonde, collega.
+        $order = isset($actions['moment'])
+            ? ['moment', 'factuur', 'profiel', 'oorkonde', 'bewijs', 'collega']
+            : ['profiel', 'factuur', 'bewijs', 'oorkonde', 'collega'];
+
+        return array_values(array_filter(array_map(fn (string $key) => $actions[$key] ?? null, $order)));
     }
 
     public function testPeriod(): ?string

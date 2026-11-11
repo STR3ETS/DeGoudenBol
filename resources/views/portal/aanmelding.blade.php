@@ -156,6 +156,10 @@
                     </section>
                 @endif
 
+                @if ($order?->isPaid())
+                    @include('portal.partials.top10-partner')
+                @endif
+
                 <div class="ui-hulpkaart">
                     <div class="ui-hulpkaart__kop"><x-ui.icoon naam="info" class="h-5 w-5 text-goud-tekst" /> Goed om te weten</div>
                     <p class="ui-hulpkaart__tekst">Je tarief heeft nooit invloed op de beoordeling. Het panel proeft blind en ziet geen namen, prijzen of sponsors.</p>

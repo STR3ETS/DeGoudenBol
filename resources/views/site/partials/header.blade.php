@@ -5,6 +5,7 @@
 <div class="nav-menu" id="nav-menu">
 <nav aria-label="Hoofdmenu"><ul class="nav-links"><li><a href="/test">De test</a></li><li><a href="/provincies">Provincies</a></li><li><a href="/finale">Finale</a></li><li><a href="/ondernemers">Ondernemers</a></li><li><a href="/sponsoring">Sponsoring</a></li><li><a href="/blog">Blog</a></li></ul></nav>
 <a class="nav-cta nav-cta-m" href="/deelnemen">Aanmelden als bakker</a>
+<a class="nav-login nav-login-m" href="/portaal/inloggen">Inloggen</a>
 </div>
-<a class="nav-cta" href="/deelnemen">Aanmelden als bakker</a>
+<div class="nav-acties"><a class="nav-login" href="/portaal/inloggen" title="Inloggen in het deelnemersportaal"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Inloggen</span></a><a class="nav-cta" href="/deelnemen">Aanmelden als bakker</a></div>
 </header>

@@ -45,7 +45,7 @@ class VisibilitySpotConfirmedNotification extends Notification implements Should
                 : "**{$spot->entry->public_name}** staat nu uitgelicht op de pagina van {$spot->province->name} en bovenaan het deelnemersoverzicht.")
             ->panel('Extra zichtbaarheid', "Plek {$spot->position} in {$spot->province->name}", [
                 'Zichtbaar '.$period,
-                'Op de site staat dit als betaalde vermelding',
+                'Op de site staat u als "Uitgelicht"',
             ])
             ->action('Bekijk in uw portaal', route('portaal.aanmelding', $spot->company))
             ->note('Staat dit los van de test?', 'Ja. Deze plek is alleen voor zichtbaarheid. Uw score en plaats in de uitslag worden uitsluitend bepaald door het onafhankelijke testpanel.');

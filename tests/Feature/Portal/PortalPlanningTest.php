@@ -2,12 +2,14 @@
 
 namespace Tests\Feature\Portal;
 
+use App\Domain\Commerce\Actions\MarkOrderPaid;
 use App\Domain\Intake\Notifications\DeliveryScheduledNotification;
 use App\Domain\Participants\Actions\RegisterEntry;
 use App\Domain\Participants\Enums\EntryStatus;
 use App\Domain\Participants\Models\DeliverySlot;
 use App\Domain\Participants\Models\Entry;
 use App\Domain\Participants\Models\ParticipantUser;
+use Database\Seeders\ProductSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use PHPUnit\Framework\Attributes\Test;
@@ -74,6 +76,39 @@ class PortalPlanningTest extends TestCase
             ->get(route('portaal.dashboard'))
             ->assertOk()
             ->assertSee('aanleverbewijs');
+
+        // Verzoek Gill 10 nov 2026: "Ander moment kiezen" staat niet meer bovenaan maar als eerste tegel bij "Ook handig".
+        $dashboard = $this->actingAs($this->owner, 'participant')
+            ->get(route('portaal.dashboard'))
+            ->assertSeeInOrder(['Open je aanleverbewijs', 'Ook handig', 'Ander moment kiezen', 'Vertel iets over je zaak', 'Oorkonde', 'Geef een collega toegang']);
+
+        $this->assertSame(1, substr_count($dashboard->getContent(), 'Ander moment kiezen'));
+    }
+
+    #[Test]
+    public function the_top_10_partner_package_can_be_requested_from_the_portal(): void
+    {
+        $this->seed(ProductSeeder::class);
+
+        app(MarkOrderPaid::class)($this->entry->order);
+
+        $request = route('sponsoring.aanmelden', ['pakket' => 'national_top']);
+
+        $this->actingAs($this->owner, 'participant')
+            ->get(route('portaal.aanmelding', $this->entry->company))
+            ->assertOk()
+            ->assertSee('Top 10 partner')
+            ->assertSee('€ 450,00')
+            ->assertSee('Elke extra vermelding € 75,00')
+            ->assertSee($request);
+
+        $this->actingAs($this->owner, 'participant')
+            ->get(route('portaal.sponsoren', $this->entry->company))
+            ->assertOk()
+            ->assertSee('Top 10 partner')
+            ->assertSee($request);
+
+        $this->get($request)->assertOk();
     }
 
     #[Test]

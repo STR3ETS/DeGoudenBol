@@ -41,6 +41,8 @@
 <link rel="preload" href="/site/assets/b42951014c5eca12749d87a4706caf22dc4fe081.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/site/assets/74db058fe06da79b5dbf5b33d12041ddd45de510.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/site/assets/82843df790355b2d6db762b59a8ceb2db51b6cf1.css">
+{{-- Inlogknop voor deelnemers in de header (11 nov 2026: bakkers konden het portaal niet vinden). Hier en niet in de geïmporteerde css, zodat een nieuwe site-import hem niet wist. --}}
+<style>.nav-acties{display:flex;align-items:center;gap:12px}.nav-login{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--dark);color:var(--dark);padding:8.5px 18px;border-radius:99px;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:all .25s}.nav-login:hover{background:var(--dark);color:var(--cream)}.nav-login-m{display:none}@media(max-width:1320px){.nav-acties .nav-login span{display:none}.nav-acties .nav-login{padding:9.5px}}@media(max-width:768px){.nav-acties{display:none}.nav-menu .nav-login-m{display:inline-flex;margin:18px 0 0 10px}}</style>
 <script type="application/ld+json">{"@@context": "https://schema.org", "@type": "Organization", "name": "De Gouden Bol", "url": "{{ url('/') }}", "description": "De Nieuwe Oliebollen Test: een onafhankelijke, blinde zoektocht naar de beste oliebol van Nederland.", "email": "info@degoudenoliebol.nl"}</script>
 <script type="application/ld+json">{"@@context": "https://schema.org", "@type": "WebSite", "name": "De Gouden Bol", "url": "{{ url('/') }}", "inLanguage": "nl"}</script>
 {{ $structured ?? '' }}
