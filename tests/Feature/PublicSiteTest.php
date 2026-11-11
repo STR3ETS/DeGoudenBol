@@ -66,7 +66,10 @@ class PublicSiteTest extends TestCase
             ->assertDontSee('Onbetaalde Bakker')
             ->assertDontSee('fictief voorbeeld')
             ->assertSee('data-prov="Gelderland"', false)
-            ->assertSee('2 bakkers doen mee');
+            ->assertSee('Deze bakkers doen mee')
+            // Geen tellingen richting bezoekers: ook niet op het deelnemersoverzicht.
+            ->assertDontSee('2 bakkers')
+            ->assertSee('<p class="results-bar" aria-live="polite" hidden>', false);
 
         $this->get(route('bakkers.toon', $entry->company))
             ->assertOk()

@@ -6,7 +6,7 @@
 <div class="page-hero-inner">
 <span class="eyebrow">Deelnemers</span>
 <h1 class="h1" id="h1">Alle deelnemers <em>van De Gouden Bol</em></h1>
-<p class="lead">@if ($entries->isEmpty())Elke deelnemer krijgt een eigen profiel met bedrijfsinformatie, locatie, verhaal en resultaat. De eerste deelnemers worden bekendgemaakt voor de start van de beoordelingen{{ $startLabel ? ' op '.$startLabel : '' }}.@else{{ $entries->count() }} {{ $entries->count() === 1 ? 'bakker doet' : 'bakkers doen' }} mee aan De Gouden Bol {{ $edition?->year }}. Elke deelnemer heeft een eigen profiel met bedrijfsinformatie, locatie, verhaal en resultaat.@endif</p>
+<p class="lead">@if ($entries->isEmpty())Elke deelnemer krijgt een eigen profiel met bedrijfsinformatie, locatie, verhaal en resultaat. De eerste deelnemers worden bekendgemaakt voor de start van de beoordelingen{{ $startLabel ? ' op '.$startLabel : '' }}.@else Deze bakkers doen mee aan De Gouden Bol {{ $edition?->year }}. Elke deelnemer heeft een eigen profiel met bedrijfsinformatie, locatie, verhaal en resultaat.@endif</p>
 
 </div></section>
 <div class="filter-bar" role="group" aria-label="Filter en zoeken"><div class="filter-bar-inner"><span class="filter-label">Provincie:</span><button class="filter-pill active" type="button" data-prov="alle" aria-pressed="true">Alle provincies</button><button class="filter-pill" type="button" data-prov="Groningen" aria-pressed="false">Groningen</button><button class="filter-pill" type="button" data-prov="Friesland" aria-pressed="false">Friesland</button><button class="filter-pill" type="button" data-prov="Drenthe" aria-pressed="false">Drenthe</button><button class="filter-pill" type="button" data-prov="Overijssel" aria-pressed="false">Overijssel</button><button class="filter-pill" type="button" data-prov="Flevoland" aria-pressed="false">Flevoland</button><button class="filter-pill" type="button" data-prov="Gelderland" aria-pressed="false">Gelderland</button><button class="filter-pill" type="button" data-prov="Utrecht" aria-pressed="false">Utrecht</button><button class="filter-pill" type="button" data-prov="Noord-Holland" aria-pressed="false">Noord-Holland</button><button class="filter-pill" type="button" data-prov="Zuid-Holland" aria-pressed="false">Zuid-Holland</button><button class="filter-pill" type="button" data-prov="Zeeland" aria-pressed="false">Zeeland</button><button class="filter-pill" type="button" data-prov="Noord-Brabant" aria-pressed="false">Noord-Brabant</button><button class="filter-pill" type="button" data-prov="Limburg" aria-pressed="false">Limburg</button>
@@ -15,7 +15,7 @@
 @if ($entries->isEmpty())
 <div class="note" style="margin:0 0 28px"><p>Er zijn nog geen deelnemers bekendgemaakt. Zodra de eerste betalingen binnen zijn, verschijnen de bakkers hier met hun profiel.</p></div>
 @endif
-<p class="results-bar" aria-live="polite"><strong id="resultCount">{{ $entries->count() }}</strong> {{ $entries->count() === 1 ? 'profiel' : 'profielen' }}</p>
+<p class="results-bar" aria-live="polite" hidden><strong id="resultCount">{{ $entries->count() }}</strong> {{ $entries->count() === 1 ? 'profiel' : 'profielen' }}</p>
 @include('site.partials.deelnemers-grid')
 <div class="no-results" id="noResults"><p>Geen deelnemers gevonden</p><p>Kies een andere provincie of zoekterm</p></div>
 </div></section>

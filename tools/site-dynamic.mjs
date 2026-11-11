@@ -62,9 +62,9 @@ const wrap = (props, inner, structured = '') => `${header}<x-layouts.site ${prop
     must(html, '<p class="results-bar"');
     html = html.replace(/<div class="note" style="margin:0 0 28px"><p>[\s\S]*?<\/p><\/div>\s*/, `@if ($entries->isEmpty())\n<div class="note" style="margin:0 0 28px"><p>Er zijn nog geen deelnemers bekendgemaakt. Zodra de eerste betalingen binnen zijn, verschijnen de bakkers hier met hun profiel.</p></div>\n@endif\n`);
     must(html, '@if ($entries->isEmpty())');
-    html = html.replace(/<p class="results-bar" aria-live="polite"><strong id="resultCount">1<\/strong> profielen<\/p>/, '<p class="results-bar" aria-live="polite"><strong id="resultCount">{{ $entries->count() }}</strong> {{ $entries->count() === 1 ? \'profiel\' : \'profielen\' }}</p>');
+    html = html.replace(/<p class="results-bar" aria-live="polite"><strong id="resultCount">1<\/strong> profielen<\/p>/, '<p class="results-bar" aria-live="polite" hidden><strong id="resultCount">{{ $entries->count() }}</strong> {{ $entries->count() === 1 ? \'profiel\' : \'profielen\' }}</p>');
     html = html.replace(/<ul class="bk-grid stagger-grid" id="bkGrid">[\s\S]*?<\/ul>/, "@include('site.partials.deelnemers-grid')");
-    html = html.replace(/<p class="lead">[^<]*<\/p>/, '<p class="lead">@if ($entries->isEmpty())Elke deelnemer krijgt een eigen profiel met bedrijfsinformatie, locatie, verhaal en resultaat. De eerste deelnemers worden bekendgemaakt voor de start van de beoordelingen{{ $startLabel ? \' op \'.$startLabel : \'\' }}.@else{{ $entries->count() }} {{ $entries->count() === 1 ? \'bakker doet\' : \'bakkers doen\' }} mee aan De Gouden Bol {{ $edition?->year }}. Elke deelnemer heeft een eigen profiel met bedrijfsinformatie, locatie, verhaal en resultaat.@endif</p>');
+    html = html.replace(/<p class="lead">[^<]*<\/p>/, '<p class="lead">@if ($entries->isEmpty())Elke deelnemer krijgt een eigen profiel met bedrijfsinformatie, locatie, verhaal en resultaat. De eerste deelnemers worden bekendgemaakt voor de start van de beoordelingen{{ $startLabel ? \' op \'.$startLabel : \'\' }}.@else Deze bakkers doen mee aan De Gouden Bol {{ $edition?->year }}. Elke deelnemer heeft een eigen profiel met bedrijfsinformatie, locatie, verhaal en resultaat.@endif</p>');
     writeFileSync(join(views, 'deelnemers.blade.php'), wrap(props, html));
 }
 
