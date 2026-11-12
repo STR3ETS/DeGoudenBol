@@ -7,6 +7,7 @@ use App\Domain\Participants\Enums\DiscountStatus;
 use App\Domain\Participants\Enums\EntryStatus;
 use App\Domain\Participants\Models\Entry;
 use App\Filament\Resources\Entries\EntryResource;
+use App\Filament\Support\PaymentLinkActions;
 use Filament\Resources\Pages\ManageRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,6 +15,13 @@ use Illuminate\Database\Eloquent\Builder;
 class ManageEntries extends ManageRecords
 {
     protected static string $resource = EntryResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            PaymentLinkActions::create(),
+        ];
+    }
 
     /**
      * Werkvoorraad-tabs op status; de tellers gelden voor de huidige editie.

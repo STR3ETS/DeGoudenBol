@@ -98,7 +98,12 @@
                         @endif
                     </dl>
 
-                    @if ($order && $order->isPending() && $entry->canPay())
+                    @if ($order && $order->isPending() && $entry->canPay() && $entry->terms_acceptance_id === null)
+                        {{-- Klaargezet door de organisatie: akkoord op de voorwaarden en betalen gaat via de betaalpagina. --}}
+                        <div class="mt-6 flex flex-wrap gap-3">
+                            <a href="{{ route('aanmelden.status', $order) }}" class="ui-knop">Afronden en betalen · {{ $order->formattedTotal() }} <x-ui.icoon naam="pijl-rechts" dikte="2.4" /></a>
+                        </div>
+                    @elseif ($order && $order->isPending() && $entry->canPay())
                         <div class="mt-6 flex flex-wrap gap-3">
                             <form method="post" action="{{ route('aanmelden.opnieuw', $order) }}">@csrf<button type="submit" class="ui-knop">Nu betalen · {{ $order->formattedTotal() }} <x-ui.icoon naam="pijl-rechts" dikte="2.4" /></button></form>
                         </div>

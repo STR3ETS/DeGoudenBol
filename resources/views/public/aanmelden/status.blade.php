@@ -1,6 +1,7 @@
 @php
     use App\Domain\Participants\Enums\DiscountStatus;
     use App\Support\DutchTime;
+    use App\Support\Money;
 
     $paid = $order->isPaid();
     $pending = $payment !== null && ! $payment->status->isFinal() && ! $paid;
@@ -80,6 +81,45 @@
                         <x-ui.button type="submit" variant="outline">Toch direct betalen tegen de standaardprijs</x-ui.button>
                     </form>
                 </div>
+            @elseif ($firstPayment && $needsAcceptance)
+                {{-- Betaallink van de organisatie: de aanmelding staat klaar; de klant controleert, gaat akkoord en betaalt. --}}
+                <x-ui.chip status="succes" :dot="true" class="mb-4">Klaar om te betalen</x-ui.chip>
+                <h1 class="kop-pagina mb-5">Uw aanmelding staat <em>klaar</em></h1>
+                <p class="body-text mb-6">Wij hebben {{ $entry->company->name }} voor u aangemeld voor De Gouden Bol {{ $order->edition->year }}, in de provincie {{ $entry->province->name }}. Controleer de gegevens, ga akkoord en betaal; daarna is uw deelname definitief. Deze link is geldig tot {{ DutchTime::format($entry->reservation_expires_at, 'D MMMM YYYY, HH:mm') }}.</p>
+
+                <div class="card mb-6 !p-6">
+                    <dl class="grid gap-x-6 gap-y-2 text-[0.9rem] sm:grid-cols-[auto_1fr]">
+                        <dt class="text-gedempt">Bedrijf</dt><dd class="font-semibold">{{ $entry->company->name }}</dd>
+                        <dt class="text-gedempt">Naam op de site</dt><dd>{{ $entry->public_name }}</dd>
+                        @if ($entry->company->primaryLocation)
+                            <dt class="text-gedempt">Adres</dt><dd>{{ $entry->company->primaryLocation->street }} {{ $entry->company->primaryLocation->house_number }}, {{ $entry->company->primaryLocation->postcode }} {{ $entry->company->primaryLocation->city }}</dd>
+                        @endif
+                        <dt class="text-gedempt">Contact</dt><dd>{{ $entry->company->contact_name }}</dd>
+                    </dl>
+                    <div class="mt-5 border-t border-rand pt-4 text-[0.9rem]">
+                        @foreach ($order->lines as $line)
+                            <div class="flex items-start justify-between gap-4 py-1"><span>{{ $line->description }}</span><span class="whitespace-nowrap font-semibold">{{ Money::format($line->subtotal_cents) }}</span></div>
+                        @endforeach
+                        <div class="flex justify-between gap-4 py-1 text-gedempt"><span>Btw</span><span class="whitespace-nowrap">{{ Money::format($order->vat_cents) }}</span></div>
+                        <div class="mt-2 flex justify-between gap-4 border-t border-rand pt-3 text-[1rem] font-bold"><span>Totaal incl. btw</span><span class="whitespace-nowrap">{{ $order->formattedTotal() }}</span></div>
+                    </div>
+                </div>
+
+                <form method="post" action="{{ route('aanmelden.opnieuw', $order) }}" class="flex flex-col gap-3">
+                    @csrf
+                    <label class="checklist-rij cursor-pointer items-start text-[0.85rem]">
+                        <input type="checkbox" name="akkoord_voorwaarden" value="1" class="mt-0.5 h-4 w-4 accent-goud" @checked(old('akkoord_voorwaarden')) required>
+                        <span>Ik ga akkoord met de <a href="{{ route('voorwaarden.deelname') }}" class="text-goud-tekst underline" target="_blank" rel="noopener">deelnamevoorwaarden</a>@if ($terms) (versie {{ $terms->version }})@endif, inclusief het blind protocol en de publicatie van het cijfer vanaf {{ number_format($entry->edition->settings->publishThreshold, 1, ',', '.') }}.</span>
+                    </label>
+                    @error('akkoord_voorwaarden') <p class="field-error !mt-0">{{ $message }}</p> @enderror
+                    <label class="checklist-rij cursor-pointer items-start text-[0.85rem]">
+                        <input type="checkbox" name="akkoord_privacy" value="1" class="mt-0.5 h-4 w-4 accent-goud" @checked(old('akkoord_privacy')) required>
+                        <span>Ik heb de <a href="{{ route('privacy') }}" class="text-goud-tekst underline" target="_blank" rel="noopener">privacyverklaring</a> gelezen.</span>
+                    </label>
+                    @error('akkoord_privacy') <p class="field-error !mt-0">{{ $message }}</p> @enderror
+                    <div class="mt-3"><x-ui.button type="submit">Betalen · {{ $order->formattedTotal() }}</x-ui.button></div>
+                    <p class="body-text text-[0.8rem]">Klopt er iets niet? Betaal dan nog niet en neem contact met ons op.</p>
+                </form>
             @elseif ($firstPayment)
                 <x-ui.chip status="succes" :dot="true" class="mb-4">
                     {{ $entry->discount_status === DiscountStatus::Approved ? 'Korting goedgekeurd' : 'Klaar om te betalen' }}

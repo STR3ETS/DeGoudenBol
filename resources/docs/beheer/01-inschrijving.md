@@ -40,7 +40,11 @@ Ga naar Geld > Orders, open de order en kies "Markeer als betaald". Het systeem 
 
 ## Hoe meld ik zelf een bakker aan, bijvoorbeeld telefonisch?
 
-Gebruik de aanmeldpagina op de site namens de bakker, met zijn gegevens en e-mailadres. Bij de betaalstap kies je bankoverschrijving als dat kan, of je laat de bakker zelf betalen via de link die hij per mail krijgt. Is het geld binnen, markeer de order dan als betaald.
+Ga naar Bakkers > Inschrijvingen en klik rechtsboven op "Aanmelding met betaallink". Vul de bedrijfsnaam, de contactpersoon, het e-mailadres en het adres in (na postcode en huisnummer vullen straat, plaats en provincie zichzelf in) en kies wat de bakker afneemt, zoals het filmpje of een uitgelichte plek. Na "Aanmaken en link tonen" krijg je een link die je kunt kopiëren en delen, bijvoorbeeld via WhatsApp. De bakker ziet op die pagina wat hij afneemt en wat het kost, vinkt de voorwaarden aan en betaalt; hij hoeft verder niets in te vullen. Daarna loopt alles zoals bij een gewone aanmelding: bevestiging, factuur, inloglink en het kiezen van de ophaalvrijdag.
+
+## Hoe lang is een betaallink geldig en waar vind ik hem terug?
+
+Standaard veertien dagen; bij het aanmaken kies je zelf een aantal dagen (maximaal zestig). Zo lang blijft de plek van de bakker vast, en ook een gekozen uitgelichte plek. Betaalt hij niet binnen die tijd, dan vervalt de aanmelding en komt de plek vrij; maak dan een nieuwe aan. De link vind je terug bij de inschrijving (tabblad "Wacht op betaling") met de knop "Betaallink". De knoppen zijn er voor beheer, ontvangst en financiën.
 
 ## Kan een bakker zich voor meerdere zaken aanmelden?
 

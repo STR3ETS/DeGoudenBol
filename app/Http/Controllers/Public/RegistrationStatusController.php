@@ -5,12 +5,15 @@ namespace App\Http\Controllers\Public;
 use App\Domain\Commerce\Actions\MarkOrderPaid;
 use App\Domain\Commerce\Contracts\PaymentGateway;
 use App\Domain\Commerce\Models\Order;
+use App\Domain\Edition\Enums\TermsType;
+use App\Domain\Edition\Models\TermsVersion;
 use App\Domain\Intake\Actions\RequestPickup;
 use App\Domain\Intake\Actions\ScheduleDelivery;
 use App\Domain\Intake\Exceptions\SlotFullException;
 use App\Domain\Intake\Models\PickupDay;
 use App\Domain\Intake\Notifications\DeliveryScheduledNotification;
 use App\Domain\Intake\Services\PlanningOptions;
+use App\Domain\Participants\Actions\AcceptTermsForEntry;
 use App\Domain\Participants\Actions\ApplyRate;
 use App\Domain\Participants\Enums\EntryRate;
 use App\Domain\Participants\Models\DeliverySlot;
@@ -72,12 +75,26 @@ class RegistrationStatusController extends Controller
         return $this->statusView($order, $options, isThankYouPage: true);
     }
 
-    public function retry(Order $order, PaymentGateway $gateway): RedirectResponse
+    public function retry(Request $request, Order $order, PaymentGateway $gateway, AcceptTermsForEntry $acceptTerms): RedirectResponse
     {
-        abort_unless($order->orderable instanceof Entry, 404);
+        $entry = $order->orderable;
+        abort_unless($entry instanceof Entry, 404);
 
-        if (! $order->isPending() || ! $order->orderable->canPay()) {
+        if (! $order->isPending() || ! $entry->canPay()) {
             return redirect()->route('aanmelden.status', $order);
+        }
+
+        // Klaargezet door de organisatie (betaallink): de klant gaat hier zelf akkoord, vóór de betaling.
+        if ($entry->terms_acceptance_id === null) {
+            $request->validate([
+                'akkoord_voorwaarden' => ['accepted'],
+                'akkoord_privacy' => ['accepted'],
+            ], [
+                'akkoord_voorwaarden.accepted' => 'Ga akkoord met de deelnamevoorwaarden om te kunnen betalen.',
+                'akkoord_privacy.accepted' => 'Bevestig dat u de privacyverklaring heeft gelezen.',
+            ]);
+
+            $acceptTerms($entry, $request->ip(), $request->userAgent());
         }
 
         return $this->toCheckout($order, $gateway);
@@ -197,9 +214,10 @@ class RegistrationStatusController extends Controller
 
     private function statusView(Order $order, PlanningOptions $options, bool $isThankYouPage = false): View
     {
-        $order->refresh()->load(['orderable.company.primaryLocation', 'orderable.province', 'orderable.edition', 'orderable.deliverySlot.testLocation', 'orderable.pickupRequest.day', 'latestPayment']);
+        $order->refresh()->load(['orderable.company.primaryLocation', 'orderable.province', 'orderable.edition', 'orderable.deliverySlot.testLocation', 'orderable.pickupRequest.day', 'latestPayment', 'lines']);
         $entry = $order->orderable;
         $needsPlanning = $order->isPaid() && $entry->needsPlanning();
+        $needsAcceptance = ! $order->isPaid() && $entry->terms_acceptance_id === null;
 
         return view('public.aanmelden.status', [
             'order' => $order,
@@ -209,6 +227,9 @@ class RegistrationStatusController extends Controller
             'canRetry' => $order->isPending() && $entry->canPay(),
             'discountPending' => $order->isPending() && $entry->wantsDiscount() && (bool) $entry->discount_status?->blocksPayment() && ! $entry->isReservationExpired(),
             'needsPlanning' => $needsPlanning,
+            // Betaallink van de organisatie: overzicht tonen en de klant zelf akkoord laten geven.
+            'needsAcceptance' => $needsAcceptance,
+            'terms' => $needsAcceptance ? TermsVersion::latestPublished(TermsType::Participation) : null,
             'slots' => $needsPlanning && ! $entry->pickup_prepaid ? $options->slots($entry->edition) : collect(),
             'pickupDays' => $needsPlanning && $entry->pickup_prepaid ? $options->pickupDays($entry->edition) : collect(),
         ]);

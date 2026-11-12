@@ -45,5 +45,9 @@ final readonly class RegistrationData
         public ?array $pickupPreference = null,
         public ?int $visibilityPosition = null,
         public bool $videoAddon = false,
+        /** False als een medewerker de aanmelding klaarzet: de klant gaat dan zelf akkoord op de betaalpagina. */
+        public bool $termsAccepted = true,
+        /** Hoe lang de plek (en de betaallink) vast blijft; null is de gewone reserveringstijd. */
+        public ?int $reservationMinutes = null,
     ) {}
 }

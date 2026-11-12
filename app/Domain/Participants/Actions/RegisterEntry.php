@@ -56,9 +56,10 @@ final class RegisterEntry
         $video = $data->videoAddon && $pickup && $edition->settings->videoAddonEnabled();
 
         // Met kortingsaanvraag blijft de plek langer vast: eerst bewijs en controle, dan pas betalen.
-        $reservationMinutes = $wantsDiscount
+        // Zet een medewerker de aanmelding klaar, dan bepaalt die hoe lang de betaallink geldig is.
+        $reservationMinutes = $data->reservationMinutes ?? ($wantsDiscount
             ? $edition->settings->discountHoldDays * 24 * 60
-            : (int) config('commerce.reservation_minutes', 60);
+            : (int) config('commerce.reservation_minutes', 60));
 
         return $this->capacity->reserve($edition, $province, function () use ($edition, $province, $package, $data, $reservationMinutes, $wantsDiscount, $rate, $plainAddon, $pickup, $video): Entry {
             $user = ParticipantUser::query()->firstOrCreate(
@@ -94,14 +95,15 @@ final class RegisterEntry
                 'specialties' => [],
             ])->forceFill(['moderation_status' => ModerationStatus::Draft])->save();
 
-            $acceptance = TermsAcceptance::query()->create([
+            // Klaargezet door een medewerker: nog geen akkoord. Dat geeft de klant zelf, vóór het betalen (AcceptTermsForEntry).
+            $acceptance = $data->termsAccepted ? TermsAcceptance::query()->create([
                 'participant_user_id' => $user->getKey(),
                 'company_id' => $company->getKey(),
                 'terms_version_id' => $data->termsVersionId,
                 'accepted_at' => now(),
                 'ip' => $data->ip,
                 'user_agent' => $data->userAgent ? Str::limit($data->userAgent, 250, '') : null,
-            ]);
+            ]) : null;
 
             $expiresAt = now()->addMinutes($reservationMinutes);
 
@@ -118,7 +120,7 @@ final class RegisterEntry
                 'discount_status' => $wantsDiscount ? (filled($data->discountProofUrl) ? DiscountStatus::Submitted : DiscountStatus::AwaitingProof) : null,
                 'discount_proof_url' => $wantsDiscount ? $data->discountProofUrl : null,
                 'discount_submitted_at' => $wantsDiscount && filled($data->discountProofUrl) ? now() : null,
-                'terms_acceptance_id' => $acceptance->getKey(),
+                'terms_acceptance_id' => $acceptance?->getKey(),
                 'status' => EntryStatus::PendingPayment,
                 'public_name' => $data->publicName,
                 'tagline' => $data->tagline,
@@ -144,6 +146,7 @@ final class RegisterEntry
                 'pickup_prepaid' => $pickup,
                 'video_addon' => $video,
                 'visibility_position' => $data->visibilityPosition,
+                'prepared_by_staff' => ! $data->termsAccepted,
             ], null);
 
             if ($wantsDiscount) {
