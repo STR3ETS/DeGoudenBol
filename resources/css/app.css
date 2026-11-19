@@ -673,6 +673,18 @@
         }
     }
 
+    /* Tussen 1024 en 1280 px staat er ook een inlogicoon in de header: het menu schuift dan iets in, zodat alles op één regel blijft. */
+    @media (min-width: 1024px) and (max-width: 1279px) {
+        .nav .nav__menu {
+            gap: 16px;
+        }
+
+        .nav .nav__link {
+            font-size: 0.72rem;
+            letter-spacing: 0.04em;
+        }
+    }
+
     /* Footer */
     .footer {
         background: var(--color-espresso);

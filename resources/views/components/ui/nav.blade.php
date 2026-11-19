@@ -8,7 +8,7 @@
 {{-- Zelfde opbouw als de websiteheader (site.partials.header): logo links over de volle breedte,
      menu in het midden, knop rechts; onder 1024 px een menuknop. --}}
 <header class="nav" data-nav>
-    <div class="flex flex-wrap items-center justify-between gap-x-8 gap-y-2">
+    <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 xl:gap-x-8">
         <a href="{{ route('home') }}" class="no-underline" aria-label="De Gouden Bol, naar de homepage">
             <x-ui.logo />
         </a>
