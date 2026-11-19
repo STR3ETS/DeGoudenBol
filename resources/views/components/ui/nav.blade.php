@@ -37,7 +37,9 @@
         </nav>
 
         <div class="hidden items-center gap-3 lg:flex">
-            <x-ui.button :href="route('portaal.inloggen')" variant="outline" size="sm">Inloggen</x-ui.button>
+            {{-- Tussen 1024 en 1280 px is er geen ruimte voor twee knoppen: dan alleen het icoon. --}}
+            <a href="{{ route('portaal.inloggen') }}" class="inline-flex h-10 w-10 flex-none items-center justify-center rounded-full border-[1.5px] border-espresso text-espresso no-underline xl:hidden" aria-label="Inloggen in het deelnemersportaal" title="Inloggen"><x-ui.icoon naam="gebruiker" class="h-4 w-4" /></a>
+            <x-ui.button :href="route('portaal.inloggen')" variant="outline" size="sm" class="hidden xl:inline-flex">Inloggen</x-ui.button>
             @if ($ctaUrl)
                 <x-ui.button :href="$ctaUrl" size="sm">{{ $cta['label'] }}</x-ui.button>
             @endif
