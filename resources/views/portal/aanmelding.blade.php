@@ -72,6 +72,10 @@
                         @if ($entry->video_addon)
                             <dt class="text-gedempt">Filmpje</dt><dd class="font-semibold">Bij het ophalen @if ($filmpje)<span class="font-normal text-gedempt">· {{ Money::format($filmpje->unit_price_cents) }} excl. btw</span>@endif</dd>
                         @endif
+                        @if ($entry->partner_package)
+                            @php $partnerRegel = $regel(CreateOrderForEntry::PARTNER_LINE_TYPE); @endphp
+                            <dt class="text-gedempt">Partnerpakket</dt><dd class="font-semibold">{{ $entry->partner_package }} @if ($partnerRegel)<span class="font-normal text-gedempt">· {{ Money::format($partnerRegel->unit_price_cents) }} excl. btw</span>@endif</dd>
+                        @endif
                         @if ($plek?->isPaid())
                             <dt class="text-gedempt">Extra zichtbaarheid</dt><dd class="font-semibold">Plek {{ $plek->position }} in {{ $entry->province->name }} <span class="font-normal text-gedempt">· {{ $plek->formattedPrice() }} excl. btw · {{ $plek->starts_at?->isFuture() ? 'vanaf '.DutchTime::date($plek->starts_at).' ' : '' }}tot en met {{ DutchTime::date($plek->ends_at) }}</span></dd>
                         @endif

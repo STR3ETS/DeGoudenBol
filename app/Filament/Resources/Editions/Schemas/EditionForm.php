@@ -10,6 +10,7 @@ use App\Domain\Edition\Enums\ParticipationModel;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
@@ -200,6 +201,13 @@ class EditionForm
                         ->helperText('35000 = EUR 350,00. Bakkers vinken dit aan bij de aanmelding; het bedrag komt bij het pakket op dezelfde rekening. 0 zet de optie uit.'),
                     TextInput::make('settings.video_addon_regular_cents')->label('Filmpje: normale prijs (centen, excl. btw)')->numeric()->minValue(0)->required()
                         ->helperText('45000 = EUR 450,00. Staat doorgestreept naast de prijs. 0 toont alleen de prijs.'),
+                    Repeater::make('settings.partner_packages')->label('Partnerpakketten bij een aanmelding met betaallink')->columnSpanFull()->columns(2)
+                        ->schema([
+                            TextInput::make('name')->label('Naam')->required()->maxLength(120),
+                            TextInput::make('price_cents')->label('Prijs (centen, excl. btw)')->numeric()->minValue(1)->required(),
+                        ])
+                        ->defaultItems(0)->addActionLabel('Pakket toevoegen')->reorderable()
+                        ->helperText('45000 = EUR 450,00. De organisatie kiest er een bij "Aanmelding met betaallink"; het bedrag komt bij de deelname op dezelfde rekening. De naam staat op de factuur. Leeg zet de keuze uit. Puur commercieel; staat los van de test.'),
                     TextInput::make('settings.total_capacity')->label('Landelijk maximum deelnemers')->numeric()->minValue(0)->required()
                         ->helperText('Bovenop het maximum per provincie. Bereikt: de site toont "vol", zonder aantallen. 0 is geen landelijk maximum.'),
                     TextInput::make('settings.opening_offer_cents')->label('Openingsactie: deelnameprijs (centen, excl. btw)')->numeric()->minValue(0)->required()

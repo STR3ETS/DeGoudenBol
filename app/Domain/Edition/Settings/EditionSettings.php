@@ -36,6 +36,7 @@ final readonly class EditionSettings
      * @param  int  $totalCapacity  Landelijk maximum aantal deelnemers, bovenop het maximum per provincie; 0 is geen landelijk maximum.
      * @param  int  $videoAddonCents  Filmpje van de kraam of bakkerij als betaalde extra bij de aanmelding, excl. btw; 0 zet de optie uit.
      * @param  int  $videoAddonRegularCents  Normale prijs van het filmpje, doorgestreept naast de prijs; 0 toont alleen de prijs.
+     * @param  list<array{name?: string, price_cents?: int|string}>  $partnerPackages  Partnerpakketten (naam en prijs excl. btw) die de organisatie bij een aanmelding met betaallink kan meegeven; leeg zet de keuze uit. Puur commercieel; staat los van de test.
      */
     public function __construct(
         public int $capacityPerProvince = 50,
@@ -81,7 +82,43 @@ final readonly class EditionSettings
         public int $totalCapacity = 0,
         public int $videoAddonCents = 0,
         public int $videoAddonRegularCents = 0,
+        public array $partnerPackages = [],
     ) {}
+
+    /**
+     * De partnerpakketten met een naam en een prijs, in de volgorde van de instelling.
+     *
+     * @return list<array{name: string, price_cents: int}>
+     */
+    public function partnerPackages(): array
+    {
+        $packages = [];
+
+        foreach ($this->partnerPackages as $package) {
+            $name = trim((string) ($package['name'] ?? ''));
+            $price = (int) ($package['price_cents'] ?? 0);
+
+            if ($name !== '' && $price > 0) {
+                $packages[] = ['name' => $name, 'price_cents' => $price];
+            }
+        }
+
+        return $packages;
+    }
+
+    /**
+     * @return array{name: string, price_cents: int}|null
+     */
+    public function partnerPackage(?string $name): ?array
+    {
+        foreach ($this->partnerPackages() as $package) {
+            if ($package['name'] === trim((string) $name)) {
+                return $package;
+            }
+        }
+
+        return null;
+    }
 
     public function videoAddonEnabled(): bool
     {

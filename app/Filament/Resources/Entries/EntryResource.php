@@ -114,6 +114,7 @@ class EntryResource extends Resource
                     TextEntry::make('rate')->label('Tarief')->badge(),
                     IconEntry::make('plain_addon')->label('Extra test naturel')->boolean(),
                     IconEntry::make('video_addon')->label('Filmpje bij ophalen')->boolean(),
+                    TextEntry::make('partner_package')->label('Partnerpakket')->placeholder('–'),
                     TextEntry::make('discount_status')->label('Kortingsactie')->badge()->placeholder('–'),
                     TextEntry::make('discount_proof_url')->label('Post')->url(fn (Entry $record) => $record->discount_proof_url, shouldOpenInNewTab: true)->placeholder('–'),
                     TextEntry::make('discount_note')->label('Toelichting korting')->placeholder('–'),
@@ -173,6 +174,7 @@ class EntryResource extends Resource
                 TextColumn::make('rate')->label('Tarief')->badge(),
                 IconColumn::make('plain_addon')->label('Naturel')->boolean()->tooltip('Extra test naturel oliebol')->toggleable(),
                 IconColumn::make('video_addon')->label('Filmpje')->boolean()->tooltip('Filmpje besteld, te maken bij het ophalen')->toggleable(),
+                TextColumn::make('partner_package')->label('Partnerpakket')->badge()->placeholder('–')->toggleable(),
                 TextColumn::make('discount_status')->label('Korting')->badge()->placeholder('–')
                     ->url(fn (Entry $record) => $record->discount_proof_url, shouldOpenInNewTab: true)
                     ->tooltip(fn (Entry $record) => $record->discount_proof_url ? 'Open de post' : null),

@@ -44,6 +44,7 @@ use Illuminate\Support\Facades\Storage;
     'plain_addon',
     'pickup_prepaid',
     'video_addon',
+    'partner_package',
     'pickup_preference',
     'discount_status',
     'discount_proof_url',

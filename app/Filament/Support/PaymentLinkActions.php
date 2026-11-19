@@ -128,6 +128,7 @@ final class PaymentLinkActions
                         videoAddon: (bool) ($data['video_addon'] ?? false),
                         termsAccepted: false,
                         reservationMinutes: $validDays * 24 * 60,
+                        partnerPackage: filled($data['partner_package'] ?? null) ? (string) $data['partner_package'] : null,
                     ));
                 } catch (ProvinceFullException|VisibilitySpotTakenException $exception) {
                     self::fail('Aanmaken is niet gelukt', $exception->getMessage());
@@ -231,6 +232,12 @@ final class PaymentLinkActions
                         ->options(fn (Get $get): array => self::visibilityOptions($edition, $get('province_id')))
                         ->visible((bool) $settings?->visibilitySpotsEnabled())
                         ->helperText('Optioneel. Kies eerst de provincie. De plek blijft bezet zolang de betaallink geldig is.')
+                        ->columnSpanFull(),
+                    Select::make('partner_package')->label('Partnerpakket')
+                        ->placeholder('Geen')
+                        ->options(collect($settings?->partnerPackages() ?? [])->mapWithKeys(fn (array $package): array => [$package['name'] => "{$package['name']} · ".Money::format($package['price_cents']).' excl. btw'])->all())
+                        ->visible(($settings?->partnerPackages() ?? []) !== [])
+                        ->helperText('Optioneel. Komt bij de deelname op dezelfde rekening, zodat de bakker in één keer afrekent.')
                         ->columnSpanFull(),
                     TextInput::make('valid_days')->label('Link geldig (dagen)')->numeric()->integer()->required()
                         ->default(self::DEFAULT_VALID_DAYS)->minValue(1)->maxValue(self::MAX_VALID_DAYS)

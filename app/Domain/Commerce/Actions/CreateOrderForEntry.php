@@ -33,6 +33,9 @@ final class CreateOrderForEntry
 
     public const string VIDEO_ADDON_DESCRIPTION = 'Filmpje van uw kraam of bakkerij, gemaakt bij het ophalen';
 
+    /** Partnerpakket dat de organisatie bij een aanmelding met betaallink meegeeft (verzoek Bennie 12 nov 2026). */
+    public const string PARTNER_LINE_TYPE = 'partner_package';
+
     public static function visibilitySpotDescription(int $position, string $province): string
     {
         return "Extra zichtbaarheid: plek {$position} in {$province} (staat los van de test)";
@@ -61,7 +64,7 @@ final class CreateOrderForEntry
 
         $spot = $entry->visibilitySpot()->first();
 
-        foreach (self::lines($package, $entry->edition->settings, $entry->edition->year, $entry->rate, $entry->plain_addon, $entry->pickup_prepaid, $spot?->position, $entry->province?->name, $entry->video_addon) as $line) {
+        foreach (self::lines($package, $entry->edition->settings, $entry->edition->year, $entry->rate, $entry->plain_addon, $entry->pickup_prepaid, $spot?->position, $entry->province?->name, $entry->video_addon, $entry->partner_package) as $line) {
             $order->lines()->create([
                 ...$line,
                 'lineable_id' => $line['lineable_type'] === $package->getMorphClass() ? $package->getKey() : $entry->getKey(),
@@ -79,7 +82,7 @@ final class CreateOrderForEntry
      *
      * @return list<array{lineable_type: string, description: string, quantity: int, unit_price_cents: int, vat_rate: float, counts_for_charity: bool, sort: int, subtotal_cents: int, vat_cents: int, total_cents: int}>
      */
-    public static function lines(Package $package, EditionSettings $settings, int $year, EntryRate $rate, bool $plainAddon, bool $pickup = false, ?int $spotPosition = null, ?string $province = null, bool $video = false): array
+    public static function lines(Package $package, EditionSettings $settings, int $year, EntryRate $rate, bool $plainAddon, bool $pickup = false, ?int $spotPosition = null, ?string $province = null, bool $video = false, ?string $partnerPackage = null): array
     {
         $vatRate = (float) $package->vat_rate;
         $line = fn (string $type, string $description, int $cents, int $sort, ?float $vat = null): array => [
@@ -132,6 +135,10 @@ final class CreateOrderForEntry
 
         if ($spotPrice !== null) {
             $lines[] = $line(self::VISIBILITY_LINE_TYPE, self::visibilitySpotDescription($spotPosition, (string) $province), $spotPrice, 6, (float) config('commerce.default_vat_rate', 21.0));
+        }
+
+        if ($partner = $settings->partnerPackage($partnerPackage)) {
+            $lines[] = $line(self::PARTNER_LINE_TYPE, "Partnerpakket: {$partner['name']}", $partner['price_cents'], 7, (float) config('commerce.default_vat_rate', 21.0));
         }
 
         return $lines;

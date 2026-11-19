@@ -54,6 +54,8 @@ final class RegisterEntry
         $pickup = $bundle || ($data->pickup && $edition->settings->pickupEnabled);
         // Het filmpje wordt bij het ophalen gemaakt, dus alleen als er opgehaald wordt.
         $video = $data->videoAddon && $pickup && $edition->settings->videoAddonEnabled();
+        // Alleen een pakket dat in de editie-instellingen staat; de prijs komt daar vandaan, niet van de aanmelder.
+        $partner = $edition->settings->partnerPackage($data->partnerPackage)['name'] ?? null;
 
         // Met kortingsaanvraag blijft de plek langer vast: eerst bewijs en controle, dan pas betalen.
         // Zet een medewerker de aanmelding klaar, dan bepaalt die hoe lang de betaallink geldig is.
@@ -61,7 +63,7 @@ final class RegisterEntry
             ? $edition->settings->discountHoldDays * 24 * 60
             : (int) config('commerce.reservation_minutes', 60));
 
-        return $this->capacity->reserve($edition, $province, function () use ($edition, $province, $package, $data, $reservationMinutes, $wantsDiscount, $rate, $plainAddon, $pickup, $video): Entry {
+        return $this->capacity->reserve($edition, $province, function () use ($edition, $province, $package, $data, $reservationMinutes, $wantsDiscount, $rate, $plainAddon, $pickup, $video, $partner): Entry {
             $user = ParticipantUser::query()->firstOrCreate(
                 ['email' => Str::lower($data->email)],
                 ['name' => $data->contactName, 'phone' => $data->phone],
@@ -116,6 +118,7 @@ final class RegisterEntry
                 'plain_addon' => $plainAddon,
                 'pickup_prepaid' => $pickup,
                 'video_addon' => $video,
+                'partner_package' => $partner,
                 'pickup_preference' => $pickup ? $data->pickupPreference : null,
                 'discount_status' => $wantsDiscount ? (filled($data->discountProofUrl) ? DiscountStatus::Submitted : DiscountStatus::AwaitingProof) : null,
                 'discount_proof_url' => $wantsDiscount ? $data->discountProofUrl : null,
@@ -145,6 +148,7 @@ final class RegisterEntry
                 'plain_addon' => $plainAddon,
                 'pickup_prepaid' => $pickup,
                 'video_addon' => $video,
+                'partner_package' => $partner,
                 'visibility_position' => $data->visibilityPosition,
                 'prepared_by_staff' => ! $data->termsAccepted,
             ], null);

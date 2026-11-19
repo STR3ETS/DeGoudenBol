@@ -49,5 +49,7 @@ final readonly class RegistrationData
         public bool $termsAccepted = true,
         /** Hoe lang de plek (en de betaallink) vast blijft; null is de gewone reserveringstijd. */
         public ?int $reservationMinutes = null,
+        /** Naam van een partnerpakket uit de editie-instellingen; alleen de organisatie geeft dit mee. */
+        public ?string $partnerPackage = null,
     ) {}
 }

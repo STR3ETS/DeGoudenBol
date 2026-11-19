@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Participants;
 
+use App\Domain\Commerce\Actions\CreateOrderForEntry;
 use App\Domain\Commerce\Actions\MarkOrderPaid;
 use App\Domain\Edition\Models\Province;
 use App\Domain\Participants\Actions\CancelExpiredReservations;
@@ -126,6 +127,50 @@ class StaffPaymentLinkTest extends TestCase
 
         $this->assertSame(EntryStatus::Registered, $entry->fresh()->status);
         $this->get(route('aanmelden.status', $order))->assertOk()->assertSee('Betaling ontvangen')->assertDontSee('akkoord_voorwaarden');
+    }
+
+    #[Test]
+    public function a_partner_package_is_paid_in_the_same_payment_at_the_price_from_the_settings(): void
+    {
+        $this->edition->forceFill(['settings' => $this->edition->settings->with(['partner_packages' => [
+            ['name' => 'Top partner', 'price_cents' => 45000],
+            ['name' => 'Partner B', 'price_cents' => 35000],
+            ['name' => '', 'price_cents' => 25000], // zonder naam telt een pakket niet mee
+        ]])])->save();
+
+        $this->assertCount(2, $this->edition->fresh()->settings->partnerPackages());
+
+        Livewire::actingAs($this->staff(StaffRole::Admin))
+            ->test(ManageEntries::class)
+            ->callAction('createWithPaymentLink', data: $this->formData(['partner_package' => 'Top partner']))
+            ->assertHasNoActionErrors();
+
+        auth()->guard('web')->logout();
+
+        $entry = Entry::query()->with(['order.lines', 'company'])->sole();
+        $line = $entry->order->lines->firstWhere('lineable_type', CreateOrderForEntry::PARTNER_LINE_TYPE);
+
+        $this->assertSame('Top partner', $entry->partner_package);
+        $this->assertSame('Partnerpakket: Top partner', $line->description);
+        $this->assertSame(45000, $line->unit_price_cents);
+        $this->assertSame(78045, $entry->order->total_cents); // (EUR 195 + EUR 450) + 21% btw
+
+        $this->get(route('aanmelden.status', $entry->order))
+            ->assertOk()
+            ->assertSee('Partnerpakket: Top partner')
+            ->assertSee('€ 780,45');
+
+        $this->actingAs($entry->company->owners()->first(), 'participant')
+            ->get(route('portaal.aanmelding', $entry->company))
+            ->assertOk()
+            ->assertSee('Partnerpakket')
+            ->assertSee('Top partner');
+
+        // Een naam die niet in de instellingen staat levert geen pakket en geen bedrag op.
+        $other = app(RegisterEntry::class)($this->edition->fresh(), $this->registrationData(['partnerPackage' => 'Verzonnen pakket']));
+
+        $this->assertNull($other->partner_package);
+        $this->assertSame(23595, $other->order->total_cents);
     }
 
     #[Test]
