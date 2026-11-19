@@ -264,6 +264,10 @@
                                             @endforeach
                                         </select>
                                         @error('pickupDayId') <p class="field-error">{{ $message }}</p> @enderror
+                                        {{-- Bericht van de organisatie bij een vrijdag (verzoek Gill 19 nov 2026), zichtbaar vóór het kiezen. --}}
+                                        @foreach ($this->pickupDays->filter(fn ($day) => filled($day->notes) && $day->taken_count < $day->capacity) as $day)
+                                            <p class="mt-2 rounded-veld bg-goud-licht p-3 text-[0.85rem]"><b>{{ $day->label() }}:</b> {{ $day->notes }}</p>
+                                        @endforeach
                                     </div>
                                 @endif
                                 <div>

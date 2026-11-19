@@ -43,6 +43,8 @@ class PickupConfirmedNotification extends Notification implements ShouldQueue
                 'Contactpersoon: '.$request->contact_name.' · '.$request->phone,
                 'Deelnemercode: '.$entry->delivery_code,
                 $this->scheduled && $request->driver_name ? 'Chauffeur: '.$request->driver_name : null,
+                // Bericht van de organisatie bij deze vrijdag, bijvoorbeeld dat de datum nog wordt afgestemd.
+                filled($request->day->notes) ? 'Let op: '.$request->day->notes : null,
             ])
             ->action('Bekijk in uw portaal', route('portaal.planning', $entry->company))
             ->note('Wat zet u klaar?', "{$pieces} oliebollen in een doos of zak, zonder naam of logo. Schrijf uw deelnemercode op de verpakking of leg het aanleverbewijs erbij.");

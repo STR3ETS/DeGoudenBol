@@ -71,7 +71,8 @@ class PickupDayResource extends Resource
                     }),
                 TextInput::make('capacity')->label('Maximaal aantal adressen')->numeric()->minValue(1)->default(10)->required(),
                 Toggle::make('is_open')->label('Open voor aanvragen')->default(true)->inline(false),
-                TextInput::make('notes')->label('Notitie')->maxLength(500)->columnSpanFull(),
+                TextInput::make('notes')->label('Bericht voor de bakker')->maxLength(500)->columnSpanFull()
+                    ->helperText('Zichtbaar voor bakkers: bij het kiezen van deze vrijdag (aanmelding, betaalpagina en portaal) en in de bevestigingsmail. Geen interne aantekeningen.'),
             ]);
     }
 
@@ -85,7 +86,7 @@ class PickupDayResource extends Resource
                 TextColumn::make('taken_count')->label('Aanvragen')->formatStateUsing(fn (PickupDay $record) => "{$record->taken_count} / {$record->capacity}")->badge()
                     ->color(fn (PickupDay $record) => $record->taken_count >= $record->capacity ? 'danger' : 'success'),
                 IconColumn::make('is_open')->label('Open')->boolean(),
-                TextColumn::make('notes')->label('Notitie')->placeholder('–')->limit(40),
+                TextColumn::make('notes')->label('Bericht voor de bakker')->placeholder('–')->limit(40),
             ])
             ->filters([
                 SelectFilter::make('edition_id')->label('Editie')->options(fn () => Edition::query()->orderByDesc('year')->pluck('name', 'id')->all())->default(fn () => Edition::current()?->getKey()),

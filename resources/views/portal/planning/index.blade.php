@@ -57,6 +57,9 @@
                         <p class="mb-4">Je aanvraag staat klaar. De ophaalservice is pas actief na betaling van de voorrijkosten ({{ $pickup->order?->formattedTotal() }} incl. btw).</p>
                         <form method="post" action="{{ route('portaal.ophalen.betalen', $company) }}">@csrf<button type="submit" class="ui-knop">Voorrijkosten betalen <x-ui.icoon naam="pijl-rechts" dikte="2.4" /></button></form>
                     @else
+                        @if (filled($pickup->day->notes))
+                            <div class="ui-melding ui-melding--neutraal mb-3"><span class="ui-melding__icoon"><x-ui.icoon naam="info" dikte="2" /></span><div class="ui-melding__inhoud">{{ $pickup->day->notes }}</div></div>
+                        @endif
                         <p>Contact op de dag: {{ $pickup->contact_name }} · {{ $pickup->phone }}@if ($pickup->driver_name) · chauffeur: {{ $pickup->driver_name }}@endif</p>
                         <p class="mt-2">Je deelnemercode: <strong class="font-kop text-[1.3rem] tracking-[0.12em]">{{ $entry->delivery_code }}</strong> · <a href="{{ route('portaal.planning.bewijs', $company) }}" class="font-bold text-goud-tekst underline">aanleverbewijs</a></p>
                         <p class="mt-2 text-gedempt">{{ $pickupChangeable ? 'Een andere vrijdag kiezen kan tot '.DutchTime::format($pickup->day->changeDeadline($deadlineHours), 'dddd D MMMM [om] HH:mm').'.' : 'Wijzigen kan niet meer. Neem contact met ons op als er iets verandert.' }}</p>
@@ -138,6 +141,9 @@
                                                 <option value="{{ $day->getKey() }}" @selected(old('pickup_day', $pickup?->pickup_day_id) == $day->getKey()) @disabled($vrij === 0 && ! $huidig)>{{ $day->label() }}{{ $huidig ? ' · jouw keuze' : ($vrij === 0 ? ' · vol' : '') }}</option>
                                             @endforeach
                                         </select>
+                                        @foreach ($pickupDays->filter(fn ($day) => filled($day->notes)) as $day)
+                                            <p class="mt-2 text-[0.85rem] text-gedempt"><strong class="text-espresso">{{ $day->label() }}:</strong> {{ $day->notes }}</p>
+                                        @endforeach
                                     </div>
                                     <div class="grid gap-4 sm:grid-cols-2">
                                         <div class="ui-veld"><label class="ui-label" for="company_name">Bedrijf</label><input id="company_name" name="company_name" class="ui-invoer" value="{{ old('company_name', $pickupDefaults['company_name']) }}" required></div>

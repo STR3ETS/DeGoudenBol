@@ -19,7 +19,7 @@
                         <label class="card card--hover flex cursor-pointer items-center justify-between gap-3 !p-4 {{ $vrij === 0 ? 'opacity-50' : '' }}">
                             <span class="flex items-center gap-3">
                                 <input type="radio" name="pickup_day" value="{{ $day->getKey() }}" class="h-4 w-4 accent-goud" @checked(old('pickup_day', $voorkeur['pickup_day_id'] ?? null) == $day->getKey()) @disabled($vrij === 0) required>
-                                <span class="font-semibold">{{ $day->label() }}</span>
+                                <span><span class="font-semibold">{{ $day->label() }}</span>@if (filled($day->notes))<span class="block text-[0.82rem] text-gedempt">{{ $day->notes }}</span>@endif</span>
                             </span>
                             @if ($vrij === 0)<span class="text-[0.78rem] text-gedempt">vol</span>@endif
                         </label>

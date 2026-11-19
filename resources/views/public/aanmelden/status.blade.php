@@ -50,6 +50,9 @@
                             <p class="text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-gedempt">Wij halen uw oliebollen op</p>
                             <p class="font-kop mt-1 text-[1.3rem] font-semibold">{{ $entry->pickupRequest->day->label() }}</p>
                             <p class="body-text text-[0.88rem]">{{ $entry->pickupRequest->address() }}</p>
+                            @if (filled($entry->pickupRequest->day->notes))
+                                <p class="body-text mt-2 text-[0.88rem]"><b>Let op:</b> {{ $entry->pickupRequest->day->notes }}</p>
+                            @endif
                         </div>
                     @endif
                     <p class="body-text mb-8 text-[0.9rem]">Wijzigen of uw aanleverbewijs openen doet u in het portaal.</p>

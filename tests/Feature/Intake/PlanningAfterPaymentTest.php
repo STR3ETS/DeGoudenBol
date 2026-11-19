@@ -6,6 +6,7 @@ use App\Domain\Commerce\Actions\MarkOrderPaid;
 use App\Domain\Intake\Enums\PickupStatus;
 use App\Domain\Intake\Models\PickupDay;
 use App\Domain\Intake\Notifications\DeliveryScheduledNotification;
+use App\Domain\Intake\Notifications\PickupConfirmedNotification;
 use App\Domain\Intake\Notifications\PlanDeliveryReminderNotification;
 use App\Domain\Participants\Actions\RegisterEntry;
 use App\Domain\Participants\Enums\EntryStatus;
@@ -14,12 +15,14 @@ use App\Domain\Participants\Models\Entry;
 use App\Domain\Participants\Models\ParticipantUser;
 use App\Domain\Platform\Enums\StaffRole;
 use App\Filament\Support\WorkQueue;
+use App\Livewire\Public\RegistrationWizard;
 use App\Models\User;
 use App\Support\DutchTime;
 use Carbon\CarbonInterface;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\BuildsRegistrations;
 use Tests\TestCase;
@@ -92,6 +95,51 @@ class PlanningAfterPaymentTest extends TestCase
         $pickup = $entry->pickupRequest()->firstOrFail();
         $this->assertSame(PickupStatus::Paid, $pickup->status);
         $this->assertSame(EntryStatus::Scheduled, $entry->fresh()->status);
+    }
+
+    #[Test]
+    public function the_message_on_a_friday_is_shown_wherever_the_baker_chooses_or_sees_that_friday(): void
+    {
+        Notification::fake();
+
+        $note = 'Datum ophalen wordt naderhand bepaald. We nemen contact met u op.';
+        $friday = PickupDay::query()->create([
+            'edition_id' => $this->edition->getKey(),
+            'date' => DutchTime::display(now())->next(CarbonInterface::FRIDAY)->addWeek()->toDateString(),
+            'capacity' => 3,
+            'notes' => $note,
+        ]);
+
+        // Bij de aanmelding, vóór het kiezen (verzoek Gill 19 nov 2026).
+        Livewire::test(RegistrationWizard::class)->set('step', 4)->set('pickup', true)->assertSee($friday->label())->assertSee($note);
+
+        $entry = $this->paidEntry(['pickup' => true]);
+        $owner = $this->owner($entry);
+
+        // Na de betaling, bij het kiezen van de vrijdag, en in het portaal.
+        $this->get(route('aanmelden.status', $entry->order))->assertOk()->assertSee($note);
+        $this->actingAs($owner, 'participant')->get(route('portaal.planning', $entry->company))->assertOk()->assertSee($note);
+
+        $this->post(route('aanmelden.ophalen', $entry->order), [
+            'pickup_day' => $friday->getKey(),
+            'contact_name' => 'Tessa Tester',
+            'phone' => '0612345678',
+            'street' => 'Bakkersstraat',
+            'house_number' => '12a',
+            'postcode' => '6811 AB',
+            'city' => 'Arnhem',
+        ])->assertRedirect(route('aanmelden.status', $entry->order));
+
+        // Na het kiezen: op de statuspagina, in het portaal en in de bevestigingsmail.
+        $this->get(route('aanmelden.status', $entry->order))->assertOk()->assertSee('Wij halen uw oliebollen op')->assertSee($note);
+        $this->actingAs($owner, 'participant')->get(route('portaal.planning', $entry->company))->assertOk()->assertSee($note);
+
+        $mail = (new PickupConfirmedNotification($entry->pickupRequest()->firstOrFail()))->toMail($owner);
+        $this->assertStringContainsString($note, html_entity_decode((string) $mail->render()));
+
+        // Zonder bericht verandert er niets.
+        $friday->update(['notes' => null]);
+        $this->get(route('aanmelden.status', $entry->order))->assertOk()->assertDontSee('Let op:');
     }
 
     #[Test]
