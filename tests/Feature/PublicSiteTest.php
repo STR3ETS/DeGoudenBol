@@ -107,6 +107,8 @@ class PublicSiteTest extends TestCase
         $this->get(route('hoe-werkt-de-test'))->assertOk()->assertSee('De reis van');
         // Bakkers konden het portaal niet vinden (11 nov 2026): inlogknop in de header en een link in de footer.
         $this->get(route('home'))->assertOk()->assertSee('<a class="nav-login" href="/portaal/inloggen"', false)->assertSee('Inloggen voor deelnemers');
+        // Ook op de pagina's met de eigen header, zoals de aanmelding en de betaalpagina.
+        $this->get(route('aanmelden'))->assertOk()->assertSee(route('portaal.inloggen'))->assertSee('Inloggen');
         $this->get('/hoe-werkt-de-test')->assertRedirect('/test');
         $this->get('/het-panel')->assertRedirect('/test#organisatie');
         $this->get(route('faq'))->assertOk()->assertSee('Alles wat je wilt weten');

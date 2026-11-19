@@ -32,10 +32,15 @@
             @if ($ctaUrl)
                 <x-ui.button :href="$ctaUrl" size="sm" class="mt-2 lg:hidden">{{ $cta['label'] }}</x-ui.button>
             @endif
+            {{-- Inloggen voor deelnemers, ook op de aanmeld- en betaalpagina's (zelfde knop als in de websiteheader). --}}
+            <x-ui.button :href="route('portaal.inloggen')" variant="outline" size="sm" class="mt-2 lg:hidden">Inloggen</x-ui.button>
         </nav>
 
-        @if ($ctaUrl)
-            <x-ui.button :href="$ctaUrl" size="sm" class="hidden lg:inline-flex">{{ $cta['label'] }}</x-ui.button>
-        @endif
+        <div class="hidden items-center gap-3 lg:flex">
+            <x-ui.button :href="route('portaal.inloggen')" variant="outline" size="sm">Inloggen</x-ui.button>
+            @if ($ctaUrl)
+                <x-ui.button :href="$ctaUrl" size="sm">{{ $cta['label'] }}</x-ui.button>
+            @endif
+        </div>
     </div>
 </header>
