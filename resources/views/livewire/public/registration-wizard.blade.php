@@ -108,6 +108,18 @@
                             @endif
                         @endif
                     </div>
+                    {{-- Extra kraam (melding Bennie 24 nov 2026): dezelfde naam op dezelfde postcode blokkeert niet meer, de bakker bevestigt het zelf. --}}
+                    @if ($duplicateFound)
+                        <div class="mt-5 rounded-veld bg-goud-licht p-4 text-[0.85rem]" role="alert" wire:key="extra-kraam">
+                            <p><b>{{ $companyName }} is op deze postcode al aangemeld.</b> Wilt u nog een kraam of verkooppunt aanmelden? Dat kan. Iedere kraam is een eigen aanmelding, met een eigen test en een eigen betaling.</p>
+                            <label class="mt-3 flex cursor-pointer items-start gap-2">
+                                <input type="checkbox" wire:model="extraStall" class="mt-0.5 h-4 w-4 accent-goud">
+                                <span class="font-semibold">Ja, dit is een extra kraam of verkooppunt.</span>
+                            </label>
+                            @error('extraStall') <p class="field-error">{{ $message }}</p> @enderror
+                            <p class="mt-3">Wilt u alleen uw bestaande aanmelding bekijken of afrekenen? <a href="{{ route('portaal.inloggen') }}" class="font-bold text-goud-tekst underline">Log dan in op het portaal</a>.</p>
+                        </div>
+                    @endif
                 @endif
 
                 {{-- Stap 3: publicatie --}}
@@ -115,7 +127,7 @@
                     <h2 class="kop-3 mb-2">Zo staat u op de site</h2>
                     <p class="body-text mb-7 text-[0.9rem]">Deze gegevens verschijnen op uw profiel en, vanaf een cijfer van {{ number_format($edition->settings->publishThreshold, 1, ',', '.') }}, op de Voorlijst. Verhaal en foto's voegt u straks toe in het portaal.</p>
                     <div class="grid gap-4">
-                        <x-ui.field name="publicName" label="Naam op de site" wire:model.blur="publicName" :required="true" />
+                        <x-ui.field name="publicName" label="Naam op de site" wire:model.blur="publicName" :required="true" :help="$extraStall ? 'Geef deze kraam een eigen naam, bijvoorbeeld met de plaats erbij, zodat bezoekers uw kramen uit elkaar houden.' : null" />
                         <x-ui.field name="tagline" label="Korte omschrijving" wire:model.blur="tagline" placeholder="Bijvoorbeeld: familiebedrijf sinds 1948" help="Maximaal 140 tekens." />
                     </div>
 

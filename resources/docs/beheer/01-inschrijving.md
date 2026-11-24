@@ -42,6 +42,10 @@ Ga naar Geld > Orders, open de order en kies "Markeer als betaald". Het systeem 
 
 Ga naar Bakkers > Inschrijvingen en klik rechtsboven op "Aanmelding met betaallink". Vul de bedrijfsnaam, de contactpersoon, het e-mailadres en het adres in (na postcode en huisnummer vullen straat, plaats en provincie zichzelf in) en kies wat de bakker afneemt, zoals het filmpje of een uitgelichte plek. Na "Aanmaken en link tonen" krijg je een link die je kunt kopiëren en delen, bijvoorbeeld via WhatsApp. De bakker ziet op die pagina wat hij afneemt en wat het kost, vinkt de voorwaarden aan en betaalt; hij hoeft verder niets in te vullen. Daarna loopt alles zoals bij een gewone aanmelding: bevestiging, factuur, inloglink en het kiezen van de ophaalvrijdag.
 
+## Een bakker wil een tweede kraam aanmelden
+
+Dat kan. Iedere kraam is een eigen aanmelding, met een eigen test en een eigen betaling. De bakker vult het aanmeldformulier opnieuw in. Gebruikt hij dezelfde bedrijfsnaam en dezelfde postcode als bij zijn eerste kraam, dan meldt stap 2 dat hij al is aangemeld. Hij vinkt daar "Ja, dit is een extra kraam of verkooppunt" aan en gaat verder; in stap 3 geeft hij de kraam een eigen naam op de site en in stap 4 vult hij in waar wij de oliebollen van die kraam ophalen. Met hetzelfde e-mailadres staan al zijn kramen samen in het portaal. Meld je de kraam zelf aan met een betaallink, zet dan "Extra kraam van een bakker die al is aangemeld" aan.
+
 ## Hoe lang is een betaallink geldig en waar vind ik hem terug?
 
 Standaard veertien dagen; bij het aanmaken kies je zelf een aantal dagen (maximaal zestig). Zo lang blijft de plek van de bakker vast, en ook een gekozen uitgelichte plek. Betaalt hij niet binnen die tijd, dan vervalt de aanmelding en komt de plek vrij; maak dan een nieuwe aan. De link vind je terug bij de inschrijving (tabblad "Wacht op betaling") met de knop "Betaallink". De knoppen zijn er voor beheer, ontvangst en financiën.

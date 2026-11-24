@@ -221,6 +221,20 @@ class StaffPaymentLinkTest extends TestCase
     }
 
     #[Test]
+    public function an_extra_stall_of_a_registered_baker_can_be_created_on_the_same_postcode(): void
+    {
+        $this->preparedEntry();
+
+        Livewire::actingAs($this->staff(StaffRole::Intake))
+            ->test(ManageEntries::class)
+            ->callAction('createWithPaymentLink', data: $this->formData(['postcode' => '6811 ab', 'extra_stall' => true, 'public_name' => 'Tweede kraam']))
+            ->assertHasNoActionErrors();
+
+        $this->assertSame(2, Entry::query()->count());
+        $this->assertSame(2, Entry::query()->get()->pluck('company_id')->unique()->count());
+    }
+
+    #[Test]
     public function roles_that_do_not_handle_participants_and_money_cannot_create_a_link(): void
     {
         foreach ([StaffRole::Communication, StaffRole::Coordinator, StaffRole::VoucherManager] as $role) {

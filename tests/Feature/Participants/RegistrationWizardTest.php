@@ -130,20 +130,39 @@ class RegistrationWizardTest extends TestCase
     }
 
     #[Test]
-    public function the_same_business_on_the_same_postcode_cannot_register_twice_but_a_second_stand_can(): void
+    public function the_same_business_on_the_same_postcode_registers_again_only_as_a_confirmed_extra_stall(): void
     {
         // Geen KvK meer in het formulier (besluit Bennie 4 nov 2026); één ondernemer kan meerdere kramen hebben.
+        // Kraamhouders vullen bij iedere kraam hun eigen adres in (melding Bennie 24 nov 2026): dat mag, na een vinkje.
         app(RegisterEntry::class)($this->edition, $this->registrationData());
 
         $this->completeStepOne(Livewire::test(RegistrationWizard::class))
             ->assertDontSee('KvK-nummer')
             ->call('next')
             ->assertSet('step', 2)
+            ->assertDontSee('extra kraam of verkooppunt')
             ->set('postcode', '6811 AB')
             ->set('houseNumber', '12')
             ->call('next')
-            ->assertHasErrors(['postcode'])
-            ->assertSet('step', 2);
+            ->assertHasErrors(['extraStall'])
+            ->assertSet('step', 2)
+            ->assertSee('is op deze postcode al aangemeld')
+            ->assertSee('Ja, dit is een extra kraam of verkooppunt.')
+            ->set('extraStall', true)
+            ->call('next')
+            ->assertHasNoErrors()
+            ->assertSet('step', 3)
+            ->assertSee('Geef deze kraam een eigen naam')
+            ->set('allergens', ['gluten'])
+            ->call('next')
+            ->call('next')
+            ->set('acceptTerms', true)
+            ->set('acceptPrivacy', true)
+            ->call('submit')
+            ->assertHasNoErrors();
+
+        $this->assertSame(2, Entry::query()->count());
+        $this->assertSame(2, Entry::query()->get()->pluck('company_id')->unique()->count());
 
         session()->forget(RegistrationWizard::DRAFT_KEY);
         Http::fake(['api.pdok.nl/*' => Http::response(['response' => ['docs' => []]])]);

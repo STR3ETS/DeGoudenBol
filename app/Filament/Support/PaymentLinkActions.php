@@ -89,8 +89,8 @@ final class PaymentLinkActions
                 $companyName = trim((string) $data['company_name']);
                 $postcode = strtoupper((string) preg_replace('/\s+/', '', (string) $data['postcode']));
 
-                if (self::alreadyRegistered($edition, $companyName, $postcode)) {
-                    self::fail('Deze bakker is al aangemeld', "{$companyName} staat op deze postcode al in de inschrijvingen van deze editie.");
+                if (! ($data['extra_stall'] ?? false) && self::alreadyRegistered($edition, $companyName, $postcode)) {
+                    self::fail('Deze bakker is al aangemeld', "{$companyName} staat op deze postcode al in de inschrijvingen van deze editie. Is dit een extra kraam? Zet dan \"Extra kraam\" aan en probeer het opnieuw.");
 
                     return;
                 }
@@ -191,6 +191,9 @@ final class PaymentLinkActions
                 Select::make('company_type')->label('Type')->options(CompanyType::class)->required(),
                 TextInput::make('public_name')->label('Naam op de site')->maxLength(120)
                     ->helperText('Leeg laten = de bedrijfsnaam.'),
+                Toggle::make('extra_stall')->label('Extra kraam van een bakker die al is aangemeld')
+                    ->helperText('Aanzetten als dezelfde bedrijfsnaam op dezelfde postcode al in de inschrijvingen staat. Geef de kraam dan een eigen naam op de site.')
+                    ->columnSpanFull(),
             ]),
             Section::make('Contactpersoon')->columns(2)->schema([
                 TextInput::make('contact_name')->label('Naam')->required()->maxLength(120),
@@ -284,7 +287,8 @@ final class PaymentLinkActions
     }
 
     /**
-     * Zelfde regel als de aanmeldwizard: dezelfde bedrijfsnaam op dezelfde postcode in deze editie is dubbel.
+     * Zelfde regel als de aanmeldwizard: dezelfde bedrijfsnaam op dezelfde postcode in deze editie is dubbel,
+     * tenzij het bewust een extra kraam is.
      */
     private static function alreadyRegistered(Edition $edition, string $companyName, string $postcode): bool
     {

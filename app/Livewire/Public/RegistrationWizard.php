@@ -78,6 +78,11 @@ class RegistrationWizard extends Component
 
     public bool $homeAddress = false;
 
+    // Extra kraam van een bakker die al is aangemeld (melding Bennie 24 nov 2026): zelfde naam en postcode mag, na een vinkje.
+    public bool $duplicateFound = false;
+
+    public bool $extraStall = false;
+
     // Stap 3: publicatie
     public string $publicName = '';
 
@@ -134,7 +139,7 @@ class RegistrationWizard extends Component
      */
     private const array DRAFT_FIELDS = [
         'step', 'companyName', 'companyType', 'contactName', 'email', 'phone', 'website',
-        'postcode', 'houseNumber', 'street', 'city', 'provinceId', 'lat', 'lng', 'homeAddress',
+        'postcode', 'houseNumber', 'street', 'city', 'provinceId', 'lat', 'lng', 'homeAddress', 'duplicateFound', 'extraStall',
         'publicName', 'tagline', 'allergens', 'productNotes',
         'packageId', 'rate', 'discountProofUrl', 'plainAddon', 'pickup', 'videoAddon',
         'pickupDayId', 'pickupStreet', 'pickupHouseNumber', 'pickupPostcode', 'pickupCity', 'pickupPhone', 'pickupInstructions',
@@ -686,12 +691,13 @@ class RegistrationWizard extends Component
      */
     protected function checkStep(int $step): void
     {
-        // Geen KvK meer (besluit Bennie 4 nov 2026: één ondernemer kan meerdere kramen hebben). Dubbel is dezelfde
-        // bedrijfsnaam op dezelfde postcode in deze editie; een tweede kraam op een andere plek mag wel.
+        // Geen KvK meer (besluit Bennie 4 nov 2026: één ondernemer kan meerdere kramen hebben). Dezelfde bedrijfsnaam
+        // op dezelfde postcode kan een vergissing zijn, maar ook een extra kraam: kraamhouders vullen bij iedere kraam
+        // hun eigen adres in. Daarom geen blokkade maar een vinkje (melding Bennie 24 nov 2026).
         if ($step === 2 && $this->edition !== null && $this->postcode !== '') {
             $postcode = strtoupper(str_replace(' ', '', $this->postcode));
 
-            $alreadyRegistered = Entry::query()
+            $this->duplicateFound = Entry::query()
                 ->where('edition_id', $this->edition->getKey())
                 ->occupyingPlace()
                 ->whereHas('company', fn ($query) => $query
@@ -699,9 +705,11 @@ class RegistrationWizard extends Component
                     ->whereHas('primaryLocation', fn ($location) => $location->whereRaw("upper(replace(postcode, ' ', '')) = ?", [$postcode])))
                 ->exists();
 
-            if ($alreadyRegistered) {
+            if (! $this->duplicateFound) {
+                $this->extraStall = false;
+            } elseif (! $this->extraStall) {
                 throw ValidationException::withMessages([
-                    'postcode' => "{$this->companyName} is op deze postcode al aangemeld voor deze editie. Log in op het portaal of neem contact op.",
+                    'extraStall' => 'Vink aan dat dit een extra kraam is om verder te gaan.',
                 ]);
             }
         }
