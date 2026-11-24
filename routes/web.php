@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\HelpDocsController;
 use App\Http\Controllers\Panel\ConflictController as PanelConflictController;
 use App\Http\Controllers\Panel\LoginController as PanelLoginController;
@@ -104,6 +105,7 @@ Route::middleware('throttle:30,1')->group(function (): void {
 });
 Route::get('/pers', [PressController::class, 'index'])->name('pers');
 Route::get('/pers/kit/{pressRelease}', [PressController::class, 'kit'])->middleware('signed')->name('pers.kit');
+Route::get('/pers/{pressRelease}/document', [PressController::class, 'document'])->name('pers.document');
 Route::get('/pers/{pressRelease}', [PressController::class, 'show'])->name('pers.toon');
 Route::post('/nieuwsbrief', [NewsletterController::class, 'subscribe'])->middleware('throttle:5,1')->name('nieuwsbrief.aanmelden')
     ->withoutMiddleware(PreventRequestForgery::class); // formulier staat op gecachte pagina's; honeypot + throttle + dubbele opt-in
@@ -111,6 +113,10 @@ Route::get('/nieuwsbrief/bevestigen/{subscription}', [NewsletterController::clas
 Route::get('/nieuwsbrief/afmelden/{subscription}', [NewsletterController::class, 'unsubscribe'])->middleware('signed')->name('nieuwsbrief.afmelden');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('/stijlgids', StyleguideController::class)->name('stijlgids');
+// Certificaat, rapport en persbericht als A4-document voor de organisatie; de controller bewaakt login en rol.
+Route::get('/admin/documenten/certificaten', [DocumentController::class, 'certificates'])->name('documenten.certificaten');
+Route::get('/admin/documenten/rapporten', [DocumentController::class, 'reports'])->name('documenten.rapporten');
+Route::get('/admin/documenten/persbericht/{pressRelease}', [DocumentController::class, 'pressRelease'])->whereNumber('pressRelease')->name('documenten.persbericht');
 Route::get('/docs', [HelpDocsController::class, 'index'])->name('docs');
 Route::get('/docs.json', [HelpDocsController::class, 'json'])->name('docs.json');
 Route::get('/redesign-dashboard', [RedesignController::class, 'dashboard'])->name('redesign.dashboard');

@@ -208,6 +208,8 @@ class EditionForm
                         ])
                         ->defaultItems(0)->addActionLabel('Pakket toevoegen')->reorderable()
                         ->helperText('45000 = EUR 450,00. De organisatie kiest er een bij "Aanmelding met betaallink"; het bedrag komt bij de deelname op dezelfde rekening. De naam staat op de factuur. Leeg zet de keuze uit. Puur commercieel; staat los van de test.'),
+                    TextInput::make('settings.certificate_signatory')->label('Certificaat: naam bij "Namens de jury"')->maxLength(80)
+                        ->helperText('Staat gedrukt op ieder certificaat van deelname. Leeg laat de regel open voor een handtekening.'),
                     TextInput::make('settings.total_capacity')->label('Landelijk maximum deelnemers')->numeric()->minValue(0)->required()
                         ->helperText('Bovenop het maximum per provincie. Bereikt: de site toont "vol", zonder aantallen. 0 is geen landelijk maximum.'),
                     TextInput::make('settings.opening_offer_cents')->label('Openingsactie: deelnameprijs (centen, excl. btw)')->numeric()->minValue(0)->required()

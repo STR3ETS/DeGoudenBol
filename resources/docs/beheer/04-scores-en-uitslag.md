@@ -77,3 +77,11 @@ Ja, zijn eigen uitslag mag hij commercieel gebruiken, zolang hij geen misleidend
 ## Kan ik de ranglijst toch tussentijds publiceren?
 
 Ja, door bij Instellingen > Editie "Ranglijst geheim tot de hoofdpublicatie" uit te zetten. Dan gelden weer de publicatiedagen en de stille periode. Doe dit alleen na een besluit van de organisatie; de briefing van 29 oktober vraagt om een geheime ranglijst.
+
+## Hoe maak ik een certificaat, rapport of persbericht als pdf?
+
+Alle drie komen automatisch uit het systeem, in dezelfde opmaak. Certificaat van deelname: ga naar Bakkers > Inschrijvingen en klik bij een deelnemer op "Certificaat", of vink meerdere deelnemers aan en kies "Certificaten als pdf"; je krijgt dan één document met een certificaat per pagina. Rapport: ga naar Uitslag > Persoonlijke rapporten en klik op "Pdf", of vink er meerdere aan en kies "Rapporten als pdf". Persbericht: open het bericht bij Persberichten en klik op "Pdf". Het document opent in een nieuw tabblad; klik op "Download als pdf" en kies in het afdrukvenster "Opslaan als pdf", of druk direct af.
+
+## Wat staat er op het certificaat en het rapport?
+
+Op het certificaat staan de naam van de deelnemer zoals die op de site staat, de editie en de datum van de keuring (of van de bevestiging als er nog niet gekeurd is). De naam bij "Namens de jury" vul je één keer in bij Instellingen > Editie; laat je die leeg, dan blijft de regel open voor een handtekening. Op het rapport staat geen naam maar het deelnemersnummer, met de provincie, de datum, de score per onderdeel, het rapportcijfer en de toelichting "Wat al goud is" en "Op weg naar goud". Een rapport dat nog niet is vrijgegeven krijgt bovenaan de regel "Concept"; de bakker ziet het pas in het portaal na het vrijgeven. Bij een persbericht kun je een subkop en een citaat invullen; wat je leeg laat, komt niet in het document.

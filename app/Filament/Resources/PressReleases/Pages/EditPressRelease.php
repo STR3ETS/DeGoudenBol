@@ -30,6 +30,11 @@ class EditPressRelease extends EditRecord
                     $count = $send($this->release(), auth()->user());
                     Notification::make()->title("Perskit verstuurd naar {$count} contacten")->success()->send();
                 }),
+            Action::make('document')
+                ->label('Pdf')
+                ->icon(Heroicon::OutlinedDocumentArrowDown)
+                ->color('gray')
+                ->url(fn () => route('documenten.persbericht', ['pressRelease' => $this->release()->getKey()]), shouldOpenInNewTab: true),
             Action::make('preview')
                 ->label('Bekijk als pers')
                 ->icon(Heroicon::OutlinedEye)

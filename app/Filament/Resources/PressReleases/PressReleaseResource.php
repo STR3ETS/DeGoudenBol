@@ -62,8 +62,14 @@ class PressReleaseResource extends Resource
             ->components([
                 Section::make('Bericht')->schema([
                     TextInput::make('title')->label('Titel')->required()->maxLength(200),
+                    TextInput::make('subtitle')->label('Subkop')->maxLength(250)->helperText('Eén zin met het belangrijkste detail. Staat in het pdf-document onder de kop.'),
                     Textarea::make('body')->label('Tekst (platte tekst, alinea\'s met een lege regel)')->required()->rows(28),
                     Hidden::make('updated_by')->default(fn () => auth()->id())->dehydrated(),
+                ]),
+                Section::make('Citaat')->description('Optioneel; staat in het pdf-document in een eigen kader. Gebruik alleen een citaat dat de genoemde persoon echt heeft gegeven.')->columns(2)->schema([
+                    Textarea::make('quote')->label('Citaat')->rows(3)->maxLength(600)->columnSpanFull(),
+                    TextInput::make('quote_name')->label('Naam')->maxLength(120),
+                    TextInput::make('quote_role')->label('Functie')->maxLength(120)->placeholder('Bijvoorbeeld: organisator van De Gouden Bol'),
                 ]),
                 Section::make('Embargo en publicatie')->columns(2)->schema([
                     DateTimePicker::make('embargo_until')->label('Embargo tot')->seconds(false),
@@ -101,6 +107,11 @@ class PressReleaseResource extends Resource
                     }),
             ])
             ->recordActions([
+                Action::make('document')
+                    ->label('Pdf')
+                    ->icon(Heroicon::OutlinedDocumentArrowDown)
+                    ->color('gray')
+                    ->url(fn (PressRelease $record) => route('documenten.persbericht', ['pressRelease' => $record->getKey()]), shouldOpenInNewTab: true),
                 EditAction::make(),
             ]);
     }

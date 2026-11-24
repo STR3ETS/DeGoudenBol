@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Domain\Edition\Models\Edition;
 use App\Domain\Marketing\Models\NewsPost;
 use App\Domain\Marketing\Models\PressRelease;
+use App\Domain\Marketing\Services\PressReleaseDocument;
 use App\Http\Controllers\Controller;
 use App\Support\Site\SiteFacts;
 use Illuminate\Contracts\View\View;
@@ -31,6 +32,22 @@ class PressController extends Controller
         abort_unless($pressRelease->isPublished(), 404);
 
         return view('public.pers.show', ['release' => $pressRelease->load('province'), 'embargoed' => false]);
+    }
+
+    /**
+     * Het gepubliceerde persbericht als A4-document om af te drukken of als pdf te bewaren.
+     */
+    public function document(PressRelease $pressRelease): View
+    {
+        abort_unless($pressRelease->isPublished(), 404);
+
+        return view('documents.press-release', [
+            'document' => PressReleaseDocument::for($pressRelease),
+            'title' => 'Persbericht '.$pressRelease->title,
+            'backUrl' => route('pers.toon', $pressRelease),
+            'backLabel' => 'Terug naar het persbericht',
+            'hint' => null,
+        ]);
     }
 
     public function kit(PressRelease $pressRelease): View|RedirectResponse

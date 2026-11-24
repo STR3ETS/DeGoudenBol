@@ -73,7 +73,7 @@ class PersonalReportTest extends TestCase
         $this->actingAs($owner, 'participant')
             ->get(route('portaal.rapport', $this->chainEntry->company))
             ->assertOk()
-            ->assertSee('Officieel beoordelingsrapport')
+            ->assertSee('Rapportcijfer')
             ->assertSee('Bakkerij Testers')
             ->assertSee('Vetopname en mondgevoel')
             ->assertSee('Totaalindruk')

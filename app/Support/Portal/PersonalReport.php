@@ -29,12 +29,15 @@ final readonly class PersonalReport
         public ?int $cardCount,
     ) {}
 
-    public static function for(Entry $entry): ?self
+    /**
+     * @param  bool  $preview  Ook een rapport dat nog niet is vrijgegeven; alleen voor de redactie in de backoffice.
+     */
+    public static function for(Entry $entry, bool $preview = false): ?self
     {
-        $entry->loadMissing(['company.primaryLocation', 'edition', 'confidentialReport', 'publicationItems']);
+        $entry->loadMissing(['company.primaryLocation', 'edition', 'province', 'confidentialReport', 'publicationItems']);
         $report = $entry->confidentialReport;
 
-        if ($report === null || ! $report->isPublished()) {
+        if ($report === null || (! $preview && ! $report->isPublished())) {
             return null;
         }
 
@@ -68,6 +71,14 @@ final readonly class PersonalReport
             grade: isset($snapshot['total']) ? (float) $snapshot['total'] : null,
             cardCount: isset($snapshot['card_count']) ? (int) $snapshot['card_count'] : null,
         );
+    }
+
+    /**
+     * Het rapport gaat over de keuring in de eigen provincie; de finale heeft een eigen uitslag.
+     */
+    public function roundLabel(): string
+    {
+        return 'Provinciale ronde';
     }
 
     public function city(): ?string

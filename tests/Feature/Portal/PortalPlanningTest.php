@@ -80,7 +80,7 @@ class PortalPlanningTest extends TestCase
         // Verzoek Gill 10 nov 2026: "Ander moment kiezen" staat niet meer bovenaan maar als eerste tegel bij "Ook handig".
         $dashboard = $this->actingAs($this->owner, 'participant')
             ->get(route('portaal.dashboard'))
-            ->assertSeeInOrder(['Open je aanleverbewijs', 'Ook handig', 'Ander moment kiezen', 'Vertel iets over je zaak', 'Oorkonde', 'Geef een collega toegang']);
+            ->assertSeeInOrder(['Open je aanleverbewijs', 'Ook handig', 'Ander moment kiezen', 'Vertel iets over je zaak', 'Certificaat van deelname', 'Geef een collega toegang']);
 
         $this->assertSame(1, substr_count($dashboard->getContent(), 'Ander moment kiezen'));
     }

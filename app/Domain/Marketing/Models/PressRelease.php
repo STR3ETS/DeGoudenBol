@@ -18,7 +18,7 @@ use Illuminate\Support\Str;
  *
  * @property PressMilestone $milestone
  */
-#[Fillable(['edition_id', 'province_id', 'milestone', 'title', 'slug', 'body', 'embargo_until', 'published_at', 'sent_at', 'generated_at', 'updated_by'])]
+#[Fillable(['edition_id', 'province_id', 'milestone', 'title', 'subtitle', 'slug', 'body', 'quote', 'quote_name', 'quote_role', 'embargo_until', 'published_at', 'sent_at', 'generated_at', 'updated_by'])]
 class PressRelease extends DomainModel
 {
     /**

@@ -12,6 +12,7 @@ use App\Support\DutchTime;
 use App\Support\Portal\PersonalReport;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\TextEntry;
@@ -25,7 +26,9 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use InvalidArgumentException;
+use Livewire\Component;
 use UnitEnum;
 
 /**
@@ -104,7 +107,19 @@ class ConfidentialReportResource extends Resource
                 SelectFilter::make('status')->label('Status')->options(ReportStatus::class),
                 Filter::make('te_laat')->label('Te laat')->query(fn (Builder $query) => $query->open()->where('due_at', '<', now())),
             ])
+            ->toolbarActions([
+                BulkAction::make('documents')
+                    ->label('Rapporten als pdf')
+                    ->icon(Heroicon::OutlinedDocumentArrowDown)
+                    ->action(fn (Collection $records, Component $livewire) => $livewire->redirect(route('documenten.rapporten', ['ids' => implode(',', $records->modelKeys())]))),
+            ])
             ->recordActions([
+                Action::make('document')
+                    ->label('Pdf')
+                    ->icon(Heroicon::OutlinedDocumentArrowDown)
+                    ->color('gray')
+                    ->tooltip('Het rapport als document; nog niet vrijgegeven staat erop als concept')
+                    ->url(fn (ConfidentialReport $record) => route('documenten.rapporten', ['ids' => $record->getKey()]), shouldOpenInNewTab: true),
                 EditAction::make()->label('Redigeren')->mutateDataUsing(function (array $data): array {
                     $data['edited_by'] = auth()->id();
 

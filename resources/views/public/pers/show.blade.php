@@ -21,6 +21,7 @@
             <div class="mt-6 flex flex-wrap items-center gap-3 text-[0.8rem] text-gedempt">
                 @if ($release->isPublished())
                     <span>Gepubliceerd {{ DutchTime::format($release->published_at, 'D MMMM YYYY, HH:mm') }}</span>
+                    &middot; <a href="{{ route('pers.document', $release) }}" class="font-bold text-goud-tekst">Download als pdf</a>
                     @if ($release->province)
                         &middot; <a href="{{ route('provincies.show', $release->province) }}" class="font-bold text-goud-tekst">Voorlijst {{ $release->province->name }}</a>
                     @else

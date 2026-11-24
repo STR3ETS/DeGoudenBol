@@ -16,6 +16,7 @@ use App\Filament\Concerns\RestrictsToRoles;
 use App\Filament\Resources\Entries\Pages\ManageEntries;
 use App\Filament\Support\PaymentLinkActions;
 use App\Filament\Support\ViewPortalAction;
+use App\Http\Controllers\Admin\DocumentController;
 use App\Support\Money;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -215,6 +216,20 @@ class EntryResource extends Resource
                     ->action(fn (ManageEntries $livewire) => EntryExport::download($livewire->getFilteredTableQuery())),
             ])
             ->toolbarActions([
+                BulkAction::make('certificates')
+                    ->label('Certificaten als pdf')
+                    ->icon(Heroicon::OutlinedDocumentArrowDown)
+                    ->action(function (Collection $records, ManageEntries $livewire): void {
+                        $ids = $records->filter(fn (Entry $entry) => DocumentController::hasCertificate($entry))->map(fn (Entry $entry) => $entry->getKey())->values()->all();
+
+                        if ($ids === []) {
+                            Notification::make()->title('Geen certificaten te maken')->body('Een certificaat is er voor bevestigde deelnemers; in deze selectie zit er geen.')->warning()->send();
+
+                            return;
+                        }
+
+                        $livewire->redirect(route('documenten.certificaten', ['ids' => implode(',', $ids)]));
+                    }),
                 BulkAction::make('deleteUnpaid')
                     ->label('Testaanmeldingen verwijderen')
                     ->icon(Heroicon::OutlinedTrash)
@@ -258,6 +273,12 @@ class EntryResource extends Resource
                     ->modalDescription('De bakker krijgt de reden per mail en kan opnieuw aanleveren of de standaardprijs betalen.')
                     ->action(fn (Entry $record, array $data, ReviewDiscount $review) => self::review($record, $review, false, $data['note'])),
                 PaymentLinkActions::show(),
+                Action::make('certificate')
+                    ->label('Certificaat')
+                    ->icon(Heroicon::OutlinedDocumentArrowDown)
+                    ->color('gray')
+                    ->visible(fn (Entry $record) => DocumentController::hasCertificate($record))
+                    ->url(fn (Entry $record) => route('documenten.certificaten', ['ids' => $record->getKey()]), shouldOpenInNewTab: true),
                 ViewAction::make(),
                 ViewPortalAction::make(),
                 EditAction::make(),

@@ -337,7 +337,7 @@ final class EntryJourney
         }
 
         if ($entry !== null && $entry->status->occupiesPlace() && $entry->status !== EntryStatus::PendingPayment && Route::has('portaal.oorkonde')) {
-            $actions['oorkonde'] = ['titel' => 'Oorkonde', 'tekst' => 'Officiële deelnemer van De Gouden Bol. Afdrukken en ophangen in je zaak.', 'icoon' => 'ster', 'toon' => 'goud', 'url' => route('portaal.oorkonde', $company), 'staat' => '', 'pijl' => 'download'];
+            $actions['oorkonde'] = ['titel' => 'Certificaat van deelname', 'tekst' => 'Jouw naam op het certificaat van De Gouden Bol. Afdrukken en ophangen in je zaak.', 'icoon' => 'ster', 'toon' => 'goud', 'url' => route('portaal.oorkonde', $company), 'staat' => '', 'pijl' => 'download'];
         }
 
         if (Route::has('portaal.medewerkers')) {

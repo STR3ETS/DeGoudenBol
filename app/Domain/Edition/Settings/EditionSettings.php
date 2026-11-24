@@ -37,6 +37,7 @@ final readonly class EditionSettings
      * @param  int  $videoAddonCents  Filmpje van de kraam of bakkerij als betaalde extra bij de aanmelding, excl. btw; 0 zet de optie uit.
      * @param  int  $videoAddonRegularCents  Normale prijs van het filmpje, doorgestreept naast de prijs; 0 toont alleen de prijs.
      * @param  list<array{name?: string, price_cents?: int|string}>  $partnerPackages  Partnerpakketten (naam en prijs excl. btw) die de organisatie bij een aanmelding met betaallink kan meegeven; leeg zet de keuze uit. Puur commercieel; staat los van de test.
+     * @param  string  $certificateSignatory  Naam die op het certificaat van deelname boven "Namens de jury" staat; leeg laat de regel open voor een handtekening.
      */
     public function __construct(
         public int $capacityPerProvince = 50,
@@ -83,6 +84,7 @@ final readonly class EditionSettings
         public int $videoAddonCents = 0,
         public int $videoAddonRegularCents = 0,
         public array $partnerPackages = [],
+        public string $certificateSignatory = '',
     ) {}
 
     /**
